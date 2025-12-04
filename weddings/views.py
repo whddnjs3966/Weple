@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import WeddingProfile, ScheduleTask, DailyLog
 from .forms import WeddingProfileForm
 import calendar
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.urls import reverse
 
 
@@ -31,136 +31,66 @@ def onboarding(request):
 
 @login_required
 def dashboard(request):
-    """
-    메인 대시보드: D-Day, 캘린더, 이번 주 할 일 등 표시
-    """
-    try:
-        profile = request.user.wedding_profile
-    except WeddingProfile.DoesNotExist:
-        return redirect('onboarding')
-
-    # Handle Daily Log
-    today = timezone.localdate()
+    profile = get_object_or_404(WeddingProfile, user=request.user)
     
-    # Get selected date from query param or default to today
-    selected_date_str = request.GET.get('date')
-    if selected_date_str:
-        try:
-            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-        except ValueError:
-            selected_date = today
-    else:
-        selected_date = today
-
-    current_log = DailyLog.objects.filter(user=request.user, date=selected_date).first()
-    
-    if request.method == 'POST' and 'log_content' in request.POST:
-        content = request.POST.get('log_content')
-        # Get date from hidden input or query param, fallback to selected_date
-        post_date_str = request.POST.get('date')
-        if post_date_str:
-             try:
-                post_date = datetime.strptime(post_date_str, '%Y-%m-%d').date()
-             except ValueError:
-                post_date = selected_date
-        else:
-            post_date = selected_date
-
-        # Re-fetch log for the post_date to ensure we update the correct one
-        log_to_update = DailyLog.objects.filter(user=request.user, date=post_date).first()
-
-        if log_to_update:
-            log_to_update.content = content
-            log_to_update.save()
-        else:
-            DailyLog.objects.create(user=request.user, date=post_date, content=content)
-        
-        return redirect(f'{reverse("dashboard")}?date={post_date.strftime("%Y-%m-%d")}')
-
-    # Calendar Logic
-    year_param = request.GET.get('year')
-    month_param = request.GET.get('month')
-
-    if year_param and month_param:
-        try:
-            year = int(year_param)
-            month = int(month_param)
-        except ValueError:
-            year = today.year
-            month = today.month
-    else:
-        year = today.year
-        month = today.month
-
-    cal = calendar.monthcalendar(year, month)
-    month_name = calendar.month_name[month]
-
-    # Calculate previous and next month
-    if month == 1:
-        prev_month = 12
-        prev_year = year - 1
-    else:
-        prev_month = month - 1
-        prev_year = year
-
-    if month == 12:
-        next_month = 1
-        next_year = year + 1
-    else:
-        next_month = month + 1
-        next_year = year
-    
-    # Get logs for the current month to mark on calendar
-    # Get logs for the current month to mark on calendar
-    month_logs = DailyLog.objects.filter(
-        user=request.user, 
-        date__year=year, 
-        date__month=month
-    ).values_list('date__day', flat=True)
-
-    # D-Day Calculation
+    # 1. D-Day Calculation
+    today = timezone.now().date()
     d_day = (profile.wedding_date - today).days
     
-    # 이번 주 할 일 (오늘 ~ 7일 후)
-    upcoming_tasks = ScheduleTask.objects.filter(
-        profile=profile,
-        date__gte=today,
-        date__lte=today + timezone.timedelta(days=7),
-        is_done=False
-    ).order_by('date')
-
-    # 놓친 할 일 (오늘 이전, 미완료)
-    overdue_tasks = ScheduleTask.objects.filter(
-        profile=profile,
-        date__lt=today,
-        is_done=False
-    ).order_by('date')
+    # 2. Calendar Logic
+    year = int(request.GET.get('year', today.year))
+    month = int(request.GET.get('month', today.month))
     
-    # Vendor Status
-    vendor_status = {
-        'venue': profile.vendor_selections.filter(vendor__category__slug='venue', status='final').exists(),
-        'studio': profile.vendor_selections.filter(vendor__category__slug='studio', status='final').exists(),
-        'dress': profile.vendor_selections.filter(vendor__category__slug='dress', status='final').exists(),
-        'makeup': profile.vendor_selections.filter(vendor__category__slug='makeup', status='final').exists(),
-    }
+    # Handle month navigation
+    if month < 1:
+        month = 12
+        year -= 1
+    elif month > 12:
+        month = 1
+        year += 1
+        
+    cal = calendar.Calendar(firstweekday=6) # Sunday start
+    month_days = cal.monthdayscalendar(year, month)
+    
+    # Get logs and tasks for the month
+    month_start = datetime(year, month, 1).date()
+    # Calculate month end correctly
+    if month == 12:
+        month_end = datetime(year + 1, 1, 1).date() - timedelta(days=1)
+    else:
+        month_end = datetime(year, month + 1, 1).date() - timedelta(days=1)
+        
+    month_logs = DailyLog.objects.filter(
+        user=request.user, 
+        date__range=(month_start, month_end)
+    ).values_list('date', flat=True)
+    
+    month_tasks = ScheduleTask.objects.filter(
+        profile=profile,
+        date__range=(month_start, month_end)
+    ).values_list('date', flat=True)
 
-    # Process calendar data
+    # Prepare calendar data
     calendar_data = []
-    for week in cal:
+    for week in month_days:
         week_data = []
         for day in week:
             if day == 0:
                 week_data.append({'day': 0, 'is_empty': True})
             else:
-                is_today = (day == today.day and month == today.month and year == today.year)
-                is_selected = (day == selected_date.day and month == selected_date.month and year == selected_date.year)
-                # Check if wedding_date is set and matches
-                is_wedding_day = False
-                if profile.wedding_date:
-                    is_wedding_day = (day == profile.wedding_date.day and month == profile.wedding_date.month and year == profile.wedding_date.year)
+                current_date = datetime(year, month, day).date()
+                is_today = (current_date == today)
+                is_wedding_day = (current_date == profile.wedding_date)
+                has_log = (current_date in month_logs)
+                has_task = (current_date in month_tasks)
                 
-                has_log = day in month_logs
-                
+                # Check if this date is selected
+                selected_date_str = request.GET.get('date')
+                if selected_date_str:
+                    is_selected = (str(current_date) == selected_date_str)
+                else:
+                    is_selected = is_today
+
                 week_data.append({
                     'day': day,
                     'is_empty': False,
@@ -168,29 +98,77 @@ def dashboard(request):
                     'is_selected': is_selected,
                     'is_wedding_day': is_wedding_day,
                     'has_log': has_log,
+                    'has_task': has_task,
+                    'date_obj': current_date,
                 })
         calendar_data.append(week_data)
+
+    # 3. Selected Date Details (Right Pane)
+    selected_date_str = request.GET.get('date', str(today))
+    try:
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        selected_date = today
+
+    # Handle Log Submission
+    if request.method == 'POST' and 'log_content' in request.POST:
+        log_content = request.POST.get('log_content')
+        log_date_str = request.POST.get('date')
+        log_date = datetime.strptime(log_date_str, '%Y-%m-%d').date()
+        
+        DailyLog.objects.update_or_create(
+            user=request.user,
+            date=log_date,
+            defaults={'content': log_content}
+        )
+        return redirect(f'{request.path}?date={log_date}&year={year}&month={month}')
+
+    current_log = DailyLog.objects.filter(user=request.user, date=selected_date).first()
+    selected_date_tasks = ScheduleTask.objects.filter(profile=profile, date=selected_date)
+
+    # 4. Timeline Data (Upcoming Tasks)
+    upcoming_tasks = ScheduleTask.objects.filter(
+        profile=profile,
+        date__gte=today,
+        is_done=False
+    ).order_by('date')[:10]
+
+    # 5. Checklist Data (Grouped by Category)
+    all_tasks = ScheduleTask.objects.filter(profile=profile).order_by('is_done', 'date')
+    
+    # Group tasks by category
+    checklist_data = {}
+    for code, name in ScheduleTask.CATEGORY_CHOICES:
+        tasks = all_tasks.filter(category=code)
+        if tasks.exists():
+            checklist_data[name] = tasks
+
+    # Navigation links
+    prev_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+    next_month = month + 1 if month < 12 else 1
+    next_year = year if month < 12 else year + 1
+    
+    month_name = f"{year}년 {month}월"
 
     context = {
         'profile': profile,
         'd_day': d_day,
-        'upcoming_tasks': upcoming_tasks,
-        'overdue_tasks': overdue_tasks,
-        'vendor_status': vendor_status,
         'calendar': calendar_data,
         'current_year': year,
         'current_month': month,
         'month_name': month_name,
         'today': today,
-        'month_logs': month_logs,
-        'current_log': current_log,
-        'wedding_date': profile.wedding_date,
         'selected_date': selected_date,
+        'current_log': current_log,
+        'selected_date_tasks': selected_date_tasks,
+        'upcoming_tasks': upcoming_tasks,
+        'checklist_data': checklist_data,
         'prev_year': prev_year,
         'prev_month': prev_month,
         'next_year': next_year,
         'next_month': next_month,
-        'year_range': range(today.year - 5, today.year + 6), # Show 5 years before and after
+        'year_range': range(today.year - 5, today.year + 6),
     }
     return render(request, 'weddings/dashboard.html', context)
     # Force reload

@@ -15,15 +15,36 @@ class WeddingProfile(models.Model):
         return f"{self.user.username}'s Wedding ({self.wedding_date})"
 
 class ScheduleTask(models.Model):
+    CATEGORY_CHOICES = [
+        ('MEETING', '상견례'),
+        ('VENUE', '예식장'),
+        ('SDM', '스드메'),
+        ('ATTIRE', '예복/한복'),
+        ('INVITATION', '청첩장'),
+        ('HONEYMOON', '신혼여행'),
+        ('FURNISHING', '혼수'),
+        ('CONTRACT', '계약/결제'),
+        ('OTHER', '기타'),
+    ]
+    
+    DIFFICULTY_CHOICES = [
+        (1, 'Low'),
+        (2, 'Medium'),
+        (3, 'High'),
+    ]
+
     profile = models.ForeignKey(WeddingProfile, on_delete=models.CASCADE, related_name='tasks')
-    date = models.DateField()
+    date = models.DateField(null=True, blank=True) # 실제 수행일 (완료일)
+    expected_date = models.DateField(null=True, blank=True) # 예정일
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    d_day_offset = models.IntegerField()  # D-100이면 -100
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='OTHER')
+    difficulty = models.IntegerField(choices=DIFFICULTY_CHOICES, default=1)
+    d_day_offset = models.IntegerField(null=True, blank=True)  # D-100이면 -100
     is_done = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"[{self.date}] {self.title}"
+        return f"[{self.get_category_display()}] {self.title}"
 
 class DailyLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='daily_logs')

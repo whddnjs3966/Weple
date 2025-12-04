@@ -1,226 +1,359 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}대시보드 - 웨딩 플래너{% endblock %}
 
 {% block content %}
-<style>
-    .hero-bg {
-        background: url('{% static "core/images/landing_bg.png" %}') center/cover;
-        filter: brightness(0.7);
-    }
-</style>
+<div class="container py-4">
+    <style>
+        .hero-bg {
+            background: url('{% static "core/images/landing_bg.png" %}') center/cover;
+            filter: brightness(0.7);
+        }
 
-<div class="row g-4 mb-5 fade-in">
-    <!-- D-Day Hero Card -->
-    <div class="col-12">
-        <div class="card border-0 shadow-lg overflow-hidden text-white" style="border-radius: 20px;">
-            <div class="card-body p-5 text-center position-relative">
-                <div class="position-absolute top-0 start-0 w-100 h-100 hero-bg">
-                </div>
-                <div class="position-relative z-1">
-                    <h5 class="fw-bold mb-3 letter-spacing-2 dashboard-header-text fs-4">WEDDING DAY</h5>
-                    <h1 class="display-1 mb-0 dashboard-countdown fw-bold"
-                        style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2); font-size: 6rem;">
-                        D-{{ d_day }}
-                    </h1>
-                    <p class="mt-3 fs-3 fw-bold opacity-100 font-refined"
-                        style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
-                        {{ profile.user.username }}님의 결혼식이 {{ d_day }}일 남았습니다.
-                    </p>
+        .nav-pills .nav-link {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: 600;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(255, 133, 162, 0.3);
+        }
+
+        .timeline-card {
+            min-width: 250px;
+            margin-right: 15px;
+        }
+
+        .timeline-container {
+            overflow-x: auto;
+            padding-bottom: 15px;
+        }
+
+        .checklist-item {
+            transition: all 0.2s ease;
+        }
+
+        .checklist-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .checklist-item.completed {
+            opacity: 0.6;
+        }
+
+        .checklist-item.completed .form-check-label {
+            text-decoration: line-through;
+        }
+    </style>
+
+    <!-- D-Day Hero Banner -->
+    <div class="row g-4 mb-4 fade-in">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg overflow-hidden text-white" style="border-radius: 20px;">
+                <div class="card-body py-5 text-center position-relative">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 hero-bg"></div>
+                    <div class="position-relative z-1">
+                        <h5 class="fw-bold mb-2 letter-spacing-2 dashboard-header-text fs-5">WEDDING DAY</h5>
+                        <h1 class="display-3 mb-0 dashboard-countdown fw-bold"
+                            style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+                            D-{{ d_day }}
+                        </h1>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row g-4 mb-5 fade-in" style="animation-delay: 0.2s;">
-    <!-- Calendar Section -->
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm glass-card h-100" style="border-radius: 20px;">
-            <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
-                <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm btn-light rounded-circle">
-                    <i class="bi bi-chevron-left"></i>
-                </a>
-                <h4 class="fw-bold mb-0"><i class="bi bi-calendar-heart me-2 text-primary-custom"></i>
-                    {{ current_year }}년 {{ current_month }}월</h4>
-                <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-light rounded-circle">
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-            </div>
-            <div class="card-body p-4">
-                <table class="calendar-table w-100">
-                    <thead>
-                        <tr>
-                            <th class="text-danger">일</th>
-                            <th>월</th>
-                            <th>화</th>
-                            <th>수</th>
-                            <th>목</th>
-                            <th>금</th>
-                            <th class="text-primary">토</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for week in calendar %}
-                        <tr>
-                            {% for day_info in week %}
-                            <td>
-                                {% if not day_info.is_empty %}
-                                <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
-                                    onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})">
-                                    <span>{{ day_info.day }}</span>
-                                    {% if day_info.is_wedding_day %}
-                                    <span class="fs-4">💍</span>
-                                    {% endif %}
-                                    {% if day_info.has_log %}
-                                    <div class="event-dot"></div>
-                                    {% endif %}
-                                </div>
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-4 justify-content-center fade-in" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="schedule-tab" data-bs-toggle="pill" data-bs-target="#schedule"
+                type="button" role="tab" aria-controls="schedule" aria-selected="true">
+                <i class="bi bi-calendar-event me-2"></i>일정관리
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="todo-tab" data-bs-toggle="pill" data-bs-target="#todo" type="button" role="tab"
+                aria-controls="todo" aria-selected="false">
+                <i class="bi bi-check2-square me-2"></i>체크리스트
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content fade-in" id="dashboardTabsContent">
+
+        <!-- Schedule Tab -->
+        <div class="tab-pane fade show active" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">
+            <div class="row g-4">
+                <!-- Calendar (Left Pane) -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm glass-card h-100" style="border-radius: 20px;">
+                        <div
+                            class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
+                            <a href="?year={{ prev_year }}&month={{ prev_month }}"
+                                class="btn btn-sm btn-light rounded-circle">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                            <div class="d-flex align-items-center gap-2">
+                                <h4 class="fw-bold mb-0"><i class="bi bi-calendar-heart me-2 text-primary-custom"></i>
+                                    {{ current_year }}년 {{ current_month }}월</h4>
+                                <button type="button" class="btn btn-sm btn-light rounded-circle text-muted" data-bs-toggle="modal" data-bs-target="#datePickerModal">
+                                    <i class="bi bi-calendar-date"></i>
+                                </button>
+                            </div>
+                            <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-light rounded-circle">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-body p-4">
+                            <table class="calendar-table w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="text-danger">일</th>
+                                        <th>월</th>
+                                        <th>화</th>
+                                        <th>수</th>
+                                        <th>목</th>
+                                        <th>금</th>
+                                        <th class="text-primary">토</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for week in calendar %}
+                                    <tr>
+                                        {% for day_info in week %}
+                                        <td>
+                                            {% if not day_info.is_empty %}
+                                            <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
+                                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})">
+                                                <span>{{ day_info.day }}</span>
+                                                {% if day_info.is_wedding_day %}
+                                                <span class="fs-4"></span>
+                                                {% endif %}
+                                                {% if day_info.has_log %}
+                                                <div class="event-dot"></div>
+                                                {% endif %}
+                                                {% if day_info.has_task %}
+                                                <div class="event-dot bg-success"></div>
+                                                {% endif %}
+                                            </div>
+                                            {% else %}
+                                            <div class="calendar-day empty"></div>
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Date Details (Right Pane) -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 glass-card" style="border-radius: 20px;">
+                        <div class="card-header bg-transparent border-0 p-4">
+                            <h5 class="fw-bold mb-0 text-primary-custom">
+                                {{ selected_date.month }}월 {{ selected_date.day }}일
+                            </h5>
+                            <small class="text-muted">{{ selected_date|date:"l" }}</small>
+                        </div>
+                        <div class="card-body p-4 pt-0 d-flex flex-column h-100">
+                            <!-- Tasks for the day -->
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-muted mb-3 small">일정</h6>
+                                {% if selected_date_tasks %}
+                                <ul class="list-group list-group-flush">
+                                    {% for task in selected_date_tasks %}
+                                    <li class="list-group-item bg-transparent px-0 py-2 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-circle-fill text-primary-custom me-2"
+                                                style="font-size: 8px;"></i>
+                                            <span
+                                                class="{% if task.is_done %}text-decoration-line-through text-muted{% endif %}">
+                                                {{ task.title }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
                                 {% else %}
-                                <div class="calendar-day empty"></div>
+                                <p class="text-muted small">등록된 일정이 없습니다.</p>
                                 {% endif %}
-                            </td>
-                            {% endfor %}
-                        </tr>
+                            </div>
+
+                            <!-- Daily Log -->
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold text-muted mb-3 small">메모 / 기록</h6>
+                                <form method="post" class="h-100 d-flex flex-column">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+                                    <textarea name="log_content"
+                                        class="form-control border-0 bg-light rounded-3 p-3 mb-3"
+                                        placeholder="오늘의 기록을 남겨보세요..."
+                                        style="resize: none; height: 200px;">{{ current_log.content|default:'' }}</textarea>
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
+                                        <i class="bi bi-save me-2"></i>저장
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="fw-bold mb-3 ms-2">예정된 일정 타임라인</h5>
+                    <div class="d-flex timeline-container pb-3">
+                        {% if upcoming_tasks %}
+                        {% for task in upcoming_tasks %}
+                        <div class="card border-0 shadow-sm timeline-card" style="border-radius: 15px;">
+                            <div class="card-body p-3">
+                                <small class="text-muted d-block mb-1">{{ task.date|date:"m.d (D)" }}</small>
+                                <h6 class="fw-bold mb-2">{{ task.title }}</h6>
+                                <span class="badge bg-soft text-primary-custom rounded-pill">{{ task.get_category_display }}</span>
+                            </div>
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                        {% else %}
+                        <div class="text-muted ms-2">예정된 일정이 없습니다.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- To-Do List Tab -->
+        <div class="tab-pane fade" id="todo" role="tabpanel" aria-labelledby="todo-tab">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                        <div
+                            class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">웨딩 체크리스트</h5>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm border-0 bg-light rounded-pill" style="width: 120px;">
+                                    <option selected>전체 보기</option>
+                                    <option value="incomplete">미완료</option>
+                                    <option value="complete">완료</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body p-4 pt-0">
+                            {% for category, tasks in checklist_data.items %}
+                            <div class="mb-5">
+                                <h6 class="fw-bold text-primary-custom mb-3 border-bottom pb-2">{{ category }}</h6>
+                                <div class="list-group list-group-flush">
+                                    {% for task in tasks %}
+                                    <div class="list-group-item border-0 px-0 py-3 checklist-item {% if task.is_done %}completed{% endif %}">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value=""
+                                                        id="taskCheck{{ task.id }}" {% if task.is_done %}checked{% endif %}>
+                                                </div>
+                                                <div>
+                                                    <label class="form-check-label fw-bold mb-1" for="taskCheck{{ task.id }}">
+                                                        {{ task.title }}
+                                                    </label>
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-calendar-event me-1"></i>
+                                                            {% if task.expected_date %}{{ task.expected_date|date:"Y.m.d" }}{% else %}미정{% endif %}
+                                                        </small>
+                                                        {% if task.difficulty == 3 %}
+                                                        <span class="badge bg-danger-subtle text-danger rounded-pill" style="font-size: 0.7em;">High</span>
+                                                        {% elif task.difficulty == 2 %}
+                                                        <span class="badge bg-warning-subtle text-warning rounded-pill" style="font-size: 0.7em;">Med</span>
+                                                        {% else %}
+                                                        <span class="badge bg-success-subtle text-success rounded-pill" style="font-size: 0.7em;">Low</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <a href="#" class="btn btn-sm btn-outline-light text-muted rounded-pill">상세</a>
+                                                {% if category == '스드메' %}
+                                                <a href="{% url 'vendor_list' %}?category=studio" class="btn btn-sm btn-soft-primary rounded-pill">업체 찾기</a>
+                                                {% elif category == '예식장' %}
+                                                <a href="{% url 'vendor_list' %}?category=venue" class="btn btn-sm btn-soft-primary rounded-pill">업체 찾기</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-clipboard-check display-4 mb-3 opacity-25"></i>
+                                <p>등록된 체크리스트가 없습니다.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Daily Log Section -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm h-100 glass-card" style="border-radius: 20px;">
-            <div class="card-header bg-transparent border-0 p-4">
-                <h5 class="fw-bold mb-0"><i class="bi bi-journal-text me-2 text-primary-custom"></i>
-                    {{ selected_date.month }}월 {{ selected_date.day }}일의 기록</h5>
-                <small class="text-muted" id="log-date-display">{{ selected_date.month }}월
-                    {{ selected_date.day }}일</small>
-            </div>
-            <div class="card-body p-4 pt-0">
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
-                    <div class="mb-3">
-                        <textarea name="log_content" class="form-control border-0 bg-light rounded-3 p-3" rows="8"
-                            placeholder="오늘 결혼 준비하며 있었던 일이나 생각을 기록해보세요..."
-                            style="resize: none;">{{ current_log.content|default:'' }}</textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
-                        <i class="bi bi-save me-2"></i>저장하기
-                    </button>
-                </form>
+    {{ current_year|json_script:"current-year-data" }}
+    <script>
+        function selectDate(element, year, month, day) {
+            const monthStr = month.toString().padStart(2, '0');
+            const dayStr = day.toString().padStart(2, '0');
+            const dateStr = `${year}-${monthStr}-${dayStr}`;
+            window.location.href = `?date=${dateStr}&year=${year}&month=${month}`;
+        }
+    </script>
+
+    <!-- Date Picker Modal -->
+    <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="datePickerModalLabel">날짜 이동</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="get">
+                        <div class="mb-3">
+                            <label for="yearSelect" class="form-label text-muted small fw-bold">연도</label>
+                            <select class="form-select border-0 bg-light" id="yearSelect" name="year">
+                                {% for y in year_range %}
+                                <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}년</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="monthSelect" class="form-label text-muted small fw-bold">월</label>
+                            <select class="form-select border-0 bg-light" id="monthSelect" name="month">
+                                {% for m in "123456789012"|make_list %}
+                                    {% if forloop.counter <= 12 %}
+                                    <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>{{ forloop.counter }}월</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">이동하기</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<div class="row g-4 mb-5 fade-in" style="animation-delay: 0.4s;">
-    <!-- Upcoming Tasks -->
-    <div class="col-lg-6">
-        <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
-            <div class="card-header bg-white border-0 p-4">
-                <h5 class="fw-bold mb-0">이번 주 할 일</h5>
-            </div>
-            <div class="card-body p-4 pt-0">
-                {% if upcoming_tasks %}
-                <div class="list-group list-group-flush">
-                    {% for task in upcoming_tasks %}
-                    <div class="list-group-item border-0 px-0 py-3 d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-soft text-primary-custom d-flex align-items-center justify-content-center"
-                                style="width: 40px; height: 40px;">
-                                <i class="bi bi-check-lg"></i>
-                            </div>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <h6 class="mb-1 fw-bold">{{ task.title }}</h6>
-                            <small class="text-muted">{{ task.date|date:"m월 d일" }} (D-{{ task.d_day_offset }})</small>
-                        </div>
-                        <button class="btn btn-sm btn-outline-light text-muted rounded-circle">
-                            <i class="bi bi-three-dots-vertical"></i>
-                        </button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-5 text-muted">
-                    <i class="bi bi-calendar-check display-4 mb-3 opacity-25"></i>
-                    <p>이번 주는 예정된 일정이 없습니다.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Vendor Status -->
-    <div class="col-lg-6">
-        <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
-            <div class="card-header bg-white border-0 p-4">
-                <h5 class="fw-bold mb-0">업체 준비 현황</h5>
-            </div>
-            <div class="card-body p-4 pt-0">
-                <div class="row g-3">
-                    <div class="col-6">
-                        <a href="{% url 'vendor_list' %}?category=venue" class="text-decoration-none">
-                            <div
-                                class="p-3 rounded-4 border-0 text-center transition-hover {% if vendor_status.venue %}bg-soft-success text-success{% else %}bg-light text-muted{% endif %}">
-                                <i class="bi bi-building fs-1 mb-2 d-block"></i>
-                                <span class="fw-bold small">예식장</span>
-                                {% if vendor_status.venue %}<i class="bi bi-check-circle-fill ms-1"></i>{% endif %}
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{% url 'vendor_list' %}?category=studio" class="text-decoration-none">
-                            <div
-                                class="p-3 rounded-4 border-0 text-center transition-hover {% if vendor_status.studio %}bg-soft-success text-success{% else %}bg-light text-muted{% endif %}">
-                                <i class="bi bi-camera fs-1 mb-2 d-block"></i>
-                                <span class="fw-bold small">스튜디오</span>
-                                {% if vendor_status.studio %}<i class="bi bi-check-circle-fill ms-1"></i>{% endif %}
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{% url 'vendor_list' %}?category=dress" class="text-decoration-none">
-                            <div
-                                class="p-3 rounded-4 border-0 text-center transition-hover {% if vendor_status.dress %}bg-soft-success text-success{% else %}bg-light text-muted{% endif %}">
-                                <i class="bi bi-person-heart fs-1 mb-2 d-block"></i>
-                                <span class="fw-bold small">드레스</span>
-                                {% if vendor_status.dress %}<i class="bi bi-check-circle-fill ms-1"></i>{% endif %}
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{% url 'vendor_list' %}?category=makeup" class="text-decoration-none">
-                            <div
-                                class="p-3 rounded-4 border-0 text-center transition-hover {% if vendor_status.makeup %}bg-soft-success text-success{% else %}bg-light text-muted{% endif %}">
-                                <i class="bi bi-brush fs-1 mb-2 d-block"></i>
-                                <span class="fw-bold small">메이크업</span>
-                                {% if vendor_status.makeup %}<i class="bi bi-check-circle-fill ms-1"></i>{% endif %}
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{ current_year|json_script:"current-year-data" }}
-<script>
-    function selectDate(element, year, month, day) {
-        // Construct the date string YYYY-MM-DD
-
-        // Pad month and day with leading zeros if needed
-        const monthStr = month.toString().padStart(2, '0');
-        const dayStr = day.toString().padStart(2, '0');
-        const dateStr = `${year}-${monthStr}-${dayStr}`;
-
-        // Reload page with selected date, keeping the current calendar view
-        window.location.href = `?date=${dateStr}&year=${year}&month=${month}`;
-    }
-</script>
 {% endblock %}
