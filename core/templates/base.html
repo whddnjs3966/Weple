@@ -29,7 +29,11 @@
                         </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-refined text-muted" href="{% url 'logout' %}">로그아웃</a>
+                        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                        <a class="nav-link font-refined text-muted" href="#"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">로그아웃</a>
                     </li>
                     {% else %}
                     <li class="nav-item"><a class="nav-link font-refined" href="/accounts/login/">로그인</a></li>
