@@ -64,12 +64,21 @@
                     <tbody>
                         {% for week in calendar %}
                         <tr>
-                            {% for day in week %}
+                            {% for day_info in week %}
                             <td>
-                                {% if day != 0 %}
-                                <div class="calendar-day
+                                {% if not day_info.is_empty %}
+                                <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
+                                    onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})">
+                                    <span>{{ day_info.day }}</span>
+                                    {% if day_info.is_wedding_day %}
+                                    <span class="fs-4">💍</span>
+                                    {% endif %}
+                                    {% if day_info.has_log %}
+                                    <div class="event-dot"></div>
+                                    {% endif %}
+                                </div>
                                 {% else %}
-                                <div class=" calendar-day empty"></div>
+                                <div class="calendar-day empty"></div>
                                 {% endif %}
                             </td>
                             {% endfor %}

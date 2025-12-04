@@ -144,13 +144,40 @@ def dashboard(request):
         'makeup': profile.vendor_selections.filter(vendor__category__slug='makeup', status='final').exists(),
     }
 
+    # Process calendar data
+    calendar_data = []
+    for week in cal:
+        week_data = []
+        for day in week:
+            if day == 0:
+                week_data.append({'day': 0, 'is_empty': True})
+            else:
+                is_today = (day == today.day and month == today.month and year == today.year)
+                is_selected = (day == selected_date.day and month == selected_date.month and year == selected_date.year)
+                # Check if wedding_date is set and matches
+                is_wedding_day = False
+                if profile.wedding_date:
+                    is_wedding_day = (day == profile.wedding_date.day and month == profile.wedding_date.month and year == profile.wedding_date.year)
+                
+                has_log = day in month_logs
+                
+                week_data.append({
+                    'day': day,
+                    'is_empty': False,
+                    'is_today': is_today,
+                    'is_selected': is_selected,
+                    'is_wedding_day': is_wedding_day,
+                    'has_log': has_log,
+                })
+        calendar_data.append(week_data)
+
     context = {
         'profile': profile,
         'd_day': d_day,
         'upcoming_tasks': upcoming_tasks,
         'overdue_tasks': overdue_tasks,
         'vendor_status': vendor_status,
-        'calendar': cal,
+        'calendar': calendar_data,
         'current_year': year,
         'current_month': month,
         'month_name': month_name,
@@ -163,6 +190,7 @@ def dashboard(request):
         'prev_month': prev_month,
         'next_year': next_year,
         'next_month': next_month,
+        'year_range': range(today.year - 5, today.year + 6), # Show 5 years before and after
     }
     return render(request, 'weddings/dashboard.html', context)
     # Force reload

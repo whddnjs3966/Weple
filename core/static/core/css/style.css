@@ -283,3 +283,16 @@ h6 {
     color: var(--text-dark);
     border-color: #ccc;
 }
+.calendar-day.today {
+    background-color: #FF8E8E; /* Primary color (Pink) */
+    color: white;
+    font-weight: bold;
+}
+
+.event-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #2196F3; /* Blue */
+    border-radius: 50%;
+    margin-top: 4px;
+}
