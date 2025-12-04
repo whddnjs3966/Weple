@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}결혼 정보 입력 - 웨딩 플래너{% endblock %}
+
+{% block layout %}
+<div class="landing-hero">
+    <div class="landing-overlay"></div>
+    <div class="landing-content fade-in" style="max-width: 500px; width: 95%; margin-top: 5rem;">
+        <h1 class="landing-logo mb-2">Welcome</h1>
+        <p class="landing-subtitle mb-4">완벽한 웨딩을 위한 첫 걸음</p>
+
+        <form method="post" class="text-start">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label fw-bold small text-secondary">
+                    {{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <div class="form-text" style="font-size: 0.8rem;">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-login-custom mb-0">
+                    시작하기
+                </button>
+                <a href="#"
+                    onclick="event.preventDefault(); document.getElementById('logout-form-onboarding').submit();"
+                    class="btn btn-guest-custom text-center" style="background: white; border: 1px solid #eee;">
+                    뒤로가기
+                </a>
+            </div>
+        </form>
+
+        <form id="logout-form-onboarding" method="post" action="{% url 'logout' %}" style="display: none;">
+            {% csrf_token %}
+        </form>
+    </div>
+</div>
+
+<script>
+    // Add styling to form fields
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        input.classList.add('form-control');
+        input.style.borderRadius = '12px';
+        input.style.padding = '0.8rem 1rem';
+        input.style.border = '1px solid #eee';
+        input.style.backgroundColor = '#f8f9fa';
+    });
+</script>
+{% endblock %}

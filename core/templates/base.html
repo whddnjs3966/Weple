@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}웨딩 플래너{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    {% load static %}
+    <link href="{% static 'core/css/style.css' %}?v=6" rel="stylesheet">
+</head>
+
+<body>
+    {% block layout %}
+    <nav class="navbar navbar-expand-lg navbar-light mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold font-playfair" href="{% url 'landing' %}">Weple</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="nav-link font-refined">
+                            <i class="bi bi-person-circle me-1 text-muted"></i>
+                            {{ user.username }}님
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-refined text-muted" href="{% url 'logout' %}">로그아웃</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link font-refined" href="/accounts/login/">로그인</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <footer class="py-4 mt-3 bg-light text-center text-muted">
+        <div class="container">
+            <small>&copy; 2025 Weple. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

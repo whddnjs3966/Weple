@@ -1,0 +1,15 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from core import views as core_views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('accounts/login/', core_views.CustomLoginView.as_view(), name='login'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('signup/', core_views.signup, name='signup'),
+    path('weddings/', include('weddings.urls')),
+    path('vendors/', include('vendors.urls')),
+    path('', core_views.landing, name='landing'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
