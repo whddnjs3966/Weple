@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import WeddingProfile, ScheduleTask, DailyLog
+from vendors.models import Vendor, VendorCategory
 from .forms import WeddingProfileForm
 import calendar
 from datetime import datetime, timedelta
@@ -151,6 +152,10 @@ def dashboard(request):
     
     month_name = f"{year}년 {month}월"
 
+    # 6. Vendor Data
+    vendor_categories = VendorCategory.objects.all()
+    recommended_vendors = Vendor.objects.all()[:4]  # Simple recommendation logic for now
+
     context = {
         'profile': profile,
         'd_day': d_day,
@@ -169,6 +174,8 @@ def dashboard(request):
         'next_year': next_year,
         'next_month': next_month,
         'year_range': range(today.year - 5, today.year + 6),
+        'vendor_categories': vendor_categories,
+        'recommended_vendors': recommended_vendors,
     }
     return render(request, 'weddings/dashboard.html', context)
     # Force reload
