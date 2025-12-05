@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .models import WeddingProfile, ScheduleTask, DailyLog
+from .models import WeddingProfile, ScheduleTask, DailyLog, Notice, Question
 from vendors.models import Vendor, VendorCategory
 from .forms import WeddingProfileForm
 import calendar
@@ -112,17 +112,28 @@ def dashboard(request):
         selected_date = today
 
     # Handle Log Submission
-    if request.method == 'POST' and 'log_content' in request.POST:
-        log_content = request.POST.get('log_content')
-        log_date_str = request.POST.get('date')
-        log_date = datetime.strptime(log_date_str, '%Y-%m-%d').date()
+    if request.method == 'POST':
+        if 'log_content' in request.POST:
+            log_content = request.POST.get('log_content')
+            log_date_str = request.POST.get('date')
+            log_date = datetime.strptime(log_date_str, '%Y-%m-%d').date()
+            
+            DailyLog.objects.update_or_create(
+                user=request.user,
+                date=log_date,
+                defaults={'content': log_content}
+            )
+            return redirect(f'{request.path}?date={log_date}&year={year}&month={month}')
         
-        DailyLog.objects.update_or_create(
-            user=request.user,
-            date=log_date,
-            defaults={'content': log_content}
-        )
-        return redirect(f'{request.path}?date={log_date}&year={year}&month={month}')
+        elif 'question_content' in request.POST:
+            q_title = request.POST.get('question_title')
+            q_content = request.POST.get('question_content')
+            Question.objects.create(
+                author=request.user,
+                title=q_title,
+                content=q_content
+            )
+            return redirect('dashboard')
 
     current_log = DailyLog.objects.filter(user=request.user, date=selected_date).first()
     selected_date_tasks = ScheduleTask.objects.filter(profile=profile, date=selected_date)
@@ -156,6 +167,10 @@ def dashboard(request):
     vendor_categories = VendorCategory.objects.all()
     recommended_vendors = Vendor.objects.all()[:4]  # Simple recommendation logic for now
 
+    # 7. Community Data
+    notices = Notice.objects.all()
+    questions = Question.objects.all()
+
     context = {
         'profile': profile,
         'd_day': d_day,
@@ -176,6 +191,8 @@ def dashboard(request):
         'year_range': range(today.year - 5, today.year + 6),
         'vendor_categories': vendor_categories,
         'recommended_vendors': recommended_vendors,
+        'notices': notices,
+        'questions': questions,
     }
     return render(request, 'weddings/dashboard.html', context)
     # Force reload
