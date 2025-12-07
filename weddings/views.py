@@ -99,10 +99,11 @@ def dashboard(request):
     else:
         month_end = datetime(year, month + 1, 1).date() - timedelta(days=1)
         
-    month_logs = DailyLog.objects.filter(
+    month_logs_qs = DailyLog.objects.filter(
         user=request.user, 
         date__range=(month_start, month_end)
-    ).values_list('date', flat=True)
+    )
+    month_logs_map = {log.date: log.content for log in month_logs_qs}
     
     month_tasks = ScheduleTask.objects.filter(
         profile=profile,
@@ -122,7 +123,9 @@ def dashboard(request):
                 current_date = datetime(year, month, day).date()
                 is_today = (current_date == today)
                 is_wedding_day = (current_date == profile.wedding_date)
-                has_log = (current_date in month_logs)
+                
+                log_content = month_logs_map.get(current_date, '')
+                has_log = (current_date in month_logs_map)
                 has_task = (current_date in month_tasks)
                 
                 if selected_date_str:
@@ -137,6 +140,7 @@ def dashboard(request):
                     'is_selected': is_selected,
                     'is_wedding_day': is_wedding_day,
                     'has_log': has_log,
+                    'log_content': log_content,
                     'has_task': has_task,
                     'date_obj': current_date,
                 })
@@ -164,36 +168,31 @@ def dashboard(request):
         date__gte=today
     )
     
-    # 5-3. Mix and Sort
-    upcoming_mixed_list = []
-    
-    for task in upcoming_tasks_qs:
-        upcoming_mixed_list.append({
+    # 5-3. Separate Lists
+    upcoming_schedules = []
+    for task in upcoming_tasks_qs.order_by('date')[:7]:
+        upcoming_schedules.append({
             'type': 'task',
             'id': task.id,
             'title': task.title,
             'date': task.date,
             'd_day': (task.date - today).days,
-            'is_done': task.is_done  # For styling if needed
+            'is_done': task.is_done
         })
         
-    for log in upcoming_logs_qs:
-        # Use first few chars of content as title
-        title = log.content[:20] + '...' if len(log.content) > 20 else log.content
-        if not title: title = "메모"
-        upcoming_mixed_list.append({
-            'type': 'alarm', # Using 'alarm' or 'log' icon differentiation
+    upcoming_memos = []
+    for log in upcoming_logs_qs.order_by('date')[:7]:
+        # Use full content for display in the list (will be line-broken in template)
+        content = log.content if log.content else "메모"
+        upcoming_memos.append({
+            'type': 'alarm',
             'id': log.id,
-            'title': title,
+            'title': content,
             'date': log.date,
             'd_day': (log.date - today).days
         })
-    
-    # Sort by date (ascending) -> today first
-    upcoming_mixed_list.sort(key=lambda x: x['date'])
-    
-    # Take top 7
-    upcoming_mixed_list = upcoming_mixed_list[:7]
+        
+    # No longer need upcoming_mixed_list, passing separate lists
 
     # 6. Checklist Data (Grouped by Category)
     all_tasks = ScheduleTask.objects.filter(profile=profile).order_by('is_done', 'date')
@@ -221,7 +220,8 @@ def dashboard(request):
         'month_name': month_name,
         'today': today,
         'unscheduled_tasks': unscheduled_tasks,     # For Modal
-        'upcoming_mixed_list': upcoming_mixed_list, # For Right Panel
+        'upcoming_schedules': upcoming_schedules,   # For Right Panel (Tab 1)
+        'upcoming_memos': upcoming_memos,           # For Right Panel (Tab 2)
         'checklist_data': checklist_data,
         'prev_year': prev_year,
         'prev_month': prev_month,

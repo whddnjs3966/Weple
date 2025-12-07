@@ -160,7 +160,8 @@
                                         <td>
                                             {% if not day_info.is_empty %}
                                             <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
-                                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})">
+                                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
+                                                data-log-content="{{ day_info.log_content|default:'' }}">
                                                 <span>{{ day_info.day }}</span>
 
                                                 {% if day_info.is_wedding_day %}
@@ -193,63 +194,125 @@
                 </div>
 
                 <!-- Right Panel (Upcoming Schedlue) -->
+                <!-- Right Panel (Upcoming Schedlue & Memo) -->
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm h-100 glass-card" style="border-radius: 20px;">
-                        <div class="card-header bg-transparent border-0 p-4">
-                            <h5 class="fw-bold mb-0 text-primary-custom">다가오는 일정 (Upcoming)</h5>
+                        <div class="card-header bg-transparent border-0 p-4 pb-0">
+                            <!-- Tabs -->
+                            <ul class="nav nav-pills nav-fill" id="upcomingTabs" role="tablist"
+                                style="border-bottom: 1px solid #dee2e6;">
+                                <li class="nav-item" role="presentation">
+                                    <button
+                                        class="nav-link active fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
+                                        id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
+                                        type="button" role="tab" aria-controls="panel-schedule" aria-selected="true"
+                                        style="color: #6c757d;">
+                                        일정
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button
+                                        class="nav-link fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
+                                        id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo"
+                                        type="button" role="tab" aria-controls="panel-memo" aria-selected="false"
+                                        style="color: #6c757d;">
+                                        메모
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
-                        <div class="card-body p-4 pt-0 h-100">
-                            <!-- Upcoming Mixed List -->
-                            <div class="list-group list-group-flush">
-                                {% for item in upcoming_mixed_list %}
-                                <div
-                                    class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
-                                    <!-- Left: D-Day Badge -->
-                                    <div style="width: 60px;">
-                                        {% if item.d_day == 0 %}
-                                        <span class="badge bg-danger rounded-pill">D-Day</span>
-                                        {% elif item.d_day > 0 %}
-                                        <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
-                                        {% else %}
-                                        <!-- d_day is negative for future events in this logic usually? 
-                                                 Wait, d_day = item.date - today. 
-                                                 Future: item.date > today -> d_day > 0.
-                                                 User asked for "D-5". usually D-5 means 5 days remaining. 
-                                                 Let's check views logic: d_day = (task.date - today).days.
-                                                 Future date (e.g. tomorrow) -> +1. 
-                                                 "D-Days" usually calculated as Today - Target (negative) or Target - Today (positive).
-                                                 Let's assume standard "D-X" display. 
-                                                 If positive: D-X? No generally D-5 means 5 days left.
-                                                 If views returns positive for future:
-                                                    1 day left -> 1. Display D-1.
-                                                 Let's simply show "D-{d_day}" if future.
-                                             -->
-                                        <span class="badge bg-primary-custom rounded-pill">D-{{ item.d_day }}</span>
-                                        {% endif %}
-                                    </div>
+                        <style>
+                            /* Custom styles for these tabs within the card */
+                            #upcomingTabs .nav-link {
+                                transition: all 0.3s ease;
+                            }
 
-                                    <!-- Center: Title & Icon -->
-                                    <div class="flex-grow-1 px-3">
-                                        <div class="d-flex align-items-center">
-                                            {% if item.type == 'task' %}
-                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                            {% else %}
-                                            <i class="bi bi-journal-text text-primary me-2"></i>
-                                            {% endif %}
-                                            <span class="fw-bold text-dark text-truncate" style="max-width: 150px;">{{ item.title }}</span>
+                            #upcomingTabs .nav-link.active {
+                                color: var(--primary-color) !important;
+                                background-color: transparent !important;
+                                border-bottom-color: var(--primary-color) !important;
+                            }
+                        </style>
+                        <div class="card-body p-4 h-100">
+                            <div class="tab-content" id="upcomingTabsContent">
+                                <!-- Schedule Panel -->
+                                <div class="tab-pane fade show active" id="panel-schedule" role="tabpanel"
+                                    aria-labelledby="schedule-tab-panel">
+                                    <div class="list-group list-group-flush">
+                                        {% for item in upcoming_schedules %}
+                                        <div
+                                            class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                            <!-- Left: D-Day Badge -->
+                                            <div style="width: 60px;">
+                                                {% if item.d_day == 0 %}
+                                                <span class="badge bg-danger rounded-pill">D-Day</span>
+                                                {% elif item.d_day > 0 %}
+                                                <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
+                                                {% else %}
+                                                <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Center: Title & Icon -->
+                                            <div class="flex-grow-1 px-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                    <span class="fw-bold text-dark text-truncate"
+                                                        style="max-width: 150px;">{{ item.title }}</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right: Date -->
+                                            <div class="text-end" style="min-width: 50px;">
+                                                <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                            </div>
                                         </div>
+                                        {% empty %}
+                                        <div class="text-center py-5 text-muted">
+                                            <p>예정된 일정이 없습니다.</p>
+                                        </div>
+                                        {% endfor %}
                                     </div>
+                                </div>
 
-                                    <!-- Right: Date -->
-                                    <div class="text-end" style="min-width: 50px;">
-                                        <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                <!-- Memo Panel -->
+                                <div class="tab-pane fade" id="panel-memo" role="tabpanel"
+                                    aria-labelledby="memo-tab-panel">
+                                    <div class="list-group list-group-flush">
+                                        {% for item in upcoming_memos %}
+                                        <div
+                                            class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                            <!-- Left: D-Day Badge -->
+                                            <div style="width: 60px;">
+                                                {% if item.d_day == 0 %}
+                                                <span class="badge bg-danger rounded-pill">D-Day</span>
+                                                {% elif item.d_day > 0 %}
+                                                <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
+                                                {% else %}
+                                                <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Center: Title & Icon -->
+                                            <div class="flex-grow-1 px-3">
+                                                <div class="d-flex align-items-start">
+                                                    <i class="bi bi-journal-text text-primary me-2 mt-1"></i>
+                                                    <span class="fw-bold text-dark" style="word-break: break-all;">{{ item.title|linebreaksbr }}</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right: Date -->
+                                            <div class="text-end" style="min-width: 50px;">
+                                                <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <div class="text-center py-5 text-muted">
+                                            <p>작성된 메모가 없습니다.</p>
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
-                                {% empty %}
-                                <div class="text-center py-5 text-muted">
-                                    <p>예정된 일정이 없습니다.</p>
-                                </div>
-                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -520,6 +583,13 @@
                 const modalTitle = document.getElementById('dateActionModalLabel');
                 if (modalTitle) {
                     modalTitle.innerText = `${year}년 ${month}월 ${day}일`;
+                }
+
+                // Populate Memo Content from data attribute
+                const logContent = element.getAttribute('data-log-content') || '';
+                const memoTextarea = document.querySelector('#memo-modal textarea[name="log_content"]');
+                if (memoTextarea) {
+                    memoTextarea.value = logContent;
                 }
 
                 // Show Modal
