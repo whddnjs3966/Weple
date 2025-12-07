@@ -446,3 +446,14 @@ h6 {
     top: 0;
     left: 0;
 }
+
+/* Sticky Footer */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body>.container {
+    flex: 1;
+}

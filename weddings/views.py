@@ -33,16 +33,55 @@ def onboarding(request):
 @login_required
 def dashboard(request):
     profile = get_object_or_404(WeddingProfile, user=request.user)
-    
-    # 1. D-Day Calculation
     today = timezone.now().date()
+    
+    # 1. POST Handling
+    if request.method == 'POST':
+        # 1-1. Task Assignment (Schedule)
+        if 'task_id' in request.POST:
+            task_id = request.POST.get('task_id')
+            date_str = request.POST.get('date')
+            try:
+                task = ScheduleTask.objects.get(id=task_id, profile=profile)
+                task.date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                task.save()
+            except (ScheduleTask.DoesNotExist, ValueError):
+                pass
+            return redirect(f'{request.path}?date={date_str}')
+
+        # 1-2. Daily Log (Memo)
+        elif 'log_content' in request.POST:
+            log_content = request.POST.get('log_content')
+            date_str = request.POST.get('date')
+            try:
+                log_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                DailyLog.objects.update_or_create(
+                    user=request.user,
+                    date=log_date,
+                    defaults={'content': log_content}
+                )
+            except ValueError:
+                pass
+            return redirect(f'{request.path}?date={date_str}')
+            
+        # 1-3. Question
+        elif 'question_content' in request.POST:
+            q_title = request.POST.get('question_title')
+            q_content = request.POST.get('question_content')
+            Question.objects.create(
+                author=request.user,
+                title=q_title,
+                content=q_content
+            )
+            return redirect('dashboard')
+    
+    # 2. D-Day Calculation
     d_day = (profile.wedding_date - today).days
     
-    # 2. Calendar Logic
+    # 3. Calendar Logic
     year = int(request.GET.get('year', today.year))
     month = int(request.GET.get('month', today.month))
     
-    # Handle month navigation
     if month < 1:
         month = 12
         year -= 1
@@ -55,7 +94,6 @@ def dashboard(request):
     
     # Get logs and tasks for the month
     month_start = datetime(year, month, 1).date()
-    # Calculate month end correctly
     if month == 12:
         month_end = datetime(year + 1, 1, 1).date() - timedelta(days=1)
     else:
@@ -70,9 +108,11 @@ def dashboard(request):
         profile=profile,
         date__range=(month_start, month_end)
     ).values_list('date', flat=True)
-
+    
     # Prepare calendar data
     calendar_data = []
+    selected_date_str = request.GET.get('date')
+    
     for week in month_days:
         week_data = []
         for day in week:
@@ -85,8 +125,6 @@ def dashboard(request):
                 has_log = (current_date in month_logs)
                 has_task = (current_date in month_tasks)
                 
-                # Check if this date is selected
-                selected_date_str = request.GET.get('date')
                 if selected_date_str:
                     is_selected = (str(current_date) == selected_date_str)
                 else:
@@ -104,51 +142,61 @@ def dashboard(request):
                 })
         calendar_data.append(week_data)
 
-    # 3. Selected Date Details (Right Pane)
-    selected_date_str = request.GET.get('date', str(today))
-    try:
-        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-    except ValueError:
-        selected_date = today
+    # 4. Data for Modal (Unscheduled Tasks)
+    # Tasks that are not done OR don't have a date yet
+    from django.db.models import Q
+    unscheduled_tasks = ScheduleTask.objects.filter(
+        profile=profile
+    ).filter(
+        Q(date__isnull=True) | Q(is_done=False)
+    ).order_by('date')
 
-    # Handle Log Submission
-    if request.method == 'POST':
-        if 'log_content' in request.POST:
-            log_content = request.POST.get('log_content')
-            log_date_str = request.POST.get('date')
-            log_date = datetime.strptime(log_date_str, '%Y-%m-%d').date()
-            
-            DailyLog.objects.update_or_create(
-                user=request.user,
-                date=log_date,
-                defaults={'content': log_content}
-            )
-            return redirect(f'{request.path}?date={log_date}&year={year}&month={month}')
-        
-        elif 'question_content' in request.POST:
-            q_title = request.POST.get('question_title')
-            q_content = request.POST.get('question_content')
-            Question.objects.create(
-                author=request.user,
-                title=q_title,
-                content=q_content
-            )
-            return redirect('dashboard')
-
-    current_log = DailyLog.objects.filter(user=request.user, date=selected_date).first()
-    selected_date_tasks = ScheduleTask.objects.filter(profile=profile, date=selected_date)
-
-    # 4. Timeline Data (Upcoming Tasks)
-    upcoming_tasks = ScheduleTask.objects.filter(
+    # 5. Data for Right Panel (Upcoming Mixed List)
+    # 5-1. Upcoming Tasks
+    upcoming_tasks_qs = ScheduleTask.objects.filter(
         profile=profile,
-        date__gte=today,
-        is_done=False
-    ).order_by('date')[:10]
-
-    # 5. Checklist Data (Grouped by Category)
-    all_tasks = ScheduleTask.objects.filter(profile=profile).order_by('is_done', 'date')
+        date__gte=today
+    )
     
-    # Group tasks by category
+    # 5-2. Upcoming Logs
+    upcoming_logs_qs = DailyLog.objects.filter(
+        user=request.user,
+        date__gte=today
+    )
+    
+    # 5-3. Mix and Sort
+    upcoming_mixed_list = []
+    
+    for task in upcoming_tasks_qs:
+        upcoming_mixed_list.append({
+            'type': 'task',
+            'id': task.id,
+            'title': task.title,
+            'date': task.date,
+            'd_day': (task.date - today).days,
+            'is_done': task.is_done  # For styling if needed
+        })
+        
+    for log in upcoming_logs_qs:
+        # Use first few chars of content as title
+        title = log.content[:20] + '...' if len(log.content) > 20 else log.content
+        if not title: title = "메모"
+        upcoming_mixed_list.append({
+            'type': 'alarm', # Using 'alarm' or 'log' icon differentiation
+            'id': log.id,
+            'title': title,
+            'date': log.date,
+            'd_day': (log.date - today).days
+        })
+    
+    # Sort by date (ascending) -> today first
+    upcoming_mixed_list.sort(key=lambda x: x['date'])
+    
+    # Take top 7
+    upcoming_mixed_list = upcoming_mixed_list[:7]
+
+    # 6. Checklist Data (Grouped by Category)
+    all_tasks = ScheduleTask.objects.filter(profile=profile).order_by('is_done', 'date')
     checklist_data = {}
     for code, name in ScheduleTask.CATEGORY_CHOICES:
         tasks = all_tasks.filter(category=code)
@@ -163,14 +211,7 @@ def dashboard(request):
     
     month_name = f"{year}년 {month}월"
 
-    # 6. Vendor Data
-    vendor_categories = VendorCategory.objects.all()
-    recommended_vendors = Vendor.objects.all()[:4]  # Simple recommendation logic for now
-
-    # 7. Community Data
-    notices = Notice.objects.all()
-    questions = Question.objects.all()
-
+    # Context
     context = {
         'profile': profile,
         'd_day': d_day,
@@ -179,20 +220,19 @@ def dashboard(request):
         'current_month': month,
         'month_name': month_name,
         'today': today,
-        'selected_date': selected_date,
-        'current_log': current_log,
-        'selected_date_tasks': selected_date_tasks,
-        'upcoming_tasks': upcoming_tasks,
+        'unscheduled_tasks': unscheduled_tasks,     # For Modal
+        'upcoming_mixed_list': upcoming_mixed_list, # For Right Panel
         'checklist_data': checklist_data,
         'prev_year': prev_year,
         'prev_month': prev_month,
         'next_year': next_year,
         'next_month': next_month,
         'year_range': range(today.year - 5, today.year + 6),
-        'vendor_categories': vendor_categories,
-        'recommended_vendors': recommended_vendors,
-        'notices': notices,
-        'questions': questions,
+        
+        # Vendor & Community (Keeping existing)
+        'vendor_categories': VendorCategory.objects.all(),
+        'recommended_vendors': Vendor.objects.all()[:4],
+        'notices': Notice.objects.all(),
+        'questions': Question.objects.all(),
     }
     return render(request, 'weddings/dashboard.html', context)
-    # Force reload

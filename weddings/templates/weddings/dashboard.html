@@ -130,6 +130,17 @@
                             </a>
                         </div>
                         <div class="card-body p-4">
+                            <div class="d-flex justify-content-end gap-3 mb-2">
+                                <div class="d-flex align-items-center small text-muted">
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                    <span>일정</span>
+                                </div>
+                                <div class="d-flex align-items-center small text-muted">
+                                    <i class="bi bi-journal-text text-primary me-1"></i>
+                                    <span>메모</span>
+                                </div>
+                            </div>
+
                             <table class="calendar-table w-100">
                                 <thead>
                                     <tr>
@@ -181,53 +192,64 @@
                     </div>
                 </div>
 
-                <!-- Selected Date Details (Right Pane) -->
+                <!-- Right Panel (Upcoming Schedlue) -->
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm h-100 glass-card" style="border-radius: 20px;">
                         <div class="card-header bg-transparent border-0 p-4">
-                            <h5 class="fw-bold mb-0 text-primary-custom">
-                                {{ selected_date.month }}월 {{ selected_date.day }}일
-                            </h5>
-                            <small class="text-muted">{{ selected_date|date:"l" }}</small>
+                            <h5 class="fw-bold mb-0 text-primary-custom">다가오는 일정 (Upcoming)</h5>
                         </div>
-                        <div class="card-body p-4 pt-0 d-flex flex-column h-100">
-                            <!-- Tasks for the day -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-muted mb-3 small">일정</h6>
-                                {% if selected_date_tasks %}
-                                <ul class="list-group list-group-flush">
-                                    {% for task in selected_date_tasks %}
-                                    <li class="list-group-item bg-transparent px-0 py-2 border-bottom">
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-circle-fill text-primary-custom me-2"
-                                                style="font-size: 8px;"></i>
-                                            <span
-                                                class="{% if task.is_done %}text-decoration-line-through text-muted{% endif %}">
-                                                {{ task.title }}
-                                            </span>
-                                        </div>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                                {% else %}
-                                <p class="text-muted small">등록된 일정이 없습니다.</p>
-                                {% endif %}
-                            </div>
+                        <div class="card-body p-4 pt-0 h-100">
+                            <!-- Upcoming Mixed List -->
+                            <div class="list-group list-group-flush">
+                                {% for item in upcoming_mixed_list %}
+                                <div
+                                    class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                    <!-- Left: D-Day Badge -->
+                                    <div style="width: 60px;">
+                                        {% if item.d_day == 0 %}
+                                        <span class="badge bg-danger rounded-pill">D-Day</span>
+                                        {% elif item.d_day > 0 %}
+                                        <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
+                                        {% else %}
+                                        <!-- d_day is negative for future events in this logic usually? 
+                                                 Wait, d_day = item.date - today. 
+                                                 Future: item.date > today -> d_day > 0.
+                                                 User asked for "D-5". usually D-5 means 5 days remaining. 
+                                                 Let's check views logic: d_day = (task.date - today).days.
+                                                 Future date (e.g. tomorrow) -> +1. 
+                                                 "D-Days" usually calculated as Today - Target (negative) or Target - Today (positive).
+                                                 Let's assume standard "D-X" display. 
+                                                 If positive: D-X? No generally D-5 means 5 days left.
+                                                 If views returns positive for future:
+                                                    1 day left -> 1. Display D-1.
+                                                 Let's simply show "D-{d_day}" if future.
+                                             -->
+                                        <span class="badge bg-primary-custom rounded-pill">D-{{ item.d_day }}</span>
+                                        {% endif %}
+                                    </div>
 
-                            <!-- Daily Log -->
-                            <div class="flex-grow-1 mood-diary-container p-3 rounded-4">
-                                <h6 class="fw-bold text-muted mb-3 small"><i
-                                        class="bi bi-journal-bookmark-fill me-2 text-primary-custom"></i>Memo</h6>
-                                <form method="post" class="h-100 d-flex flex-column">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
-                                    <textarea name="log_content" class="form-control mood-diary-textarea mb-3"
-                                        placeholder="오늘의 감정과 기록을 남겨보세요..."
-                                        style="resize: none; height: 200px;">{{ current_log.content|default:'' }}</textarea>
-                                    <button type="submit" class="btn mood-diary-btn w-100 py-2 fw-bold shadow-sm">
-                                        <i class="bi bi-pencil-square me-2"></i>기록 저장하기
-                                    </button>
-                                </form>
+                                    <!-- Center: Title & Icon -->
+                                    <div class="flex-grow-1 px-3">
+                                        <div class="d-flex align-items-center">
+                                            {% if item.type == 'task' %}
+                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                            {% else %}
+                                            <i class="bi bi-journal-text text-primary me-2"></i>
+                                            {% endif %}
+                                            <span class="fw-bold text-dark text-truncate" style="max-width: 150px;">{{ item.title }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right: Date -->
+                                    <div class="text-end" style="min-width: 50px;">
+                                        <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="text-center py-5 text-muted">
+                                    <p>예정된 일정이 없습니다.</p>
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -376,105 +398,104 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Community Tab -->
-            <div class="tab-pane fade" id="community" role="tabpanel" aria-labelledby="community-tab">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-                            <div class="card-header bg-white border-0 p-4">
-                                <ul class="nav nav-pills mb-0" id="communityTabs" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link active btn-sm" id="notice-tab" data-bs-toggle="pill"
-                                            data-bs-target="#notice" type="button" role="tab" aria-controls="notice"
-                                            aria-selected="true">
-                                            공지사항
-                                        </button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link btn-sm" id="qna-tab" data-bs-toggle="pill"
-                                            data-bs-target="#qna" type="button" role="tab" aria-controls="qna"
-                                            aria-selected="false">
-                                            Q&A
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="card-body p-4 pt-0">
-                                <div class="tab-content" id="communityTabsContent">
-                                    <!-- Notice Sub-tab -->
-                                    <div class="tab-pane fade show active" id="notice" role="tabpanel"
-                                        aria-labelledby="notice-tab">
+        <!-- Community Tab -->
+        <div class="tab-pane fade" id="community" role="tabpanel" aria-labelledby="community-tab">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                        <div class="card-header bg-white border-0 p-4">
+                            <ul class="nav nav-pills mb-0" id="communityTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active btn-sm" id="notice-tab" data-bs-toggle="pill"
+                                        data-bs-target="#notice" type="button" role="tab" aria-controls="notice"
+                                        aria-selected="true">
+                                        공지사항
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link btn-sm" id="qna-tab" data-bs-toggle="pill"
+                                        data-bs-target="#qna" type="button" role="tab" aria-controls="qna"
+                                        aria-selected="false">
+                                        Q&A
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body p-4 pt-0">
+                            <div class="tab-content" id="communityTabsContent">
+                                <!-- Notice Sub-tab -->
+                                <div class="tab-pane fade show active" id="notice" role="tabpanel"
+                                    aria-labelledby="notice-tab">
+                                    <div class="list-group list-group-flush">
+                                        {% for notice in notices %}
+                                        <div class="list-group-item border-0 px-0 py-3">
+                                            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-1 fw-bold text-dark">{{ notice.title }}</h6>
+                                                <small class="text-muted">{{ notice.created_at|date:"Y.m.d" }}</small>
+                                            </div>
+                                            <p class="mb-1 text-muted small">{{ notice.content|truncatechars:100 }}
+                                            </p>
+                                            <small class="text-primary-custom fw-bold">관리자</small>
+                                        </div>
+                                        {% empty %}
+                                        <div class="text-center py-5 text-muted">
+                                            <p>등록된 공지사항이 없습니다.</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Q&A Sub-tab -->
+                                <div class="tab-pane fade" id="qna" role="tabpanel" aria-labelledby="qna-tab">
+                                    <!-- Q&A List -->
+                                    <div class="mb-5">
                                         <div class="list-group list-group-flush">
-                                            {% for notice in notices %}
+                                            {% for question in questions %}
                                             <div class="list-group-item border-0 px-0 py-3">
                                                 <div
                                                     class="d-flex w-100 justify-content-between align-items-center mb-1">
-                                                    <h6 class="mb-1 fw-bold text-dark">{{ notice.title }}</h6>
-                                                    <small class="text-muted">{{ notice.created_at|date:"Y.m.d" }}</small>
+                                                    <h6 class="mb-1 fw-bold text-dark">{{ question.title }}</h6>
+                                                    {% if question.is_answered %}
+                                                    <span class="badge bg-success rounded-pill">답변완료</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary rounded-pill">답변대기</span>
+                                                    {% endif %}
                                                 </div>
-                                                <p class="mb-1 text-muted small">{{ notice.content|truncatechars:100 }}
-                                                </p>
-                                                <small class="text-primary-custom fw-bold">관리자</small>
+                                                <p class="mb-1 text-muted small">{{ question.content|truncatechars:100 }}</p>
+                                                <small class="text-muted">{{ question.author.username }} · {{ question.created_at|date:"Y.m.d" }}</small>
                                             </div>
                                             {% empty %}
                                             <div class="text-center py-5 text-muted">
-                                                <p>등록된 공지사항이 없습니다.</p>
+                                                <p>등록된 질문이 없습니다.</p>
                                             </div>
                                             {% endfor %}
                                         </div>
                                     </div>
 
-                                    <!-- Q&A Sub-tab -->
-                                    <div class="tab-pane fade" id="qna" role="tabpanel" aria-labelledby="qna-tab">
-                                        <!-- Q&A List -->
-                                        <div class="mb-5">
-                                            <div class="list-group list-group-flush">
-                                                {% for question in questions %}
-                                                <div class="list-group-item border-0 px-0 py-3">
-                                                    <div
-                                                        class="d-flex w-100 justify-content-between align-items-center mb-1">
-                                                        <h6 class="mb-1 fw-bold text-dark">{{ question.title }}</h6>
-                                                        {% if question.is_answered %}
-                                                        <span class="badge bg-success rounded-pill">답변완료</span>
-                                                        {% else %}
-                                                        <span class="badge bg-secondary rounded-pill">답변대기</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <p class="mb-1 text-muted small">{{ question.content|truncatechars:100 }}</p>
-                                                    <small class="text-muted">{{ question.author.username }} · {{ question.created_at|date:"Y.m.d" }}</small>
-                                                </div>
-                                                {% empty %}
-                                                <div class="text-center py-5 text-muted">
-                                                    <p>등록된 질문이 없습니다.</p>
-                                                </div>
-                                                {% endfor %}
+                                    <!-- Q&A Form -->
+                                    <div class="mood-diary-container p-4 rounded-4 mt-4">
+                                        <h6 class="fw-bold text-muted mb-3 small"><i
+                                                class="bi bi-pencil-fill me-2 text-primary-custom"></i>질문 남기기</h6>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <input type="text" name="question_title"
+                                                    class="form-control mood-diary-textarea" placeholder="제목을 입력하세요"
+                                                    required style="padding: 1rem; font-size: 1rem;">
                                             </div>
-                                        </div>
-
-                                        <!-- Q&A Form -->
-                                        <div class="mood-diary-container p-4 rounded-4 mt-4">
-                                            <h6 class="fw-bold text-muted mb-3 small"><i
-                                                    class="bi bi-pencil-fill me-2 text-primary-custom"></i>질문 남기기</h6>
-                                            <form method="post">
-                                                {% csrf_token %}
-                                                <div class="mb-3">
-                                                    <input type="text" name="question_title"
-                                                        class="form-control mood-diary-textarea" placeholder="제목을 입력하세요"
-                                                        required style="padding: 1rem; font-size: 1rem;">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <textarea name="question_content"
-                                                        class="form-control mood-diary-textarea"
-                                                        placeholder="궁금한 점을 자유롭게 남겨주세요..." required
-                                                        style="height: 150px;"></textarea>
-                                                </div>
-                                                <button type="submit"
-                                                    class="btn mood-diary-btn w-100 py-2 fw-bold shadow-sm">
-                                                    <i class="bi bi-send me-2"></i>질문 등록하기
-                                                </button>
-                                            </form>
-                                        </div>
+                                            <div class="mb-3">
+                                                <textarea name="question_content"
+                                                    class="form-control mood-diary-textarea"
+                                                    placeholder="궁금한 점을 자유롭게 남겨주세요..." required
+                                                    style="height: 150px;"></textarea>
+                                            </div>
+                                            <button type="submit"
+                                                class="btn mood-diary-btn w-100 py-2 fw-bold shadow-sm">
+                                                <i class="bi bi-send me-2"></i>질문 등록하기
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -490,11 +511,106 @@
                 const monthStr = month.toString().padStart(2, '0');
                 const dayStr = day.toString().padStart(2, '0');
                 const dateStr = `${year}-${monthStr}-${dayStr}`;
-                window.location.href = `?date=${dateStr}&year=${year}&month=${month}`;
+
+                // Set hidden input value in the modal
+                document.getElementById('modalDateInput').value = dateStr;
+                document.getElementById('modalDateInputTask').value = dateStr;
+
+                // Update Modal Title (Optional but good for UX)
+                const modalTitle = document.getElementById('dateActionModalLabel');
+                if (modalTitle) {
+                    modalTitle.innerText = `${year}년 ${month}월 ${day}일`;
+                }
+
+                // Show Modal
+                const modal = new bootstrap.Modal(document.getElementById('dateActionModal'));
+                modal.show();
             }
         </script>
 
-        <!-- Date Picker Modal -->
+        <!-- Date Action Modal -->
+        <div class="modal fade" id="dateActionModal" tabindex="-1" aria-labelledby="dateActionModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold" id="dateActionModalLabel">날짜 선택</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <!-- Tabs -->
+                        <ul class="nav nav-pills mb-3 nav-justified" id="modalTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active rounded-pill" id="memo-tab-modal" data-bs-toggle="pill"
+                                    data-bs-target="#memo-modal" type="button" role="tab" aria-controls="memo-modal"
+                                    aria-selected="true">
+                                    <i class="bi bi-journal-text me-2"></i>메모 등록
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill" id="task-tab-modal" data-bs-toggle="pill"
+                                    data-bs-target="#task-modal" type="button" role="tab" aria-controls="task-modal"
+                                    aria-selected="false">
+                                    <i class="bi bi-check-circle me-2"></i>일정 등록
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="modalTabsContent">
+                            <!-- Memo Tab -->
+                            <div class="tab-pane fade show active" id="memo-modal" role="tabpanel"
+                                aria-labelledby="memo-tab-modal">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="date" id="modalDateInput">
+                                    <div class="mb-3">
+                                        <textarea name="log_content" class="form-control mood-diary-textarea"
+                                            placeholder="이 날의 메모를 남겨주세요..."
+                                            style="height: 150px; resize: none; border-radius: 15px; padding: 15px;"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
+                                        저장하기
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Schedule Tab -->
+                            <div class="tab-pane fade" id="task-modal" role="tabpanel" aria-labelledby="task-tab-modal">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="date" id="modalDateInputTask">
+                                    <div class="mb-4">
+                                        <label class="form-label text-muted small fw-bold mb-2">할 일 선택</label>
+                                        <select class="form-select border-0 bg-light py-3" name="task_id"
+                                            style="border-radius: 15px;">
+                                            <option selected disabled>할 일을 선택해주세요</option>
+                                            {% for task in unscheduled_tasks %}
+                                            <option value="{{ task.id }}" {% if task.is_done %}disabled{% endif %}>
+                                                {{ task.title }}
+                                            </option>
+                                            {% empty %}
+                                            <option disabled>미완료된 할 일이 없습니다.</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold py-2">
+                                        일정 등록하기
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Picker Modal (Keeping logic for month navigation if needed, or removing if replaced completely. 
+             User asked to modify selectDate to open #dateActionModal. 
+             The button next to "YYYY년 MM월" opened #datePickerModal for navigation. 
+             If I remove #datePickerModal, that button will break. 
+             I should probably KEEP #datePickerModal for the month/year navigation, 
+             and ADD #dateActionModal for the day click action.
+        -->
         <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -518,8 +634,7 @@
                                 <label for="monthSelect" class="form-label text-muted small fw-bold">월</label>
                                 <select class="form-select border-0 bg-light" id="monthSelect" name="month">
                                     {% for m in "123456789012"|make_list %}
-                                    {% if forloop.counter <= 12 %}
-                                    <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>{{ forloop.counter }}월
+                                    {% if forloop.counter <= 12 %} <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>{{ forloop.counter }}월
                                         </option>
                                         {% endif %}
                                         {% endfor %}
