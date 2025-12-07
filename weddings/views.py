@@ -74,6 +74,17 @@ def dashboard(request):
                 content=q_content
             )
             return redirect('dashboard')
+            
+        # 1-4. Toggle Task Completion (Checklist)
+        elif 'toggle_task_id' in request.POST:
+            task_id = request.POST.get('toggle_task_id')
+            try:
+                task = ScheduleTask.objects.get(id=task_id, profile=profile)
+                task.is_done = not task.is_done
+                task.save()
+            except ScheduleTask.DoesNotExist:
+                pass
+            return redirect('/dashboard/?tab=todo')
     
     # 2. D-Day Calculation
     d_day = (profile.wedding_date - today).days
@@ -194,13 +205,11 @@ def dashboard(request):
         
     # No longer need upcoming_mixed_list, passing separate lists
 
-    # 6. Checklist Data (Grouped by Category)
-    all_tasks = ScheduleTask.objects.filter(profile=profile).order_by('is_done', 'date')
-    checklist_data = {}
-    for code, name in ScheduleTask.CATEGORY_CHOICES:
-        tasks = all_tasks.filter(category=code)
-        if tasks.exists():
-            checklist_data[name] = tasks
+    # 6. Checklist Data (TimeTable style)
+    # Sort by d_day_offset (Ascending) e.g. -300 -> -200 -> -5
+    checklist = ScheduleTask.objects.filter(
+        profile=profile
+    ).order_by('d_day_offset', 'id')
 
     # Navigation links
     prev_month = month - 1 if month > 1 else 12
@@ -222,7 +231,7 @@ def dashboard(request):
         'unscheduled_tasks': unscheduled_tasks,     # For Modal
         'upcoming_schedules': upcoming_schedules,   # For Right Panel (Tab 1)
         'upcoming_memos': upcoming_memos,           # For Right Panel (Tab 2)
-        'checklist_data': checklist_data,
+        'checklist': checklist,                     # New Sorted Checklist
         'prev_year': prev_year,
         'prev_month': prev_month,
         'next_year': next_year,
