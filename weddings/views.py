@@ -84,7 +84,8 @@ def dashboard(request):
                 task.save()
             except ScheduleTask.DoesNotExist:
                 pass
-            return redirect('/dashboard/?tab=todo')
+
+            return redirect(reverse('dashboard') + '?tab=todo')
     
     # 2. D-Day Calculation
     d_day = (profile.wedding_date - today).days

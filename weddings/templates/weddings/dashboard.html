@@ -56,7 +56,6 @@
         }
     </style>
 
-    <!-- D-Day Hero Banner -->
     <div class="row g-4 mb-4 fade-in">
         <div class="col-12">
             <div class="card border-0 shadow-lg overflow-hidden text-white" style="border-radius: 20px;">
@@ -64,8 +63,7 @@
                     <div class="position-absolute top-0 start-0 w-100 h-100 hero-bg"></div>
                     <div class="position-relative z-1">
                         <h5 class="fw-bold mb-2 letter-spacing-2 dashboard-header-text fs-5">WEDDING DAY</h5>
-                        <h1 class="display-3 mb-0 dashboard-countdown fw-bold"
-                            style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+                        <h1 class="display-3 mb-0 dashboard-countdown fw-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
                             D-{{ d_day }}
                         </h1>
                     </div>
@@ -74,29 +72,24 @@
         </div>
     </div>
 
-    <!-- Tabs -->
     <ul class="nav nav-pills mb-4 justify-content-center fade-in" id="dashboardTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="schedule-tab" data-bs-toggle="pill" data-bs-target="#schedule"
-                    type="button" role="tab" aria-controls="schedule" aria-selected="true">
+            <button class="nav-link active" id="schedule-tab" data-bs-toggle="pill" data-bs-target="#schedule" type="button" role="tab" aria-controls="schedule" aria-selected="true">
                 <i class="bi bi-calendar-event me-2"></i>일정관리
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="todo-tab" data-bs-toggle="pill" data-bs-target="#todo"
-                    type="button" role="tab" aria-controls="todo" aria-selected="false">
+            <button class="nav-link" id="todo-tab" data-bs-toggle="pill" data-bs-target="#todo" type="button" role="tab" aria-controls="todo" aria-selected="false">
                 <i class="bi bi-check2-square me-2"></i>체크리스트
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="vendors-tab" data-bs-toggle="pill" data-bs-target="#vendors"
-                    type="button" role="tab" aria-controls="vendors" aria-selected="false">
+            <button class="nav-link" id="vendors-tab" data-bs-toggle="pill" data-bs-target="#vendors" type="button" role="tab" aria-controls="vendors" aria-selected="false">
                 <i class="bi bi-shop me-2"></i>업체분석
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="community-tab" data-bs-toggle="pill" data-bs-target="#community"
-                    type="button" role="tab" aria-controls="community" aria-selected="false">
+            <button class="nav-link" id="community-tab" data-bs-toggle="pill" data-bs-target="#community" type="button" role="tab" aria-controls="community" aria-selected="false">
                 <i class="bi bi-people-fill me-2"></i>커뮤니티
             </button>
         </li>
@@ -104,15 +97,12 @@
 
     <div class="tab-content fade-in" id="dashboardTabsContent">
 
-        <!-- Schedule Tab -->
         <div class="tab-pane fade show active" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">
             <div class="row g-4">
-                <!-- Calendar (Left Pane) -->
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm glass-card h-100" style="border-radius: 20px;">
                         <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
-                            <a href="?year={{ prev_year }}&month={{ prev_month }}"
-                               class="btn btn-sm btn-light rounded-circle">
+                            <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm btn-light rounded-circle">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                             <div class="d-flex align-items-center gap-2">
@@ -120,13 +110,11 @@
                                     <i class="bi bi-calendar-heart me-2 text-primary-custom"></i>
                                     {{ current_year }}년 {{ current_month }}월
                                 </h4>
-                                <button type="button" class="btn btn-sm btn-light rounded-circle text-muted"
-                                        data-bs-toggle="modal" data-bs-target="#datePickerModal">
+                                <button type="button" class="btn btn-sm btn-light rounded-circle text-muted" data-bs-toggle="modal" data-bs-target="#datePickerModal">
                                     <i class="bi bi-calendar-date"></i>
                                 </button>
                             </div>
-                            <a href="?year={{ next_year }}&month={{ next_month }}"
-                               class="btn btn-sm btn-light rounded-circle">
+                            <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-light rounded-circle">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </div>
@@ -157,43 +145,39 @@
                                 </thead>
                                 <tbody>
                                     {% for week in calendar %}
-                                        <tr>
-                                            {% for day_info in week %}
-                                                <td>
-                                                    {% if not day_info.is_empty %}
-                                                        <div class="calendar-day
-                                                            {% if day_info.is_today %} today{% endif %}
-                                                            {% if day_info.is_selected %} selected{% endif %}
-                                                            {% if day_info.is_wedding_day %} wedding-day{% endif %}"
-                                                            onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
-                                                            data-log-content="{{ day_info.log_content|default:'' }}">
-                                                            <span>{{ day_info.day }}</span>
+                                    <tr>
+                                        {% for day_info in week %}
+                                        <td>
+                                            {% if not day_info.is_empty %}
+                                            <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
+                                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
+                                                data-log-content="{{ day_info.log_content|default:'' }}">
+                                                <span>{{ day_info.day }}</span>
 
-                                                            {% if day_info.is_wedding_day %}
-                                                                <div class="d-flex justify-content-center align-items-center flex-grow-1"
-                                                                     style="line-height: 1;">
-                                                                    <span style="font-size: 1.5rem;">👰‍♀️🤵‍♂️</span>
-                                                                </div>
-                                                            {% endif %}
+                                                {% if day_info.is_wedding_day %}
+                                                <div class="d-flex justify-content-center align-items-center flex-grow-1" style="line-height: 1;">
+                                                    <span style="font-size: 1.5rem;">👰‍♀️🤵‍♂️</span>
+                                                </div>
+                                                {% endif %}
 
-                                                            {% if day_info.has_log %}
-                                                                <div class="calendar-icon">
-                                                                    <i class="bi bi-journal-text text-primary"></i>
-                                                                </div>
-                                                            {% endif %}
+                                                {% if day_info.has_log %}
+                                                <div class="calendar-icon">
+                                                    <i class="bi bi-journal-text text-primary"></i>
+                                                </div>
+                                                {% endif %}
 
-                                                            {% if day_info.has_task %}
-                                                                <div class="calendar-icon">
-                                                                    <i class="bi bi-check-circle-fill text-success"></i>
-                                                                </div>
-                                                            {% endif %}
-                                                        </div>
-                                                    {% else %}
-                                                        <div class="calendar-day empty"></div>
-                                                    {% endif %}
-                                                </td>
-                                            {% endfor %}
-                                        </tr>
+                                                {% if day_info.has_task %}
+                                                <div class="calendar-icon">
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            {% else %}
+                                            <div class="calendar-day empty"></div>
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -201,26 +185,23 @@
                     </div>
                 </div>
 
-                <!-- Right Panel (Upcoming Schedule & Memo) -->
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm h-100 glass-card" style="border-radius: 20px;">
                         <div class="card-header bg-transparent border-0 p-4 pb-0">
-                            <!-- Tabs -->
-                            <ul class="nav nav-pills nav-fill" id="upcomingTabs" role="tablist"
-                                style="border-bottom: 1px solid #dee2e6;">
+                            <ul class="nav nav-pills nav-fill" id="upcomingTabs" role="tablist" style="border-bottom: 1px solid #dee2e6;">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                            id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
-                                            type="button" role="tab" aria-controls="panel-schedule" aria-selected="true"
-                                            style="color: #6c757d;">
+                                        id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
+                                        type="button" role="tab" aria-controls="panel-schedule" aria-selected="true"
+                                        style="color: #6c757d;">
                                         일정
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                            id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo"
-                                            type="button" role="tab" aria-controls="panel-memo" aria-selected="false"
-                                            style="color: #6c757d;">
+                                        id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo"
+                                        type="button" role="tab" aria-controls="panel-memo" aria-selected="false"
+                                        style="color: #6c757d;">
                                         메모
                                     </button>
                                 </li>
@@ -228,11 +209,7 @@
                         </div>
 
                         <style>
-                            /* Custom styles for these tabs within the card */
-                            #upcomingTabs .nav-link {
-                                transition: all 0.3s ease;
-                            }
-
+                            #upcomingTabs .nav-link { transition: all 0.3s ease; }
                             #upcomingTabs .nav-link.active {
                                 color: var(--primary-color) !important;
                                 background-color: transparent !important;
@@ -242,83 +219,72 @@
 
                         <div class="card-body p-4 h-100">
                             <div class="tab-content" id="upcomingTabsContent">
-                                <!-- Schedule Panel -->
-                                <div class="tab-pane fade show active" id="panel-schedule" role="tabpanel"
-                                     aria-labelledby="schedule-tab-panel">
+                                <div class="tab-pane fade show active" id="panel-schedule" role="tabpanel" aria-labelledby="schedule-tab-panel">
                                     <div class="list-group list-group-flush">
                                         {% for item in upcoming_schedules %}
-                                            <div class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
-                                                <!-- Left: D-Day Badge -->
-                                                <div style="width: 60px;">
-                                                    {% if item.d_day == 0 %}
-                                                        <span class="badge bg-danger rounded-pill">D-Day</span>
-                                                    {% elif item.d_day > 0 %}
-                                                        <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
-                                                    {% else %}
-                                                        <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
-                                                    {% endif %}
-                                                </div>
+                                        <div class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                            <div style="width: 60px;">
+                                                {% if item.d_day == 0 %}
+                                                <span class="badge bg-danger rounded-pill">D-Day</span>
+                                                {% elif item.d_day > 0 %}
+                                                <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
+                                                {% else %}
+                                                <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
+                                                {% endif %}
+                                            </div>
 
-                                                <!-- Center: Title & Icon -->
-                                                <div class="flex-grow-1 px-3">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                        <span class="fw-bold text-dark text-truncate"
-                                                              style="max-width: 150px;">
-                                                            {{ item.title }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Right: Date -->
-                                                <div class="text-end" style="min-width: 50px;">
-                                                    <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                            <div class="flex-grow-1 px-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                    <span class="fw-bold text-dark text-truncate" style="max-width: 150px;">
+                                                        {{ item.title }}
+                                                    </span>
                                                 </div>
                                             </div>
+
+                                            <div class="text-end" style="min-width: 50px;">
+                                                <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                            </div>
+                                        </div>
                                         {% empty %}
-                                            <div class="text-center py-5 text-muted">
-                                                <p>예정된 일정이 없습니다.</p>
-                                            </div>
+                                        <div class="text-center py-5 text-muted">
+                                            <p>예정된 일정이 없습니다.</p>
+                                        </div>
                                         {% endfor %}
                                     </div>
                                 </div>
 
-                                <!-- Memo Panel -->
-                                <div class="tab-pane fade" id="panel-memo" role="tabpanel"
-                                     aria-labelledby="memo-tab-panel">
+                                <div class="tab-pane fade" id="panel-memo" role="tabpanel" aria-labelledby="memo-tab-panel">
                                     <div class="list-group list-group-flush">
                                         {% for item in upcoming_memos %}
-                                            <div class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
-                                                <!-- Left: D-Day Badge -->
-                                                <div style="width: 60px;">
-                                                    {% if item.d_day == 0 %}
-                                                        <span class="badge bg-danger rounded-pill">D-Day</span>
-                                                    {% elif item.d_day > 0 %}
-                                                        <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
-                                                    {% else %}
-                                                        <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
-                                                    {% endif %}
-                                                </div>
+                                        <div class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                            <div style="width: 60px;">
+                                                {% if item.d_day == 0 %}
+                                                <span class="badge bg-danger rounded-pill">D-Day</span>
+                                                {% elif item.d_day > 0 %}
+                                                <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
+                                                {% else %}
+                                                <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
+                                                {% endif %}
+                                            </div>
 
-                                                <!-- Center: Title & Icon -->
-                                                <div class="flex-grow-1 px-3">
-                                                    <div class="d-flex align-items-start">
-                                                        <i class="bi bi-journal-text text-primary me-2 mt-1"></i>
-                                                        <span class="fw-bold text-dark" style="word-break: break-all;">
-                                                            {{ item.title|linebreaksbr }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Right: Date -->
-                                                <div class="text-end" style="min-width: 50px;">
-                                                    <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                            <div class="flex-grow-1 px-3">
+                                                <div class="d-flex align-items-start">
+                                                    <i class="bi bi-journal-text text-primary me-2 mt-1"></i>
+                                                    <span class="fw-bold text-dark" style="word-break: break-all;">
+                                                        {{ item.title|linebreaksbr }}
+                                                    </span>
                                                 </div>
                                             </div>
+
+                                            <div class="text-end" style="min-width: 50px;">
+                                                <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
+                                            </div>
+                                        </div>
                                         {% empty %}
-                                            <div class="text-center py-5 text-muted">
-                                                <p>작성된 메모가 없습니다.</p>
-                                            </div>
+                                        <div class="text-center py-5 text-muted">
+                                            <p>작성된 메모가 없습니다.</p>
+                                        </div>
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -329,7 +295,6 @@
             </div>
         </div>
 
-        <!-- To-Do List Tab (TimeTable Style) -->
         <div class="tab-pane fade" id="todo" role="tabpanel" aria-labelledby="todo-tab">
             <div class="row">
                 <div class="col-12">
@@ -344,87 +309,95 @@
                         </div>
                         <div class="card-body p-4 pt-0">
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle"
-                                       style="border-collapse: separate; border-spacing: 0;">
-                                    <thead class="bg-light">
-                                        <tr class="text-muted small text-uppercase">
-                                            <th class="border-0 rounded-start-pill py-3 ps-4" style="width: 10%;">시기 (D-Day)</th>
-                                            <th class="border-0 py-3" style="width: 50%;">할 일 (Task)</th>
-                                            <th class="border-0 py-3 text-center" style="width: 25%;">일정 (Date)</th>
-                                            <th class="border-0 rounded-end-pill py-3 text-center" style="width: 15%;">상태 (Status)</th>
+                                <table class="table table-hover align-middle" style="border-collapse: separate; border-spacing: 0;">
+                                    <thead style="background-color: rgba(255, 142, 142, 0.1); border-bottom: 2px solid rgba(255, 142, 142, 0.5);">
+                                        <tr class="text-dark text-uppercase">
+                                            <th class="border-0 rounded-start-pill py-3 ps-4 text-center fw-bold" style="width: 15%;">
+                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">시기 (D-Day)</span>
+                                            </th>
+                                            <th class="border-0 py-3 text-center fw-bold" style="width: 45%;">
+                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">할 일 (Task)</span>
+                                            </th>
+                                            <th class="border-0 py-3 text-center fw-bold" style="width: 25%;">
+                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">일정 (Date)</span>
+                                            </th>
+                                            <th class="border-0 rounded-end-pill py-3 text-center fw-bold" style="width: 15%;">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">상태 (Status)</span>
+                                                    <i class="bi bi-question-circle text-muted ms-1"
+                                                       data-bs-toggle="tooltip"
+                                                       data-bs-placement="top"
+                                                       title="완료시 체크하세요."
+                                                       style="cursor: help; font-size: 0.85rem;"></i>
+                                                </div>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for task in checklist %}
-                                            <tr class="{% if task.is_done %}bg-light opacity-50{% endif %}"
-                                                style="transition: all 0.2s;">
-                                                <!-- D-Day Column -->
-                                                <td class="ps-4 py-3">
-                                                    <span class="badge rounded-pill
-                                                        {% if task.d_day_offset < -180 %}bg-secondary text-white
-                                                        {% elif task.d_day_offset < -90 %}bg-info text-white
-                                                        {% elif task.d_day_offset < -30 %}bg-success text-white
-                                                        {% else %}bg-danger text-white{% endif %}">
-                                                        D{{ task.d_day_offset }}
-                                                    </span>
-                                                </td>
-
-                                                <!-- Task Column -->
-                                                <td class="py-3">
-                                                    <div class="d-flex flex-column">
-                                                        <span class="fw-bold text-dark {% if task.is_done %}text-decoration-line-through text-muted{% endif %}">
-                                                            {{ task.title }}
-                                                        </span>
-                                                        {% if task.description %}
-                                                            <small class="text-muted text-truncate" style="max-width: 400px;">
-                                                                {{ task.description }}
-                                                            </small>
-                                                        {% endif %}
-                                                        <small class="text-primary-custom fw-bold mt-1"
-                                                               style="font-size: 0.75rem;">
-                                                            {{ task.get_category_display }}
-                                                        </small>
-                                                    </div>
-                                                </td>
-
-                                                <!-- Date Column -->
-                                                <td class="text-center py-3">
-                                                    {% if task.date %}
-                                                        <button class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0 bg-white shadow-sm"
-                                                                onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:"Y-m-d" }}', '{{ task.title }}')">
-                                                            <i class="bi bi-calendar-event me-1 text-primary-custom"></i>
-                                                            {{ task.date|date:"Y.m.d" }}
-                                                        </button>
+                                        <tr class="{% if task.is_done %}bg-light opacity-50{% endif %}" style="transition: all 0.2s;">
+                                            <td class="ps-4 py-3 text-center">
+                                                <span class="badge rounded-pill
+                                                    {% if task.d_day_offset < -180 %}bg-secondary text-white
+                                                    {% elif task.d_day_offset < -90 %}bg-info text-white
+                                                    {% elif task.d_day_offset < -30 %}bg-success text-white
+                                                    {% else %}bg-danger text-white{% endif %}">
+                                                    {% if task.d_day_offset == 0 %}
+                                                        D-Day
                                                     {% else %}
-                                                        <button class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm"
-                                                                onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title }}')">
-                                                            <i class="bi bi-plus-lg me-1"></i>일정 등록
-                                                        </button>
+                                                        D{{ task.d_day_offset }}
                                                     {% endif %}
-                                                </td>
+                                                </span>
+                                            </td>
 
-                                                <!-- Status Column (Check) -->
-                                                <td class="text-center py-3">
-                                                    <form method="post" style="display:inline;">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="toggle_task_id" value="{{ task.id }}">
-                                                        <button type="submit" class="btn btn-link p-0 text-decoration-none"
-                                                                title="완료 여부 토글">
-                                                            {% if task.is_done %}
-                                                                <i class="bi bi-check-circle-fill text-success fs-4"></i>
-                                                            {% else %}
-                                                                <i class="bi bi-circle text-muted fs-4 hover-primary"></i>
-                                                            {% endif %}
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
+                                            <td class="py-3 text-start ps-5">
+                                                <div class="d-flex flex-column align-items-start">
+                                                    <span class="fw-bold text-dark {% if task.is_done %}text-decoration-line-through text-muted{% endif %}">
+                                                        {{ task.title }}
+                                                    </span>
+                                                    {% if task.description %}
+                                                    <small class="text-muted text-truncate" style="max-width: 400px; margin-top: 5px;">
+                                                        {{ task.description }}
+                                                    </small>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center py-3">
+                                                {% if task.date %}
+                                                <button class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0 bg-white shadow-sm"
+                                                    onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:'Y-m-d' }}', '{{ task.title|escapejs }}')">
+                                                    <i class="bi bi-calendar-event me-1 text-primary-custom"></i>
+                                                    {{ task.date|date:"Y.m.d" }}
+                                                </button>
+                                                {% else %}
+                                                <button class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm"
+                                                    onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title|escapejs }}')">
+                                                    <i class="bi bi-plus-lg me-1"></i>일정 등록
+                                                </button>
+                                                {% endif %}
+                                            </td>
+
+                                            <td class="text-center py-3">
+                                                <form method="post" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="toggle_task_id" value="{{ task.id }}">
+                                                    <button type="submit" class="btn btn-link p-0 text-decoration-none" title="완료 여부 토글">
+                                                        {% if task.is_done %}
+                                                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                                        {% else %}
+                                                        <i class="bi bi-circle text-muted fs-4 hover-primary"></i>
+                                                        {% endif %}
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
                                         {% empty %}
-                                            <tr>
-                                                <td colspan="4" class="text-center py-5 text-muted">
-                                                    <p>등록된 체크리스트가 없습니다.</p>
-                                                </td>
-                                            </tr>
+                                        <tr>
+                                            <td colspan="4" class="text-center py-5 text-muted">
+                                                <p>등록된 체크리스트가 없습니다.</p>
+                                            </td>
+                                        </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -435,10 +408,8 @@
             </div>
         </div>
 
-        <!-- Vendor Analysis Tab -->
         <div class="tab-pane fade" id="vendors" role="tabpanel" aria-labelledby="vendors-tab">
             <div class="row g-4">
-                <!-- Categories Section -->
                 <div class="col-12">
                     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
                         <div class="card-header bg-white border-0 p-4">
@@ -447,71 +418,64 @@
                         <div class="card-body p-4 pt-0">
                             <div class="row g-3">
                                 {% for category in vendor_categories %}
-                                    <div class="col-6 col-md-4 col-lg-3">
-                                        <a href="{% url 'vendor_list' %}?category={{ category.slug }}"
-                                           class="text-decoration-none">
-                                            <div class="card h-100 border-0 shadow-sm hover-lift"
-                                                 style="background-color: #f8f9fa; transition: transform 0.2s;">
-                                                <div class="card-body text-center py-4">
-                                                    <div class="mb-3">
-                                                        <i class="bi bi-search fs-1 text-primary-custom opacity-50"></i>
-                                                    </div>
-                                                    <h6 class="fw-bold text-dark mb-0">{{ category.name }}</h6>
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <a href="{% url 'vendor_list' %}?category={{ category.slug }}" class="text-decoration-none">
+                                        <div class="card h-100 border-0 shadow-sm hover-lift" style="background-color: #f8f9fa; transition: transform 0.2s;">
+                                            <div class="card-body text-center py-4">
+                                                <div class="mb-3">
+                                                    <i class="bi bi-search fs-1 text-primary-custom opacity-50"></i>
                                                 </div>
+                                                <h6 class="fw-bold text-dark mb-0">{{ category.name }}</h6>
                                             </div>
-                                        </a>
-                                    </div>
+                                        </div>
+                                    </a>
+                                </div>
                                 {% empty %}
-                                    <div class="col-12 text-center py-5 text-muted">
-                                        <p>등록된 업체 카테고리가 없습니다.</p>
-                                    </div>
+                                <div class="col-12 text-center py-5 text-muted">
+                                    <p>등록된 업체 카테고리가 없습니다.</p>
+                                </div>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recommended Vendors Section -->
                 <div class="col-12">
                     <h5 class="fw-bold mb-3 ms-2">추천 업체</h5>
                     <div class="row g-3">
                         {% for vendor in recommended_vendors %}
-                            <div class="col-md-6 col-lg-3">
-                                <div class="card border-0 shadow-sm h-100"
-                                     style="border-radius: 15px; overflow: hidden;">
-                                    {% if vendor.image %}
-                                        <img src="{{ vendor.image.url }}" class="card-img-top" alt="{{ vendor.name }}"
-                                             style="height: 150px; object-fit: cover;">
-                                    {% else %}
-                                        <div class="bg-light d-flex align-items-center justify-content-center"
-                                             style="height: 150px;">
-                                            <i class="bi bi-image text-muted fs-1"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div class="card-body p-3">
-                                        <small class="text-primary-custom fw-bold">{{ vendor.category.name }}</small>
-                                        <h6 class="fw-bold mb-1 text-truncate">{{ vendor.name }}</h6>
-                                        <p class="text-muted small mb-2 text-truncate">
-                                            <i class="bi bi-geo-alt me-1"></i>
-                                            {{ vendor.region_sido }} {{ vendor.region_sigungu }}
-                                        </p>
-                                        <div class="d-flex align-items-center small">
-                                            <i class="bi bi-star-fill text-warning me-1"></i>
-                                            <span class="fw-bold me-1">{{ vendor.avg_rating }}</span>
-                                            <span class="text-muted">({{ vendor.review_count }})</span>
-                                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; overflow: hidden;">
+                                {% if vendor.image %}
+                                <img src="{{ vendor.image.url }}" class="card-img-top" alt="{{ vendor.name }}" style="height: 150px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="bi bi-image text-muted fs-1"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body p-3">
+                                    <small class="text-primary-custom fw-bold">{{ vendor.category.name }}</small>
+                                    <h6 class="fw-bold mb-1 text-truncate">{{ vendor.name }}</h6>
+                                    <p class="text-muted small mb-2 text-truncate">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        {{ vendor.region_sido }} {{ vendor.region_sigungu }}
+                                    </p>
+                                    <div class="d-flex align-items-center small">
+                                        <i class="bi bi-star-fill text-warning me-1"></i>
+                                        <span class="fw-bold me-1">{{ vendor.avg_rating }}</span>
+                                        <span class="text-muted">({{ vendor.review_count }})</span>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         {% empty %}
-                            <div class="col-12 text-muted ms-2">추천 업체가 없습니다.</div>
+                        <div class="col-12 text-muted ms-2">추천 업체가 없습니다.</div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Community Tab -->
         <div class="tab-pane fade" id="community" role="tabpanel" aria-labelledby="community-tab">
             <div class="row">
                 <div class="col-12">
@@ -519,16 +483,12 @@
                         <div class="card-header bg-white border-0 p-4">
                             <ul class="nav nav-pills mb-0" id="communityTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active btn-sm" id="notice-tab" data-bs-toggle="pill"
-                                            data-bs-target="#notice" type="button" role="tab"
-                                            aria-controls="notice" aria-selected="true">
+                                    <button class="nav-link active btn-sm" id="notice-tab" data-bs-toggle="pill" data-bs-target="#notice" type="button" role="tab" aria-controls="notice" aria-selected="true">
                                         공지사항
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link btn-sm" id="qna-tab" data-bs-toggle="pill"
-                                            data-bs-target="#qna" type="button" role="tab"
-                                            aria-controls="qna" aria-selected="false">
+                                    <button class="nav-link btn-sm" id="qna-tab" data-bs-toggle="pill" data-bs-target="#qna" type="button" role="tab" aria-controls="qna" aria-selected="false">
                                         Q&A
                                     </button>
                                 </li>
@@ -536,60 +496,55 @@
                         </div>
                         <div class="card-body p-4 pt-0">
                             <div class="tab-content" id="communityTabsContent">
-                                <!-- Notice Sub-tab -->
-                                <div class="tab-pane fade show active" id="notice" role="tabpanel"
-                                     aria-labelledby="notice-tab">
+                                <div class="tab-pane fade show active" id="notice" role="tabpanel" aria-labelledby="notice-tab">
                                     <div class="list-group list-group-flush">
                                         {% for notice in notices %}
-                                            <div class="list-group-item border-0 px-0 py-3">
-                                                <div class="d-flex w-100 justify-content-between align-items-center mb-1">
-                                                    <h6 class="mb-1 fw-bold text-dark">{{ notice.title }}</h6>
-                                                    <small class="text-muted">{{ notice.created_at|date:"Y.m.d" }}</small>
-                                                </div>
-                                                <p class="mb-1 text-muted small">
-                                                    {{ notice.content|truncatechars:100 }}
-                                                </p>
-                                                <small class="text-primary-custom fw-bold">관리자</small>
+                                        <div class="list-group-item border-0 px-0 py-3">
+                                            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-1 fw-bold text-dark">{{ notice.title }}</h6>
+                                                <small class="text-muted">{{ notice.created_at|date:"Y.m.d" }}</small>
                                             </div>
+                                            <p class="mb-1 text-muted small">
+                                                {{ notice.content|truncatechars:100 }}
+                                            </p>
+                                            <small class="text-primary-custom fw-bold">관리자</small>
+                                        </div>
                                         {% empty %}
-                                            <div class="text-center py-5 text-muted">
-                                                <p>등록된 공지사항이 없습니다.</p>
-                                            </div>
+                                        <div class="text-center py-5 text-muted">
+                                            <p>등록된 공지사항이 없습니다.</p>
+                                        </div>
                                         {% endfor %}
                                     </div>
                                 </div>
 
-                                <!-- Q&A Sub-tab -->
                                 <div class="tab-pane fade" id="qna" role="tabpanel" aria-labelledby="qna-tab">
-                                    <!-- Q&A List -->
                                     <div class="mb-5">
                                         <div class="list-group list-group-flush">
                                             {% for question in questions %}
-                                                <div class="list-group-item border-0 px-0 py-3">
-                                                    <div class="d-flex w-100 justify-content-between align-items-center mb-1">
-                                                        <h6 class="mb-1 fw-bold text-dark">{{ question.title }}</h6>
-                                                        {% if question.is_answered %}
-                                                            <span class="badge bg-success rounded-pill">답변완료</span>
-                                                        {% else %}
-                                                            <span class="badge bg-secondary rounded-pill">답변대기</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <p class="mb-1 text-muted small">
-                                                        {{ question.content|truncatechars:100 }}
-                                                    </p>
-                                                    <small class="text-muted">
-                                                        {{ question.author.username }} · {{ question.created_at|date:"Y.m.d" }}
-                                                    </small>
+                                            <div class="list-group-item border-0 px-0 py-3">
+                                                <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                                    <h6 class="mb-1 fw-bold text-dark">{{ question.title }}</h6>
+                                                    {% if question.is_answered %}
+                                                    <span class="badge bg-success rounded-pill">답변완료</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary rounded-pill">답변대기</span>
+                                                    {% endif %}
                                                 </div>
+                                                <p class="mb-1 text-muted small">
+                                                    {{ question.content|truncatechars:100 }}
+                                                </p>
+                                                <small class="text-muted">
+                                                    {{ question.author.username }} · {{ question.created_at|date:"Y.m.d" }}
+                                                </small>
+                                            </div>
                                             {% empty %}
-                                                <div class="text-center py-5 text-muted">
-                                                    <p>등록된 질문이 없습니다.</p>
-                                                </div>
+                                            <div class="text-center py-5 text-muted">
+                                                <p>등록된 질문이 없습니다.</p>
+                                            </div>
                                             {% endfor %}
                                         </div>
                                     </div>
 
-                                    <!-- Q&A Form -->
                                     <div class="mood-diary-container p-4 rounded-4 mt-4">
                                         <h6 class="fw-bold text-muted mb-3 small">
                                             <i class="bi bi-pencil-fill me-2 text-primary-custom"></i>질문 남기기
@@ -597,19 +552,12 @@
                                         <form method="post">
                                             {% csrf_token %}
                                             <div class="mb-3">
-                                                <input type="text" name="question_title"
-                                                       class="form-control mood-diary-textarea"
-                                                       placeholder="제목을 입력하세요" required
-                                                       style="padding: 1rem; font-size: 1rem;">
+                                                <input type="text" name="question_title" class="form-control mood-diary-textarea" placeholder="제목을 입력하세요" required style="padding: 1rem; font-size: 1rem;">
                                             </div>
                                             <div class="mb-3">
-                                                <textarea name="question_content"
-                                                          class="form-control mood-diary-textarea"
-                                                          placeholder="궁금한 점을 자유롭게 남겨주세요..." required
-                                                          style="height: 150px;"></textarea>
+                                                <textarea name="question_content" class="form-control mood-diary-textarea" placeholder="궁금한 점을 자유롭게 남겨주세요..." required style="height: 150px;"></textarea>
                                             </div>
-                                            <button type="submit"
-                                                    class="btn mood-diary-btn w-100 py-2 fw-bold shadow-sm">
+                                            <button type="submit" class="btn mood-diary-btn w-100 py-2 fw-bold shadow-sm">
                                                 <i class="bi bi-send me-2"></i>질문 등록하기
                                             </button>
                                         </form>
@@ -630,69 +578,53 @@
                 const dayStr = day.toString().padStart(2, '0');
                 const dateStr = `${year}-${monthStr}-${dayStr}`;
 
-                // Set hidden input value in the modal
                 document.getElementById('modalDateInput').value = dateStr;
                 document.getElementById('modalDateInputTask').value = dateStr;
 
-                // Update Modal Title
                 const modalTitle = document.getElementById('dateActionModalLabel');
                 if (modalTitle) {
                     modalTitle.innerText = `${year}년 ${month}월 ${day}일`;
                 }
 
-                // Populate Memo Content from data attribute
                 const logContent = element.getAttribute('data-log-content') || '';
                 const memoTextarea = document.querySelector('#memo-modal textarea[name="log_content"]');
                 if (memoTextarea) {
                     memoTextarea.value = logContent;
                 }
 
-                // Show Modal
                 const modal = new bootstrap.Modal(document.getElementById('dateActionModal'));
                 modal.show();
             }
         </script>
 
-        <!-- Date Action Modal -->
-        <div class="modal fade" id="dateActionModal" tabindex="-1" aria-labelledby="dateActionModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="dateActionModal" tabindex="-1" aria-labelledby="dateActionModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
                     <div class="modal-header border-0 pb-0">
                         <h5 class="modal-title fw-bold" id="dateActionModalLabel">날짜 선택</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
-                        <!-- Tabs -->
                         <ul class="nav nav-pills mb-3 nav-justified" id="modalTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill" id="memo-tab-modal"
-                                        data-bs-toggle="pill" data-bs-target="#memo-modal" type="button"
-                                        role="tab" aria-controls="memo-modal" aria-selected="true">
+                                <button class="nav-link active rounded-pill" id="memo-tab-modal" data-bs-toggle="pill" data-bs-target="#memo-modal" type="button" role="tab" aria-controls="memo-modal" aria-selected="true">
                                     <i class="bi bi-journal-text me-2"></i>메모 등록
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill" id="task-tab-modal"
-                                        data-bs-toggle="pill" data-bs-target="#task-modal" type="button"
-                                        role="tab" aria-controls="task-modal" aria-selected="false">
+                                <button class="nav-link rounded-pill" id="task-tab-modal" data-bs-toggle="pill" data-bs-target="#task-modal" type="button" role="tab" aria-controls="task-modal" aria-selected="false">
                                     <i class="bi bi-check-circle me-2"></i>일정 등록
                                 </button>
                             </li>
                         </ul>
 
                         <div class="tab-content" id="modalTabsContent">
-                            <!-- Memo Tab -->
-                            <div class="tab-pane fade show active" id="memo-modal" role="tabpanel"
-                                 aria-labelledby="memo-tab-modal">
+                            <div class="tab-pane fade show active" id="memo-modal" role="tabpanel" aria-labelledby="memo-tab-modal">
                                 <form method="post">
                                     {% csrf_token %}
                                     <input type="hidden" name="date" id="modalDateInput">
                                     <div class="mb-3">
-                                        <textarea name="log_content" class="form-control mood-diary-textarea"
-                                                  placeholder="이 날의 메모를 남겨주세요..."
-                                                  style="height: 150px; resize: none; border-radius: 15px; padding: 15px;"></textarea>
+                                        <textarea name="log_content" class="form-control mood-diary-textarea" placeholder="이 날의 메모를 남겨주세요..." style="height: 150px; resize: none; border-radius: 15px; padding: 15px;"></textarea>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
                                         저장하기
@@ -700,23 +632,20 @@
                                 </form>
                             </div>
 
-                            <!-- Schedule Tab -->
-                            <div class="tab-pane fade" id="task-modal" role="tabpanel"
-                                 aria-labelledby="task-tab-modal">
+                            <div class="tab-pane fade" id="task-modal" role="tabpanel" aria-labelledby="task-tab-modal">
                                 <form method="post">
                                     {% csrf_token %}
                                     <input type="hidden" name="date" id="modalDateInputTask">
                                     <div class="mb-4">
                                         <label class="form-label text-muted small fw-bold mb-2">할 일 선택</label>
-                                        <select class="form-select border-0 bg-light py-3" name="task_id"
-                                                style="border-radius: 15px;">
+                                        <select class="form-select border-0 bg-light py-3" name="task_id" style="border-radius: 15px;">
                                             <option selected disabled>할 일을 선택해주세요</option>
                                             {% for task in unscheduled_tasks %}
-                                                <option value="{{ task.id }}" {% if task.is_done %}disabled{% endif %}>
-                                                    {{ task.title }}
-                                                </option>
+                                            <option value="{{ task.id }}" {% if task.is_done %}disabled{% endif %}>
+                                                {{ task.title }}
+                                            </option>
                                             {% empty %}
-                                                <option disabled>미완료된 할 일이 없습니다.</option>
+                                            <option disabled>미완료된 할 일이 없습니다.</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -731,15 +660,12 @@
             </div>
         </div>
 
-        <!-- Task Date Modal (For Checklist) -->
-        <div class="modal fade" id="taskDateModal" tabindex="-1" aria-labelledby="taskDateModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="taskDateModal" tabindex="-1" aria-labelledby="taskDateModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
                     <div class="modal-header border-0 pb-0">
                         <h5 class="modal-title fw-bold" id="taskDateModalLabel">일정 등록</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <p class="text-muted small mb-3">
@@ -751,9 +677,7 @@
                             <input type="hidden" name="task_id" id="taskDateModalId">
                             <div class="mb-4">
                                 <label class="form-label text-muted small fw-bold">날짜 선택</label>
-                                <input type="date" name="date" id="taskDateModalInput"
-                                       class="form-control bg-light border-0 py-3"
-                                       style="border-radius: 15px;" required>
+                                <input type="date" name="date" id="taskDateModalInput" class="form-control bg-light border-0 py-3" style="border-radius: 15px;" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
                                 확인
@@ -775,15 +699,12 @@
             }
         </script>
 
-        <!-- Date Picker Modal -->
-        <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-sm">
                 <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
                     <div class="modal-header border-0 pb-0">
                         <h5 class="modal-title fw-bold" id="datePickerModalLabel">날짜 이동</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form action="" method="get">
@@ -791,9 +712,9 @@
                                 <label for="yearSelect" class="form-label text-muted small fw-bold">연도</label>
                                 <select class="form-select border-0 bg-light" id="yearSelect" name="year">
                                     {% for y in year_range %}
-                                        <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>
-                                            {{ y }}년
-                                        </option>
+                                    <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>
+                                        {{ y }}년
+                                    </option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -802,10 +723,9 @@
                                 <select class="form-select border-0 bg-light" id="monthSelect" name="month">
                                     {% for m in "123456789012"|make_list %}
                                         {% if forloop.counter <= 12 %}
-                                            <option value="{{ forloop.counter }}"
-                                                    {% if forloop.counter == current_month %}selected{% endif %}>
-                                                {{ forloop.counter }}월
-                                            </option>
+                                        <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>
+                                            {{ forloop.counter }}월
+                                        </option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
@@ -819,9 +739,7 @@
             </div>
         </div>
 
-    </div> <!-- /.tab-content -->
-
-    <script>
+    </div> <script>
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const tabParam = urlParams.get('tab');
@@ -832,6 +750,11 @@
                     tab.show();
                 }
             }
+
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
         });
     </script>
 </div>
