@@ -1,18 +1,14 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from datetime import timedelta
-from .models import WeddingProfile, ScheduleTask
+from .models import WeddingGroup, ScheduleTask  # WeddingProfile 대신 WeddingGroup 임포트
 
-@receiver(post_save, sender=WeddingProfile)
+
+@receiver(post_save, sender=WeddingGroup)  # WeddingGroup 생성 시 실행되도록 변경
 def create_default_schedule(sender, instance, created, **kwargs):
     """
-    WeddingProfile이 생성되거나 업데이트될 때(날짜 변경 등),
-    기본 스케줄을 생성하거나 업데이트하는 로직.
-    MVP에서는 생성 시점에만 템플릿을 복사하는 형태로 단순화.
+    WeddingGroup이 생성될 때 기본 스케줄(체크리스트)을 생성하는 로직입니다.
     """
     if created:
-        wedding_date = instance.wedding_date
-        
         # Wedding Checklist Templates (Category, Title, Start D-Day Offset, Description)
         # Offset: Negative means days BEFORE wedding.
         default_tasks = [
@@ -22,7 +18,7 @@ def create_default_schedule(sender, instance, created, **kwargs):
             ('VENUE', '웨딩홀 투어 및 계약', -300, '원하는 지역/시간대/보증인원을 고려해 웨딩홀을 비교하고 계약합니다.'),
             ('SDM', '본식 스냅/DVD 예악', -280, '인기 있는 스냅/DVD 업체는 1년 전부터 마감되니 미리 예약하세요.'),
             ('HONEYMOON', '신혼여행지 결정', -270, '휴양지 vs 관광지 등 취향에 맞춰 신혼여행지를 결정합니다.'),
-            
+
             # D-200 ~ D-150 (Major Vendors)
             ('SDM', '스드메 업체 선정 및 계약', -200, '스튜디오, 드레스, 메이크업 업체를 선정하고 계약합니다(플래너 동행 여부 결정).'),
             ('HONEYMOON', '신혼여행 항공권 예약', -190, '얼리버드 특가 등을 활용해 항공권을 미리 예매합니다.'),
@@ -65,17 +61,15 @@ def create_default_schedule(sender, instance, created, **kwargs):
         tasks_to_create = []
         for category, title, offset, desc in default_tasks:
             # Note: date is set to None initially ("Unscheduled").
-            # expected_date can be useful if we want to show "Target Date".
-            # For this MVP, we rely on d_day_offset for sorting.
             tasks_to_create.append(
                 ScheduleTask(
-                    profile=instance,
-                    date=None,  # Unscheduled initially
+                    group=instance,  # 핵심 수정: profile=instance -> group=instance
+                    date=None,
                     title=title,
                     description=desc,
                     d_day_offset=offset,
                     category=category
                 )
             )
-        
+
         ScheduleTask.objects.bulk_create(tasks_to_create)
