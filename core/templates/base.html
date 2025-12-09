@@ -11,17 +11,25 @@
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Playfair+Display:wght@700&display=swap"
         rel="stylesheet">
     {% load static %}
-    <link href="{% static 'core/css/style.css' %}?v=6" rel="stylesheet">
+    <link href="{% static 'core/css/style.css' %}?v=7" rel="stylesheet">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     {% block layout %}
-    <nav class="navbar navbar-expand-lg navbar-light mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold font-playfair" href="{% url 'landing' %}">Weple</a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto align-items-center">
                     {% if user.is_authenticated %}
+                    {% if user.wedding_profile.group %}
+                    <li class="nav-item me-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 font-refined"
+                            data-bs-toggle="modal" data-bs-target="#infoModal">
+                            <i class="bi bi-info-circle me-1"></i>정보
+                        </button>
+                    </li>
+                    {% endif %}
                     <li class="nav-item">
                         <span class="nav-link font-refined">
                             <i class="bi bi-person-circle me-1 text-muted"></i>
@@ -43,15 +51,62 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div style="height: 70px;"></div>
+
+    <div class="container flex-grow-1">
         {% block content %}
         {% endblock %}
     </div>
     {% endblock %}
 
-    <footer class="py-4 mt-3 bg-light text-center text-muted">
+    <!-- Info Modal -->
+    {% if user.is_authenticated and user.wedding_profile.group %}
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" style="color: #ff6b6b;">커플 연결 정보</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Invite Code Section -->
+                    <div class="mb-4 text-center">
+                        <label class="form-label text-secondary small fw-bold">내 초대 코드</label>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <h2 class="mb-0 fw-bold font-monospace" style="letter-spacing: 2px;">{{
+                                user.wedding_profile.group.invite_code }}</h2>
+                            <button class="btn btn-sm btn-light border"
+                                onclick="navigator.clipboard.writeText('{{ user.wedding_profile.group.invite_code }}')">
+                                <i class="bi bi-files"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted small mt-2">이 코드를 파트너에게 공유하여 그룹에 가입시키세요.</p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Date Edit Section -->
+                    <form method="post" action="{% url 'dashboard' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_date" value="true">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">결혼 예정일 수정</label>
+                            <input type="date" name="wedding_date" class="form-control"
+                                value="{{ user.wedding_profile.group.wedding_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-login-custom" style="padding: 0.5rem;">수정하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <footer class="py-3 bg-light text-center text-muted mt-auto border-top">
         <div class="container">
-            <small>&copy; 2025 Weple. All rights reserved.</small>
+            <small class="fw-bold" style="font-size: 0.8rem;">&copy; 2025 Weple. All rights reserved.</small>
         </div>
     </footer>
 

@@ -1,48 +1,89 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .models import WeddingProfile, ScheduleTask, DailyLog, Notice, Question
+from .models import WeddingProfile, ScheduleTask, DailyLog, Notice, Question, WeddingGroup
 from vendors.models import Vendor, VendorCategory
-from .forms import WeddingProfileForm
+from .forms import WeddingProfileForm, GroupJoinForm, WeddingGroupForm
 import calendar
 from datetime import datetime, timedelta
 from django.urls import reverse
-
+from django.db.models import Q
+from django.contrib import messages
 
 @login_required
 def onboarding(request):
     """
-    최초 로그인 시 웨딩 정보를 입력받는 뷰
+    최초 로그인 시 웨딩 정보를 입력받는 뷰.
+    그룹 생성(새로 시작하기)만 구현 (초대 코드는 UI만 존재).
     """
-    # 이미 프로필이 있다면 대시보드로 이동
-    if hasattr(request.user, 'wedding_profile'):
+    if hasattr(request.user, 'wedding_profile') and request.user.wedding_profile.group:
         return redirect('dashboard')
 
     if request.method == 'POST':
+        # New Wedding Flow
         form = WeddingProfileForm(request.POST)
+        
         if form.is_valid():
-            profile = form.save(commit=False)
-            profile.user = request.user
+            # 1. Create Profile object (don't save yet)
+            profile, created = WeddingProfile.objects.get_or_create(user=request.user)
+            
+            # 2. Extract minimal data (wedding_date)
+            wedding_date = form.cleaned_data.get('wedding_date')
+            
+            # 3. Create Group automatically
+            group = WeddingGroup.objects.create(wedding_date=wedding_date)
+            
+            # 4. Link Group and save Profile
+            # Profile fields are already cleaned but form.save() for existing instance is tricky with get_or_create
+            # So let's manually update.
+            profile.wedding_date = wedding_date
+            profile.group = group
             profile.save()
+            
             return redirect('dashboard')
     else:
         form = WeddingProfileForm()
 
-    return render(request, 'weddings/onboarding.html', {'form': form})
+    return render(request, 'weddings/onboarding.html', {
+        'form': form
+    })
 
 @login_required
 def dashboard(request):
-    profile = get_object_or_404(WeddingProfile, user=request.user)
+    try:
+        profile = request.user.wedding_profile
+        group = profile.group
+        if not group:
+            # Profile exists but no group? Go to onboarding or fix
+            return redirect('onboarding')
+    except WeddingProfile.DoesNotExist:
+        return redirect('onboarding')
+
     today = timezone.now().date()
+    
+    # Update wedding_date handling (from Group)
     
     # 1. POST Handling
     if request.method == 'POST':
+        # 1-0. Update Group Info (Date) - handled via separate endpoint or here? 
+        # User requested modal update. Let's handle it here if easy, or separate view.
+        # Let's check for specific hidden input.
+        if 'update_date' in request.POST:
+             new_date_str = request.POST.get('wedding_date')
+             try:
+                 new_date = datetime.strptime(new_date_str, '%Y-%m-%d').date()
+                 group.wedding_date = new_date
+                 group.save()
+             except ValueError:
+                 pass
+             return redirect('dashboard')
+
         # 1-1. Task Assignment (Schedule)
         if 'task_id' in request.POST:
             task_id = request.POST.get('task_id')
             date_str = request.POST.get('date')
             try:
-                task = ScheduleTask.objects.get(id=task_id, profile=profile)
+                task = ScheduleTask.objects.get(id=task_id, group=group) # Check ownership by group
                 task.date = datetime.strptime(date_str, '%Y-%m-%d').date()
                 task.save()
             except (ScheduleTask.DoesNotExist, ValueError):
@@ -56,7 +97,7 @@ def dashboard(request):
             try:
                 log_date = datetime.strptime(date_str, '%Y-%m-%d').date()
                 DailyLog.objects.update_or_create(
-                    user=request.user,
+                    group=group, # Associate with Group
                     date=log_date,
                     defaults={'content': log_content}
                 )
@@ -79,16 +120,18 @@ def dashboard(request):
         elif 'toggle_task_id' in request.POST:
             task_id = request.POST.get('toggle_task_id')
             try:
-                task = ScheduleTask.objects.get(id=task_id, profile=profile)
+                task = ScheduleTask.objects.get(id=task_id, group=group)
                 task.is_done = not task.is_done
                 task.save()
             except ScheduleTask.DoesNotExist:
                 pass
-
             return redirect(reverse('dashboard') + '?tab=todo')
     
     # 2. D-Day Calculation
-    d_day = (profile.wedding_date - today).days
+    if group.wedding_date:
+        d_day = (group.wedding_date - today).days
+    else:
+        d_day = None
     
     # 3. Calendar Logic
     year = int(request.GET.get('year', today.year))
@@ -112,13 +155,13 @@ def dashboard(request):
         month_end = datetime(year, month + 1, 1).date() - timedelta(days=1)
         
     month_logs_qs = DailyLog.objects.filter(
-        user=request.user, 
+        group=group, 
         date__range=(month_start, month_end)
     )
     month_logs_map = {log.date: log.content for log in month_logs_qs}
     
     month_tasks = ScheduleTask.objects.filter(
-        profile=profile,
+        group=group,
         date__range=(month_start, month_end)
     ).values_list('date', flat=True)
     
@@ -134,7 +177,7 @@ def dashboard(request):
             else:
                 current_date = datetime(year, month, day).date()
                 is_today = (current_date == today)
-                is_wedding_day = (current_date == profile.wedding_date)
+                is_wedding_day = (current_date == group.wedding_date)
                 
                 log_content = month_logs_map.get(current_date, '')
                 has_log = (current_date in month_logs_map)
@@ -159,10 +202,8 @@ def dashboard(request):
         calendar_data.append(week_data)
 
     # 4. Data for Modal (Unscheduled Tasks)
-    # Tasks that are not done OR don't have a date yet
-    from django.db.models import Q
     unscheduled_tasks = ScheduleTask.objects.filter(
-        profile=profile
+        group=group
     ).filter(
         Q(date__isnull=True) | Q(is_done=False)
     ).order_by('date')
@@ -170,13 +211,13 @@ def dashboard(request):
     # 5. Data for Right Panel (Upcoming Mixed List)
     # 5-1. Upcoming Tasks
     upcoming_tasks_qs = ScheduleTask.objects.filter(
-        profile=profile,
+        group=group,
         date__gte=today
     )
     
     # 5-2. Upcoming Logs
     upcoming_logs_qs = DailyLog.objects.filter(
-        user=request.user,
+        group=group,
         date__gte=today
     )
     
@@ -188,13 +229,12 @@ def dashboard(request):
             'id': task.id,
             'title': task.title,
             'date': task.date,
-            'd_day': (task.date - today).days,
+            'd_day': (task.date - today).days if task.date else None,
             'is_done': task.is_done
         })
         
     upcoming_memos = []
     for log in upcoming_logs_qs.order_by('date')[:7]:
-        # Use full content for display in the list (will be line-broken in template)
         content = log.content if log.content else "메모"
         upcoming_memos.append({
             'type': 'alarm',
@@ -203,13 +243,10 @@ def dashboard(request):
             'date': log.date,
             'd_day': (log.date - today).days
         })
-        
-    # No longer need upcoming_mixed_list, passing separate lists
 
     # 6. Checklist Data (TimeTable style)
-    # Sort by d_day_offset (Ascending) e.g. -300 -> -200 -> -5
     checklist = ScheduleTask.objects.filter(
-        profile=profile
+        group=group
     ).order_by('d_day_offset', 'id')
 
     # Navigation links
@@ -220,26 +257,25 @@ def dashboard(request):
     
     month_name = f"{year}년 {month}월"
 
-    # Context
     context = {
         'profile': profile,
+        'group': group,  # Passed for invite_code display
         'd_day': d_day,
         'calendar': calendar_data,
         'current_year': year,
         'current_month': month,
         'month_name': month_name,
         'today': today,
-        'unscheduled_tasks': unscheduled_tasks,     # For Modal
-        'upcoming_schedules': upcoming_schedules,   # For Right Panel (Tab 1)
-        'upcoming_memos': upcoming_memos,           # For Right Panel (Tab 2)
-        'checklist': checklist,                     # New Sorted Checklist
+        'unscheduled_tasks': unscheduled_tasks,
+        'upcoming_schedules': upcoming_schedules,
+        'upcoming_memos': upcoming_memos,
+        'checklist': checklist,
         'prev_year': prev_year,
         'prev_month': prev_month,
         'next_year': next_year,
         'next_month': next_month,
         'year_range': range(today.year - 5, today.year + 6),
         
-        # Vendor & Community (Keeping existing)
         'vendor_categories': VendorCategory.objects.all(),
         'recommended_vendors': Vendor.objects.all()[:4],
         'notices': Notice.objects.all(),

@@ -1,57 +1,72 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}결혼 정보 입력 - 웨딩 플래너{% endblock %}
+{% block title %}시작하기 - 웨딩 플래너{% endblock %}
 
 {% block layout %}
 <div class="landing-hero">
     <div class="landing-overlay"></div>
-    <div class="landing-content fade-in" style="max-width: 500px; width: 95%; margin-top: 5rem;">
-        <h1 class="landing-logo mb-2">Welcome</h1>
-        <p class="landing-subtitle mb-4">완벽한 웨딩을 위한 첫 걸음</p>
+    <div class="landing-content fade-in" style="max-width: 450px; width: 95%; margin-top: 8rem;">
+        <h1 class="landing-logo mb-2 text-center" style="font-size: 2.5rem;">Welcome</h1>
+        <p class="landing-subtitle mb-5 text-center">결혼 준비의 첫 걸음을 환영합니다</p>
 
-        <form method="post" class="text-start">
-            {% csrf_token %}
-            {% for field in form %}
-            <div class="mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label fw-bold small text-secondary">
-                    {{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}
-                <div class="form-text" style="font-size: 0.8rem;">{{ field.help_text }}</div>
-                {% endif %}
-                {% if field.errors %}
-                <div class="text-danger small mt-1">{{ field.errors }}</div>
-                {% endif %}
-            </div>
-            {% endfor %}
+        <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-pill" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active rounded-pill fw-bold" data-bs-toggle="pill" data-bs-target="#new-wedding"
+                    type="button">새로 만들기</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link rounded-pill fw-bold" data-bs-toggle="pill" data-bs-target="#invite-code"
+                    type="button">초대 코드</button>
+            </li>
+        </ul>
 
-            <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-login-custom mb-0">
-                    시작하기
-                </button>
-                <a href="#"
-                    onclick="event.preventDefault(); document.getElementById('logout-form-onboarding').submit();"
-                    class="btn btn-guest-custom text-center" style="background: white; border: 1px solid #eee;">
-                    뒤로가기
-                </a>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="new-wedding">
+                <form method="post" class="text-start">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary ms-1">결혼 예정일이 언제인가요?</label>
+                        {{ form.wedding_date }}
+                        {% if form.wedding_date.errors %}
+                        <div class="text-danger small mt-1 ps-1">{{ form.wedding_date.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow-sm">
+                            Weple 시작하기
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+
+            <div class="tab-pane fade" id="invite-code">
+                <form onsubmit="alert('초대 코드 기능은 준비 중입니다.'); return false;">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary ms-1">공유받은 코드를 입력하세요</label>
+                        <input type="text" class="form-control" placeholder="예: WP-123456"
+                            style="padding: 1rem; border-radius: 12px;">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-outline-primary btn-lg rounded-pill fw-bold py-3">
+                            입장하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-onboarding').submit();"
+                class="text-muted text-decoration-none small">
+                처음으로 돌아가기
+            </a>
+        </div>
 
         <form id="logout-form-onboarding" method="post" action="{% url 'logout' %}" style="display: none;">
             {% csrf_token %}
         </form>
     </div>
 </div>
-
-<script>
-    // Add styling to form fields
-    document.querySelectorAll('input, select, textarea').forEach(input => {
-        input.classList.add('form-control');
-        input.style.borderRadius = '12px';
-        input.style.padding = '0.8rem 1rem';
-        input.style.border = '1px solid #eee';
-        input.style.backgroundColor = '#f8f9fa';
-    });
-</script>
 {% endblock %}

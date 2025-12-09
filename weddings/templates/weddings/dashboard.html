@@ -10,7 +10,6 @@
             background: url('{% static "core/images/landing_bg.png" %}') center/cover;
             filter: brightness(0.7);
         }
-
         .nav-pills .nav-link {
             border-radius: 50px;
             padding: 10px 25px;
@@ -21,36 +20,29 @@
             margin-right: 10px;
             transition: all 0.3s ease;
         }
-
         .nav-pills .nav-link.active {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
             box-shadow: 0 4px 10px rgba(255, 133, 162, 0.3);
         }
-
         .timeline-card {
             min-width: 250px;
             margin-right: 15px;
         }
-
         .timeline-container {
             overflow-x: auto;
             padding-bottom: 15px;
         }
-
         .checklist-item {
             transition: all 0.2s ease;
         }
-
         .checklist-item:hover {
             background-color: #f8f9fa;
         }
-
         .checklist-item.completed {
             opacity: 0.6;
         }
-
         .checklist-item.completed .form-check-label {
             text-decoration: line-through;
         }
@@ -150,8 +142,8 @@
                                         <td>
                                             {% if not day_info.is_empty %}
                                             <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
-                                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
-                                                data-log-content="{{ day_info.log_content|default:'' }}">
+                                                 onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
+                                                 data-log-content="{{ day_info.log_content|default:'' }}">
                                                 <span>{{ day_info.day }}</span>
 
                                                 {% if day_info.is_wedding_day %}
@@ -191,17 +183,17 @@
                             <ul class="nav nav-pills nav-fill" id="upcomingTabs" role="tablist" style="border-bottom: 1px solid #dee2e6;">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                        id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
-                                        type="button" role="tab" aria-controls="panel-schedule" aria-selected="true"
-                                        style="color: #6c757d;">
+                                            id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
+                                            type="button" role="tab" aria-controls="panel-schedule" aria-selected="true"
+                                            style="color: #6c757d;">
                                         일정
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                        id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo"
-                                        type="button" role="tab" aria-controls="panel-memo" aria-selected="false"
-                                        style="color: #6c757d;">
+                                            id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo"
+                                            type="button" role="tab" aria-controls="panel-memo" aria-selected="false"
+                                            style="color: #6c757d;">
                                         메모
                                     </button>
                                 </li>
@@ -366,13 +358,13 @@
                                             <td class="text-center py-3">
                                                 {% if task.date %}
                                                 <button class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0 bg-white shadow-sm"
-                                                    onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:'Y-m-d' }}', '{{ task.title|escapejs }}')">
+                                                        onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:'Y-m-d' }}', '{{ task.title|escapejs }}')">
                                                     <i class="bi bi-calendar-event me-1 text-primary-custom"></i>
                                                     {{ task.date|date:"Y.m.d" }}
                                                 </button>
                                                 {% else %}
                                                 <button class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm"
-                                                    onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title|escapejs }}')">
+                                                        onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title|escapejs }}')">
                                                     <i class="bi bi-plus-lg me-1"></i>일정 등록
                                                 </button>
                                                 {% endif %}
@@ -693,7 +685,6 @@
                 document.getElementById('taskDateModalId').value = taskId;
                 document.getElementById('taskDateModalTitle').innerText = taskTitle;
                 document.getElementById('taskDateModalInput').value = currentDate;
-
                 const modal = new bootstrap.Modal(document.getElementById('taskDateModal'));
                 modal.show();
             }
@@ -739,7 +730,9 @@
             </div>
         </div>
 
-    </div> <script>
+    </div>
+
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const tabParam = urlParams.get('tab');
