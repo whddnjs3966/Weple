@@ -53,10 +53,12 @@
 
     <div style="height: 70px;"></div>
 
+    {% block main_container %}
     <div class="container flex-grow-1">
         {% block content %}
         {% endblock %}
     </div>
+    {% endblock %}
     {% endblock %}
 
     <!-- Info Modal -->
@@ -73,7 +75,8 @@
                     <div class="mb-4 text-center">
                         <label class="form-label text-secondary small fw-bold">내 초대 코드</label>
                         <div class="d-flex align-items-center justify-content-center gap-2">
-                            <h2 class="mb-0 fw-bold font-monospace" style="letter-spacing: 2px;">{{ user.wedding_profile.group.invite_code }}</h2>
+                            <h2 class="mb-0 fw-bold font-monospace" style="letter-spacing: 2px;">{{
+                                user.wedding_profile.group.invite_code }}</h2>
                             <button class="btn btn-sm btn-light border"
                                 onclick="navigator.clipboard.writeText('{{ user.wedding_profile.group.invite_code }}')">
                                 <i class="bi bi-files"></i>

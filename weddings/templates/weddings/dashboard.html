@@ -781,7 +781,7 @@
                                 <label for="yearSelect" class="form-label text-muted small fw-bold">연도</label>
                                 <select class="form-select border-0 bg-light" id="yearSelect" name="year">
                                     {% for y in year_range %}
-                                    <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>
+                                    <option value="{{ y }}" {% if y==current_year %}selected{% endif %}>
                                         {{ y }}년
                                     </option>
                                     {% endfor %}
@@ -791,7 +791,8 @@
                                 <label for="monthSelect" class="form-label text-muted small fw-bold">월</label>
                                 <select class="form-select border-0 bg-light" id="monthSelect" name="month">
                                     {% for m in "123456789012"|make_list %}
-                                    {% if forloop.counter <= 12 %} <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>
+                                    {% if forloop.counter <= 12 %} <option value="{{ forloop.counter }}" {% if
+                                        forloop.counter==current_month %}selected{% endif %}>
                                         {{ forloop.counter }}월
                                         </option>
                                         {% endif %}
