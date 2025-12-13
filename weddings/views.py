@@ -7,7 +7,7 @@ from .forms import WeddingProfileForm, GroupJoinForm, WeddingGroupForm
 import calendar
 from datetime import datetime, timedelta
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib import messages
 
 @login_required
@@ -124,6 +124,80 @@ def dashboard(request):
                 task.is_done = not task.is_done
                 task.save()
             except ScheduleTask.DoesNotExist:
+                pass
+            return redirect(reverse('dashboard') + '?tab=todo')
+
+        # 1-5. Bulk Delete
+        elif 'delete_task_ids' in request.POST:
+            ids_str = request.POST.get('delete_task_ids', '')
+            if ids_str:
+                # Handle potential JSON format if dashboard.html sends JSON (it sends list string now)
+                # But implementation plan said to fix JS to standard comma separated.
+                # However, if user reverted JS change or stuck with JSON...
+                # Let's handle simple comma split as planned.
+                try:
+                    if ids_str.startswith('[') and ids_str.endswith(']'):
+                         import json
+                         ids = json.loads(ids_str)
+                         ids = [int(i) for i in ids]
+                    else:
+                        ids = [int(id_str) for id_str in ids_str.split(',')]
+                    
+                    ScheduleTask.objects.filter(id__in=ids, group=group).delete()
+                except (ValueError, Exception):
+                    pass
+            return redirect(reverse('dashboard') + '?tab=todo')
+
+        # 1-6. Create New Task
+        elif 'new_task_title' in request.POST:
+            title = request.POST.get('new_task_title')
+            budget_str = request.POST.get('new_task_budget', '0')
+            description = request.POST.get('new_task_memo', '')
+            d_day_input = request.POST.get('new_task_d_day') # This is number now, "000"
+            
+            try:
+                budget = int(budget_str) if budget_str else 0
+            except ValueError:
+                budget = 0
+                
+            task_date = None
+            d_day_offset = None
+            
+            if d_day_input:
+                try:
+                    # User inputs "100" meaning D-100.
+                    # d_day_offset should be -100.
+                    days_left = int(d_day_input)
+                    d_day_offset = -days_left
+                    
+                    if group.wedding_date:
+                         # date = wedding_date + offset (e.g. wedding - 100 days)
+                         task_date = group.wedding_date + timedelta(days=d_day_offset)
+                except ValueError:
+                    pass
+            
+            ScheduleTask.objects.create(
+                group=group,
+                title=title,
+                estimated_budget=budget,
+                description=description,
+                date=task_date,
+                d_day_offset=d_day_offset, # Also save offset if model has it
+                category='OTHER'
+            )
+            return redirect(reverse('dashboard') + '?tab=todo')
+
+        # 1-7. Update Task Budget
+        elif 'update_budget_task_id' in request.POST:
+            task_id = request.POST.get('update_budget_task_id')
+            new_budget_str = request.POST.get('budget_value', '0')
+            try:
+                # Remove commas if any (though JS should handle it, good to be safe)
+                new_budget = int(new_budget_str.replace(',', ''))
+                task = ScheduleTask.objects.get(id=task_id, group=group)
+                task.estimated_budget = new_budget
+                task.save()
+            except (ValueError, ScheduleTask.DoesNotExist):
                 pass
             return redirect(reverse('dashboard') + '?tab=todo')
     
@@ -249,6 +323,8 @@ def dashboard(request):
         group=group
     ).order_by('d_day_offset', 'id')
 
+    total_budget = checklist.aggregate(total=Sum('estimated_budget'))['total'] or 0
+
     # Navigation links
     prev_month = month - 1 if month > 1 else 12
     prev_year = year if month > 1 else year - 1
@@ -270,6 +346,7 @@ def dashboard(request):
         'upcoming_schedules': upcoming_schedules,
         'upcoming_memos': upcoming_memos,
         'checklist': checklist,
+        'total_budget': total_budget,
         'prev_year': prev_year,
         'prev_month': prev_month,
         'next_year': next_year,

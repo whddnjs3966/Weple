@@ -58,6 +58,7 @@ class ScheduleTask(models.Model):
     
     date = models.DateField(null=True, blank=True) # 실제 수행일
     expected_date = models.DateField(null=True, blank=True) # 예정일
+    estimated_budget = models.IntegerField(null=True, blank=True, default=0) # 예상 예산 (Added)
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='OTHER')
