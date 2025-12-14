@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load socialaccount %}
 {% block title %}로그인 - 웨딩 플래너{% endblock %}
 
 {% block main_container %}
@@ -10,10 +10,21 @@
         <p class="text-center text-muted mb-4 small">간편하게 로그인하고 결혼 준비를 시작하세요</p>
 
         <div class="d-grid gap-3">
+            <!--
             <button type="button" class="btn btn-lg fw-bold text-white shadow-sm"
                 style="background-color: #03C75A; border: none; border-radius: 12px; font-size: 1rem;">
                 <i class="bi bi-chat-fill me-2"></i>네이버로 시작하기
-            </button>
+            </button>-->
+            <a href="{% provider_login_url 'naver' method='oauth2' %}"
+               class="btn btn-lg fw-bold text-white shadow-sm d-flex align-items-center justify-content-center"
+               style="background-color: #03C75A; border: none; border-radius: 12px; font-size: 1rem; text-decoration: none;">
+
+                <img src="https://developers.naver.com/proxyapi/rawgit/naver/naver-openapi-guide/master/ko/products/login/api/images/img_service_03.svg"
+                     alt="Naver"
+                     style="height: 20px; margin-right: 10px;">
+
+                네이버로 시작하기
+            </a>
 
             <button type="button" class="btn btn-lg fw-bold shadow-sm"
                 style="background-color: #FEE500; color: #000; border: none; border-radius: 12px; font-size: 1rem;">

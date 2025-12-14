@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-=^6!4*h+0dp7&+xvij87p)1!jxjp=83gu8=e@@03biv*wfc7g1'
+#SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY','django-insecure-=^6!4*h+0dp7&+xvij87p)1!jxjp=83gu8=e@@03biv*wfc7g1')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,7 +45,31 @@ INSTALLED_APPS = [
     'weddings',
     'vendors',
     'reviews',
+    'django.contrib.sites',  # 필수: allauth는 sites 프레임워크를 사용함
+
+    # allauth 관련 앱 추가
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
+    # 네이버 로그인 제공자 추가
+    'allauth.socialaccount.providers.naver',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    # Django 기본 인증 백엔드
+    'django.contrib.auth.backends.ModelBackend',
+    # allauth 인증 백엔드 (소셜 로그인용)
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Site ID 설정 (기본값 1)
+SITE_ID = 1
+
+# 로그인 후 이동할 URL (메인 페이지 등 원하는 곳으로)
+LOGIN_REDIRECT_URL = '/'
+# 로그아웃 후 이동할 URL
+LOGOUT_REDIRECT_URL = '/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -53,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -81,6 +108,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
 
 DATABASES = {
     'default': {
@@ -138,6 +166,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'landing'
+#LOGIN_REDIRECT_URL = 'dashboard'
+#LOGOUT_REDIRECT_URL = 'landing'
 

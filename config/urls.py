@@ -12,4 +12,5 @@ urlpatterns = [
     path('weddings/', include('weddings.urls')),
     path('vendors/', include('vendors.urls')),
     path('', core_views.landing, name='landing'),
+    path('accounts/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
