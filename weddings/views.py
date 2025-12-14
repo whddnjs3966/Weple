@@ -68,6 +68,13 @@ def dashboard(request):
         # 1-0. Update Group Info (Date) - handled via separate endpoint or here? 
         # User requested modal update. Let's handle it here if easy, or separate view.
         # Let's check for specific hidden input.
+        if 'update_profile_name' in request.POST:
+            new_name = request.POST.get('profile_name')
+            if new_name:
+                request.user.first_name = new_name  # first_name 필드를 이름으로 사용
+                request.user.save()
+            return redirect('dashboard')
+
         if 'update_date' in request.POST:
              new_date_str = request.POST.get('wedding_date')
              try:

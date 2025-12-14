@@ -33,7 +33,7 @@
                     <li class="nav-item">
                         <span class="nav-link font-refined">
                             <i class="bi bi-person-circle me-1 text-muted"></i>
-                            {{ user.username }}님
+                            {{ user.first_name|default:user.username }}님
                         </span>
                     </li>
                     <li class="nav-item">
@@ -75,8 +75,7 @@
                     <div class="mb-4 text-center">
                         <label class="form-label text-secondary small fw-bold">내 초대 코드</label>
                         <div class="d-flex align-items-center justify-content-center gap-2">
-                            <h2 class="mb-0 fw-bold font-monospace" style="letter-spacing: 2px;">{{
-                                user.wedding_profile.group.invite_code }}</h2>
+                            <h2 class="mb-0 fw-bold font-monospace" style="letter-spacing: 2px;">{{ user.wedding_profile.group.invite_code }}</h2>
                             <button class="btn btn-sm btn-light border"
                                 onclick="navigator.clipboard.writeText('{{ user.wedding_profile.group.invite_code }}')">
                                 <i class="bi bi-files"></i>
@@ -90,6 +89,16 @@
                     <!-- Date Edit Section -->
                     <form method="post" action="{% url 'dashboard' %}">
                         {% csrf_token %}
+                        <input type="hidden" name="update_profile_name" value="true">
+                        <div class="mb-2">
+                            <label class="form-label fw-bold small text-secondary">이름(닉네임) 변경</label>
+                            <div class="d-flex gap-2">
+                                <input type="text" name="profile_name" class="form-control"
+                                       value="{{ user.first_name|default:user.username }}"
+                                       placeholder="이름 입력">
+                                <button type="submit" class="btn btn-light border" style="white-space: nowrap;">변경</button>
+                            </div>
+                        </div>
                         <input type="hidden" name="update_date" value="true">
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-secondary">결혼 예정일 수정</label>

@@ -166,6 +166,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    'naver': {
+        'SCOPE': ['name', 'email'],  # 이름과 이메일 정보 요청
+        'AUTH_PARAMS': {'auth_type': 'reprompt'},
+    }
+}
+
 #LOGIN_REDIRECT_URL = 'dashboard'
 #LOGOUT_REDIRECT_URL = 'landing'
 
