@@ -1,5 +1,5 @@
 from django import forms
-from .models import WeddingProfile, WeddingGroup
+from .models import WeddingProfile, WeddingGroup, Post, Comment
 
 class WeddingGroupForm(forms.ModelForm):
     class Meta:
@@ -39,3 +39,33 @@ class GroupJoinForm(forms.Form):
         if not WeddingGroup.objects.filter(invite_code=code).exists():
             raise forms.ValidationError("유효하지 않은 초대 코드입니다.")
         return code
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control bg-light border-0 py-3', 
+                'style': 'border-radius: 15px;', 
+                'placeholder': '제목을 입력하세요'
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control bg-light border-0 py-3', 
+                'style': 'border-radius: 15px; height: 300px; resize: none;', 
+                'placeholder': '내용을 자유롭게 입력하세요'
+            }),
+        }
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control bg-light border-0 py-3', 
+                'style': 'border-radius: 15px; resize: none; padding-right: 50px;', 
+                'placeholder': '댓글을 남겨주세요...', 
+                'rows': 2
+            }),
+        }

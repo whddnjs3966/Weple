@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-header bg-white border-0 p-4">
+            <h4 class="fw-bold mb-0">
+                <i class="bi bi-pencil-square me-2 text-primary-custom"></i>글쓰기
+            </h4>
+        </div>
+        <div class="card-body p-4 pt-0">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="{{ form.title.id_for_label }}" class="form-label fw-bold text-muted">제목</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label for="{{ form.content.id_for_label }}" class="form-label fw-bold text-muted">내용</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                    <div class="text-danger small mt-1">{{ form.content.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'dashboard' %}?tab=community" class="btn btn-light rounded-pill px-4 fw-bold">취소</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">등록하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

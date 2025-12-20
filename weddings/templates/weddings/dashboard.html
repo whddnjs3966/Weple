@@ -10,6 +10,7 @@
             background: url('{% static "core/images/landing_bg.png" %}') center/cover;
             filter: brightness(0.7);
         }
+
         .nav-pills .nav-link {
             border-radius: 50px;
             padding: 10px 25px;
@@ -20,32 +21,40 @@
             margin-right: 10px;
             transition: all 0.3s ease;
         }
+
         .nav-pills .nav-link.active {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
             box-shadow: 0 4px 10px rgba(255, 133, 162, 0.3);
         }
+
         .timeline-card {
             min-width: 250px;
             margin-right: 15px;
         }
+
         .timeline-container {
             overflow-x: auto;
             padding-bottom: 15px;
         }
+
         .checklist-item {
             transition: all 0.2s ease;
         }
+
         .checklist-item:hover {
             background-color: #f8f9fa;
         }
+
         .checklist-item.completed {
             opacity: 0.6;
         }
+
         .checklist-item.completed .form-check-label {
             text-decoration: line-through;
         }
+
         .text-truncate-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -62,7 +71,8 @@
                     <div class="position-absolute top-0 start-0 w-100 h-100 hero-bg"></div>
                     <div class="position-relative z-1">
                         <h5 class="fw-bold mb-2 letter-spacing-2 dashboard-header-text fs-5">WEDDING DAY</h5>
-                        <h1 class="display-3 mb-0 dashboard-countdown fw-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+                        <h1 class="display-3 mb-0 dashboard-countdown fw-bold"
+                            style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
                             D-{{ d_day }}
                         </h1>
                     </div>
@@ -73,22 +83,26 @@
 
     <ul class="nav nav-pills mb-4 justify-content-center fade-in" id="dashboardTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="schedule-tab" data-bs-toggle="pill" data-bs-target="#schedule" type="button" role="tab" aria-controls="schedule" aria-selected="true">
+            <button class="nav-link active" id="schedule-tab" data-bs-toggle="pill" data-bs-target="#schedule"
+                type="button" role="tab" aria-controls="schedule" aria-selected="true">
                 <i class="bi bi-calendar-event me-2"></i>일정관리
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="todo-tab" data-bs-toggle="pill" data-bs-target="#todo" type="button" role="tab" aria-controls="todo" aria-selected="false">
+            <button class="nav-link" id="todo-tab" data-bs-toggle="pill" data-bs-target="#todo" type="button" role="tab"
+                aria-controls="todo" aria-selected="false">
                 <i class="bi bi-check2-square me-2"></i>체크리스트
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="vendors-tab" data-bs-toggle="pill" data-bs-target="#vendors" type="button" role="tab" aria-controls="vendors" aria-selected="false">
+            <button class="nav-link" id="vendors-tab" data-bs-toggle="pill" data-bs-target="#vendors" type="button"
+                role="tab" aria-controls="vendors" aria-selected="false">
                 <i class="bi bi-shop me-2"></i>업체분석
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="community-tab" data-bs-toggle="pill" data-bs-target="#community" type="button" role="tab" aria-controls="community" aria-selected="false">
+            <button class="nav-link" id="community-tab" data-bs-toggle="pill" data-bs-target="#community" type="button"
+                role="tab" aria-controls="community" aria-selected="false">
                 <i class="bi bi-people-fill me-2"></i>커뮤니티
             </button>
         </li>
@@ -100,8 +114,10 @@
             <div class="row g-4">
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm glass-card h-100" style="border-radius: 20px;">
-                        <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
-                            <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm btn-light rounded-circle">
+                        <div
+                            class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
+                            <a href="?year={{ prev_year }}&month={{ prev_month }}"
+                                class="btn btn-sm btn-light rounded-circle">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                             <div class="d-flex align-items-center gap-2">
@@ -109,11 +125,13 @@
                                     <i class="bi bi-calendar-heart me-2 text-primary-custom"></i>
                                     {{ current_year }}년 {{ current_month }}월
                                 </h4>
-                                <button type="button" class="btn btn-sm btn-light rounded-circle text-muted" data-bs-toggle="modal" data-bs-target="#datePickerModal">
+                                <button type="button" class="btn btn-sm btn-light rounded-circle text-muted"
+                                    data-bs-toggle="modal" data-bs-target="#datePickerModal">
                                     <i class="bi bi-calendar-date"></i>
                                 </button>
                             </div>
-                            <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-light rounded-circle">
+                            <a href="?year={{ next_year }}&month={{ next_month }}"
+                                class="btn btn-sm btn-light rounded-circle">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </div>
@@ -149,12 +167,13 @@
                                         <td>
                                             {% if not day_info.is_empty %}
                                             <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
-                                                 onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
-                                                 data-log-content="{{ day_info.log_content|default:'' }}">
+                                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
+                                                data-log-content="{{ day_info.log_content|default:'' }}">
                                                 <span>{{ day_info.day }}</span>
 
                                                 {% if day_info.is_wedding_day %}
-                                                <div class="d-flex justify-content-center align-items-center flex-grow-1" style="line-height: 1;">
+                                                <div class="d-flex justify-content-center align-items-center flex-grow-1"
+                                                    style="line-height: 1;">
                                                     <span style="font-size: 1.5rem;">👰‍♀️🤵‍♂️</span>
                                                 </div>
                                                 {% endif %}
@@ -187,18 +206,23 @@
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm h-100 glass-card" style="border-radius: 20px;">
                         <div class="card-header bg-transparent border-0 p-4 pb-0">
-                            <ul class="nav nav-pills nav-fill" id="upcomingTabs" role="tablist" style="border-bottom: 1px solid #dee2e6;">
+                            <ul class="nav nav-pills nav-fill" id="upcomingTabs" role="tablist"
+                                style="border-bottom: 1px solid #dee2e6;">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                            id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
-                                            type="button" role="tab" aria-controls="panel-schedule" aria-selected="true" style="color: #6c757d;">
+                                    <button
+                                        class="nav-link active fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
+                                        id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
+                                        type="button" role="tab" aria-controls="panel-schedule" aria-selected="true"
+                                        style="color: #6c757d;">
                                         일정
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                            id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo"
-                                            type="button" role="tab" aria-controls="panel-memo" aria-selected="false" style="color: #6c757d;">
+                                    <button
+                                        class="nav-link fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
+                                        id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo"
+                                        type="button" role="tab" aria-controls="panel-memo" aria-selected="false"
+                                        style="color: #6c757d;">
                                         메모
                                     </button>
                                 </li>
@@ -206,7 +230,10 @@
                         </div>
 
                         <style>
-                            #upcomingTabs .nav-link { transition: all 0.3s ease; }
+                            #upcomingTabs .nav-link {
+                                transition: all 0.3s ease;
+                            }
+
                             #upcomingTabs .nav-link.active {
                                 color: var(--primary-color) !important;
                                 background-color: transparent !important;
@@ -216,10 +243,12 @@
 
                         <div class="card-body p-4 h-100">
                             <div class="tab-content" id="upcomingTabsContent">
-                                <div class="tab-pane fade show active" id="panel-schedule" role="tabpanel" aria-labelledby="schedule-tab-panel">
+                                <div class="tab-pane fade show active" id="panel-schedule" role="tabpanel"
+                                    aria-labelledby="schedule-tab-panel">
                                     <div class="list-group list-group-flush">
                                         {% for item in upcoming_schedules %}
-                                        <div class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                        <div
+                                            class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
                                             <div style="width: 60px;">
                                                 {% if item.d_day == 0 %}
                                                 <span class="badge bg-danger rounded-pill">D-Day</span>
@@ -232,7 +261,8 @@
                                             <div class="flex-grow-1 px-3">
                                                 <div class="d-flex align-items-center">
                                                     <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                    <span class="fw-bold text-dark text-truncate" style="max-width: 150px;">
+                                                    <span class="fw-bold text-dark text-truncate"
+                                                        style="max-width: 150px;">
                                                         {{ item.title }}
                                                     </span>
                                                 </div>
@@ -249,10 +279,12 @@
                                     </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="panel-memo" role="tabpanel" aria-labelledby="memo-tab-panel">
+                                <div class="tab-pane fade" id="panel-memo" role="tabpanel"
+                                    aria-labelledby="memo-tab-panel">
                                     <div class="list-group list-group-flush">
                                         {% for item in upcoming_memos %}
-                                        <div class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                        <div
+                                            class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
                                             <div style="width: 60px;">
                                                 {% if item.d_day == 0 %}
                                                 <span class="badge bg-danger rounded-pill">D-Day</span>
@@ -292,24 +324,29 @@
             <div class="row">
                 <div class="col-12">
                     <div class="d-flex justify-content-end align-items-center mb-3">
-                        <span class="badge bg-white text-muted border px-4 py-3 rounded-pill shadow-sm" style="margin-right:10px;">
+                        <span class="badge bg-white text-muted border px-4 py-3 rounded-pill shadow-sm"
+                            style="margin-right:10px;">
                             <i class="bi bi-wallet2 me-2 text-primary-custom fs-5"></i>
                             <span class="fs-6">Total Budget: <span class="fw-bold text-dark">{{ total_budget|intcomma }}원</span></span>
                         </span>
                         <div class="d-flex gap-2 me-3">
-                            <button class="btn btn-primary shadow-sm rounded-3 d-flex align-items-center justify-content-center px-3"
-                                    style="height: 40px; background-color:#2c82ff; border-color:#2c82ff;" data-bs-toggle="modal" data-bs-target="#addTaskModal" title="추가">
+                            <button
+                                class="btn btn-primary shadow-sm rounded-3 d-flex align-items-center justify-content-center px-3"
+                                style="height: 40px; background-color:#2c82ff; border-color:#2c82ff;"
+                                data-bs-toggle="modal" data-bs-target="#addTaskModal" title="추가">
                                 <span class="fw-bold">➕ 추가</span>
                             </button>
-                            <button class="btn btn-danger shadow-sm rounded-3 d-flex align-items-center justify-content-center px-3"
-                                    style="height: 40px;" id="btnDeleteSelected" title="삭제">
+                            <button
+                                class="btn btn-danger shadow-sm rounded-3 d-flex align-items-center justify-content-center px-3"
+                                style="height: 40px;" id="btnDeleteSelected" title="삭제">
                                 <span class="fw-bold">➖ 삭제</span>
                             </button>
                         </div>
                     </div>
 
                     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-                        <div class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+                        <div
+                            class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
                             <h5 class="fw-bold mb-0">웨딩 체크리스트 (Timeline)</h5>
                             <div class="d-flex gap-2">
                                 <span class="badge bg-light text-dark border p-2 rounded-pill">
@@ -319,37 +356,53 @@
                         </div>
                         <div class="card-body p-4 pt-0">
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle" style="border-collapse: separate; border-spacing: 0;">
-                                    <thead style="background-color: rgba(255, 142, 142, 0.1); border-bottom: 2px solid rgba(255, 142, 142, 0.5);">
+                                <table class="table table-hover align-middle"
+                                    style="border-collapse: separate; border-spacing: 0;">
+                                    <thead
+                                        style="background-color: rgba(255, 142, 142, 0.1); border-bottom: 2px solid rgba(255, 142, 142, 0.5);">
                                         <tr class="text-dark text-uppercase">
-                                            <th class="border-0 rounded-start-pill py-3 ps-4 text-center" style="width: 5%;">
+                                            <th class="border-0 rounded-start-pill py-3 ps-4 text-center"
+                                                style="width: 5%;">
                                                 <input class="form-check-input" type="checkbox" id="checkAll">
                                             </th>
                                             <th class="border-0 py-3 ps-2 text-center fw-bold" style="width: 10%;">
-                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">시기 (D-Day)</span>
+                                                <span
+                                                    style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">시기
+                                                    (D-Day)</span>
                                             </th>
                                             <th class="border-0 py-3 text-center fw-bold" style="width: 40%;">
-                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">할 일 (Task)</span>
+                                                <span
+                                                    style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">할
+                                                    일 (Task)</span>
                                             </th>
                                             <th class="border-0 py-3 text-center fw-bold" style="width: 15%;">
-                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">예상 예산</span>
+                                                <span
+                                                    style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">예상
+                                                    예산</span>
                                             </th>
                                             <th class="border-0 py-3 text-center fw-bold" style="width: 15%;">
-                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">일정 (Date)</span>
+                                                <span
+                                                    style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">일정
+                                                    (Date)</span>
                                             </th>
-                                            <th class="border-0 rounded-end-pill py-3 text-center fw-bold" style="width: 15%;">
-                                                <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">완료여부</span>
+                                            <th class="border-0 rounded-end-pill py-3 text-center fw-bold"
+                                                style="width: 15%;">
+                                                <span
+                                                    style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">완료여부</span>
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for task in checklist %}
-                                        <tr class="{% if task.is_done %}bg-light opacity-50{% endif %}" style="transition: all 0.2s;">
+                                        <tr class="{% if task.is_done %}bg-light opacity-50{% endif %}"
+                                            style="transition: all 0.2s;">
                                             <td class="ps-4 py-3 text-center">
-                                                <input class="form-check-input task-checkbox" type="checkbox" value="{{ task.id }}">
+                                                <input class="form-check-input task-checkbox" type="checkbox"
+                                                    value="{{ task.id }}">
                                             </td>
                                             <td class="py-3 ps-2 text-center">
-                                                <span class="badge rounded-pill {% if task.d_day_offset < -180 %}bg-secondary text-white{% elif task.d_day_offset < -90 %}bg-info text-white{% elif task.d_day_offset < -30 %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                                                <span
+                                                    class="badge rounded-pill {% if task.d_day_offset < -180 %}bg-secondary text-white{% elif task.d_day_offset < -90 %}bg-info text-white{% elif task.d_day_offset < -30 %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
                                                     {% if task.d_day_offset == 0 %}
                                                     D-Day
                                                     {% else %}
@@ -359,11 +412,13 @@
                                             </td>
                                             <td class="py-3 text-start ps-5">
                                                 <div class="d-flex flex-column align-items-start">
-                                                    <span class="fw-bold text-dark {% if task.is_done %}text-decoration-line-through text-muted{% endif %}">
+                                                    <span
+                                                        class="fw-bold text-dark {% if task.is_done %}text-decoration-line-through text-muted{% endif %}">
                                                         {{ task.title }}
                                                     </span>
                                                     {% if task.description %}
-                                                    <small class="text-muted text-truncate-2" style="max-width: 400px; margin-top: 5px;">
+                                                    <small class="text-muted text-truncate-2"
+                                                        style="max-width: 400px; margin-top: 5px;">
                                                         {{ task.description }}
                                                     </small>
                                                     {% endif %}
@@ -371,26 +426,28 @@
                                             </td>
                                             <td class="text-center py-3">
                                                 <input type="text"
-                                                       class="form-control text-center bg-white budget-input"
-                                                       value="{{ task.estimated_budget|default:0|intcomma }}"
-                                                       data-task-id="{{ task.id }}"
-                                                       data-original-value="{{ task.estimated_budget|default:0 }}"
-                                                       onfocus="this.value = this.value.replace(/[^0-9]/g, '')"
-                                                       onblur="updateBudget(this)"
-                                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                                                       title="클릭하여 예산 수정"
-                                                       style="max-width: 120px; margin: 0 auto; font-weight: bold; color: #6c757d; border: 1px solid #dee2e6;">
+                                                    class="form-control text-center bg-white budget-input"
+                                                    value="{{ task.estimated_budget|default:0|intcomma }}"
+                                                    data-task-id="{{ task.id }}"
+                                                    data-original-value="{{ task.estimated_budget|default:0 }}"
+                                                    onfocus="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                    onblur="updateBudget(this)"
+                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                                                    title="클릭하여 예산 수정"
+                                                    style="max-width: 120px; margin: 0 auto; font-weight: bold; color: #6c757d; border: 1px solid #dee2e6;">
                                             </td>
                                             <td class="text-center py-3">
                                                 {% if task.date %}
-                                                <button class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0 bg-white shadow-sm"
-                                                        onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:'Y-m-d' }}', '{{ task.title|escapejs }}')">
+                                                <button
+                                                    class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0 bg-white shadow-sm"
+                                                    onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:'Y-m-d' }}', '{{ task.title|escapejs }}')">
                                                     <i class="bi bi-calendar-event me-1 text-primary-custom"></i>
                                                     {{ task.date|date:"Y.m.d" }}
                                                 </button>
                                                 {% else %}
-                                                <button class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm"
-                                                        onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title|escapejs }}')">
+                                                <button
+                                                    class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm"
+                                                    onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title|escapejs }}')">
                                                     <i class="bi bi-plus-lg me-1"></i>일정 등록
                                                 </button>
                                                 {% endif %}
@@ -399,7 +456,8 @@
                                                 <form method="post" style="display:inline;">
                                                     {% csrf_token %}
                                                     <input type="hidden" name="toggle_task_id" value="{{ task.id }}">
-                                                    <button type="submit" class="btn btn-link p-0 text-decoration-none" title="완료 여부 토글">
+                                                    <button type="submit" class="btn btn-link p-0 text-decoration-none"
+                                                        title="완료 여부 토글">
                                                         {% if task.is_done %}
                                                         <i class="bi bi-check-circle-fill text-success fs-4"></i>
                                                         {% else %}
@@ -436,8 +494,10 @@
                             <div class="row g-3">
                                 {% for category in vendor_categories %}
                                 <div class="col-6 col-md-4 col-lg-3">
-                                    <a href="{% url 'vendor_list' %}?category={{ category.slug }}" class="text-decoration-none">
-                                        <div class="card h-100 border-0 shadow-sm hover-lift" style="background-color: #f8f9fa; transition: transform 0.2s;">
+                                    <a href="{% url 'vendor_list' %}?category={{ category.slug }}"
+                                        class="text-decoration-none">
+                                        <div class="card h-100 border-0 shadow-sm hover-lift"
+                                            style="background-color: #f8f9fa; transition: transform 0.2s;">
                                             <div class="card-body text-center py-4">
                                                 <div class="mb-3">
                                                     <i class="bi bi-search fs-1 text-primary-custom opacity-50"></i>
@@ -464,9 +524,11 @@
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; overflow: hidden;">
                                 {% if vendor.image %}
-                                <img src="{{ vendor.image.url }}" class="card-img-top" alt="{{ vendor.name }}" style="height: 150px; object-fit: cover;">
+                                <img src="{{ vendor.image.url }}" class="card-img-top" alt="{{ vendor.name }}"
+                                    style="height: 150px; object-fit: cover;">
                                 {% else %}
-                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <div class="bg-light d-flex align-items-center justify-content-center"
+                                    style="height: 150px;">
                                     <i class="bi bi-image text-muted fs-1"></i>
                                 </div>
                                 {% endif %}
@@ -498,22 +560,29 @@
                 <div class="col-12">
                     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
                         <div class="card-header bg-white border-0 p-4">
-                            <ul class="nav nav-pills mb-0" id="communityTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active btn-sm" id="notice-tab" data-bs-toggle="pill" data-bs-target="#notice" type="button" role="tab" aria-controls="notice" aria-selected="true">
-                                        공지사항
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link btn-sm" id="qna-tab" data-bs-toggle="pill" data-bs-target="#qna" type="button" role="tab" aria-controls="qna" aria-selected="false">
-                                        Q&A
-                                    </button>
-                                </li>
-                            </ul>
+                            <div class="d-flex justify-content-end">
+                                <ul class="nav nav-pills mb-0" id="communityTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active btn-sm" id="notice-tab" data-bs-toggle="pill"
+                                            data-bs-target="#notice" type="button" role="tab" aria-controls="notice"
+                                            aria-selected="true">
+                                            공지사항
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link btn-sm" id="qna-tab" data-bs-toggle="pill"
+                                            data-bs-target="#qna" type="button" role="tab" aria-controls="qna"
+                                            aria-selected="false">
+                                            자유게시판
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="card-body p-4 pt-0">
                             <div class="tab-content" id="communityTabsContent">
-                                <div class="tab-pane fade show active" id="notice" role="tabpanel" aria-labelledby="notice-tab">
+                                <div class="tab-pane fade show active" id="notice" role="tabpanel"
+                                    aria-labelledby="notice-tab">
                                     <div class="list-group list-group-flush">
                                         {% for notice in notices %}
                                         <div class="list-group-item border-0 px-0 py-3">
@@ -537,47 +606,39 @@
                                 <div class="tab-pane fade" id="qna" role="tabpanel" aria-labelledby="qna-tab">
                                     <div class="mb-5">
                                         <div class="list-group list-group-flush">
-                                            {% for question in questions %}
-                                            <div class="list-group-item border-0 px-0 py-3">
-                                                <div class="d-flex w-100 justify-content-between align-items-center mb-1">
-                                                    <h6 class="mb-1 fw-bold text-dark">{{ question.title }}</h6>
-                                                    {% if question.is_answered %}
-                                                    <span class="badge bg-success rounded-pill">답변완료</span>
-                                                    {% else %}
-                                                    <span class="badge bg-secondary rounded-pill">답변대기</span>
-                                                    {% endif %}
+                                            {% for post in posts %}
+                                            <a href="{% url 'post_detail' post.id %}"
+                                                class="list-group-item list-group-item-action border-0 px-0 py-3">
+                                                <div
+                                                    class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                                    <h6 class="mb-1 fw-bold text-dark">{{ post.title }}</h6>
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-chat-dots text-muted me-1 small"></i>
+                                                        <span class="text-muted small fw-bold me-2">{{
+                                                            post.comment_count }}</span>
+                                                        <small class="text-muted">{{ post.created_at|date:"Y.m.d" }}</small>
+                                                    </div>
                                                 </div>
                                                 <p class="mb-1 text-muted small">
-                                                    {{ question.content|truncatechars:100 }}
+                                                    {{ post.content|truncatechars:100 }}
                                                 </p>
-                                                <small class="text-muted">
-                                                    {{ question.author.username }} · {{ question.created_at|date:"Y.m.d" }}
+                                                <small class="text-primary-custom">
+                                                    {{ post.author.first_name|default:post.author.username }}
                                                 </small>
-                                            </div>
+                                            </a>
                                             {% empty %}
                                             <div class="text-center py-5 text-muted">
-                                                <p>등록된 질문이 없습니다.</p>
+                                                <p>등록된 게시글이 없습니다. 첫 글을 작성해보세요!</p>
                                             </div>
                                             {% endfor %}
                                         </div>
                                     </div>
 
-                                    <div class="mood-diary-container p-4 rounded-4 mt-4">
-                                        <h6 class="fw-bold text-muted mb-3 small">
-                                            <i class="bi bi-pencil-fill me-2 text-primary-custom"></i>질문 남기기
-                                        </h6>
-                                        <form method="post">
-                                            {% csrf_token %}
-                                            <div class="mb-3">
-                                                <input type="text" name="question_title" class="form-control mood-diary-textarea" placeholder="제목을 입력하세요" required style="padding: 1rem; font-size: 1rem;">
-                                            </div>
-                                            <div class="mb-3">
-                                                <textarea name="question_content" class="form-control mood-diary-textarea" placeholder="궁금한 점을 자유롭게 남겨주세요..." required style="height: 150px;"></textarea>
-                                            </div>
-                                            <button type="submit" class="btn mood-diary-btn w-100 py-2 fw-bold shadow-sm">
-                                                <i class="bi bi-send me-2"></i>질문 등록하기
-                                            </button>
-                                        </form>
+                                    <div class="d-flex justify-content-end">
+                                        <a href="{% url 'post_create' %}"
+                                            class="btn btn-primary rounded-pill fw-bold shadow-sm px-4">
+                                            <i class="bi bi-pencil-fill me-2"></i>글쓰기
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -721,7 +782,8 @@
         }
     </script>
 
-    <div class="modal fade" id="dateActionModal" tabindex="-1" aria-labelledby="dateActionModalLabel" aria-hidden="true">
+    <div class="modal fade" id="dateActionModal" tabindex="-1" aria-labelledby="dateActionModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
                 <div class="modal-header border-0 pb-0">
@@ -731,26 +793,34 @@
                 <div class="modal-body p-4">
                     <ul class="nav nav-pills mb-3 nav-justified" id="modalTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active rounded-pill" id="memo-tab-modal" data-bs-toggle="pill" data-bs-target="#memo-modal" type="button" role="tab" aria-controls="memo-modal" aria-selected="true">
+                            <button class="nav-link active rounded-pill" id="memo-tab-modal" data-bs-toggle="pill"
+                                data-bs-target="#memo-modal" type="button" role="tab" aria-controls="memo-modal"
+                                aria-selected="true">
                                 <i class="bi bi-journal-text me-2"></i>메모 등록
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-pill" id="task-tab-modal" data-bs-toggle="pill" data-bs-target="#task-modal" type="button" role="tab" aria-controls="task-modal" aria-selected="false">
+                            <button class="nav-link rounded-pill" id="task-tab-modal" data-bs-toggle="pill"
+                                data-bs-target="#task-modal" type="button" role="tab" aria-controls="task-modal"
+                                aria-selected="false">
                                 <i class="bi bi-check-circle me-2"></i>일정 등록
                             </button>
                         </li>
                     </ul>
 
                     <div class="tab-content" id="modalTabsContent">
-                        <div class="tab-pane fade show active" id="memo-modal" role="tabpanel" aria-labelledby="memo-tab-modal">
+                        <div class="tab-pane fade show active" id="memo-modal" role="tabpanel"
+                            aria-labelledby="memo-tab-modal">
                             <form method="post">
                                 {% csrf_token %}
                                 <input type="hidden" name="date" id="modalDateInput">
                                 <div class="mb-3">
-                                    <textarea name="log_content" class="form-control mood-diary-textarea" placeholder="이 날의 메모를 남겨주세요..." style="height: 150px; resize: none; border-radius: 15px; padding: 15px;"></textarea>
+                                    <textarea name="log_content" class="form-control mood-diary-textarea"
+                                        placeholder="이 날의 메모를 남겨주세요..."
+                                        style="height: 150px; resize: none; border-radius: 15px; padding: 15px;"></textarea>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">저장하기</button>
+                                <button type="submit"
+                                    class="btn btn-primary w-100 rounded-pill fw-bold py-2">저장하기</button>
                             </form>
                         </div>
 
@@ -760,7 +830,8 @@
                                 <input type="hidden" name="date" id="modalDateInputTask">
                                 <div class="mb-4">
                                     <label class="form-label text-muted small fw-bold mb-2">할 일 선택</label>
-                                    <select class="form-select border-0 bg-light py-3" name="task_id" style="border-radius: 15px;">
+                                    <select class="form-select border-0 bg-light py-3" name="task_id"
+                                        style="border-radius: 15px;">
                                         <option selected disabled>할 일을 선택해주세요</option>
                                         {% for task in unscheduled_tasks %}
                                         <option value="{{ task.id }}" {% if task.is_done %}disabled{% endif %}>
@@ -771,7 +842,8 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold py-2">일정 등록하기</button>
+                                <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold py-2">일정
+                                    등록하기</button>
                             </form>
                         </div>
                     </div>
@@ -797,7 +869,8 @@
                         <input type="hidden" name="task_id" id="taskDateModalId">
                         <div class="mb-4">
                             <label class="form-label text-muted small fw-bold">날짜 선택</label>
-                            <input type="date" name="date" id="taskDateModalInput" class="form-control bg-light border-0 py-3" style="border-radius: 15px;" required>
+                            <input type="date" name="date" id="taskDateModalInput"
+                                class="form-control bg-light border-0 py-3" style="border-radius: 15px;" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">확인</button>
                     </form>
@@ -806,7 +879,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
+    <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
                 <div class="modal-header border-0 pb-0">
@@ -827,11 +901,9 @@
                             <label for="monthSelect" class="form-label text-muted small fw-bold">월</label>
                             <select class="form-select border-0 bg-light" id="monthSelect" name="month">
                                 {% for m in "123456789012"|make_list %}
-                                    {% if forloop.counter <= 12 %}
-                                    <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>
-                                        {{ forloop.counter }}월
-                                    </option>
-                                    {% endif %}
+                                <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>
+                                    {{ forloop.counter }}월
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -855,22 +927,28 @@
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">시기 (D-Day)</label>
                             <div class="input-group border-0 bg-light" style="border-radius: 15px; overflow: hidden;">
-                                <span class="input-group-text border-0 bg-transparent ps-3 pe-1 fw-bold text-muted">D-</span>
-                                <input type="number" name="new_task_d_day" class="form-control border-0 bg-transparent py-3 ps-1" placeholder="000" required>
+                                <span
+                                    class="input-group-text border-0 bg-transparent ps-3 pe-1 fw-bold text-muted">D-</span>
+                                <input type="number" name="new_task_d_day"
+                                    class="form-control border-0 bg-transparent py-3 ps-1" placeholder="000" required>
                                 <span class="input-group-text border-0 bg-transparent pe-3 text-muted">일 전</span>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">할 일 (Task)</label>
-                            <input type="text" name="new_task_title" class="form-control bg-light border-0 py-3" style="border-radius: 15px;" placeholder="할 일을 입력하세요" required>
+                            <input type="text" name="new_task_title" class="form-control bg-light border-0 py-3"
+                                style="border-radius: 15px;" placeholder="할 일을 입력하세요" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">예상 예산 (원)</label>
-                            <input type="number" name="new_task_budget" class="form-control bg-light border-0 py-3" style="border-radius: 15px;" placeholder="0">
+                            <input type="number" name="new_task_budget" class="form-control bg-light border-0 py-3"
+                                style="border-radius: 15px;" placeholder="0">
                         </div>
                         <div class="mb-4">
                             <label class="form-label text-muted small fw-bold">메모 (Memo)</label>
-                            <textarea name="new_task_memo" class="form-control bg-light border-0 py-3" style="border-radius: 15px; height: 100px; resize: none;" placeholder="메모를 입력하세요"></textarea>
+                            <textarea name="new_task_memo" class="form-control bg-light border-0 py-3"
+                                style="border-radius: 15px; height: 100px; resize: none;"
+                                placeholder="메모를 입력하세요"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">추가하기</button>
                     </form>

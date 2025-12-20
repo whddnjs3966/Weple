@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+
+    <!-- Navigation -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard' %}?tab=community" class="text-decoration-none text-muted fw-bold">
+            <i class="bi bi-chevron-left me-1"></i>목록으로 돌아가기
+        </a>
+    </div>
+
+    <!-- Post Content -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
+        <div class="card-header bg-white border-0 p-4 border-bottom">
+            <h4 class="fw-bold mb-2">{{ post.title }}</h4>
+            <div class="d-flex justify-content-between align-items-center text-muted small">
+                <div>
+                    <span class="text-primary-custom fw-bold me-2">{{
+                        post.author.first_name|default:post.author.username }}</span>
+                    <span>{{ post.created_at|date:"Y.m.d H:i" }}</span>
+                </div>
+                <div>
+                    <i class="bi bi-chat-dots me-1"></i>{{ post.comments.count }}
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4" style="min-height: 200px;">
+            <p class="mb-0" style="white-space: pre-line; line-height: 1.6;">{{ post.content }}</p>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-header bg-white border-0 p-4 pb-0">
+            <h5 class="fw-bold mb-0">댓글 <span class="text-primary-custom">{{ post.comments.count }}</span></h5>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Comment List -->
+            <div class="mb-4">
+                {% for comment in comments %}
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary fw-bold"
+                            style="width: 40px; height: 40px;">
+                            {{ comment.author.first_name|default:comment.author.username|slice:":1" }}
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="bg-light p-3 border-0" style="border-radius: 0 15px 15px 15px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold small">{{ comment.author.first_name|default:comment.author.username
+                                    }}</span>
+                                <span class="text-muted small" style="font-size: 0.8rem;">{{
+                                    comment.created_at|timesince }} 전</span>
+                            </div>
+                            <p class="mb-0 small text-dark">{{ comment.content|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 text-muted small">
+                    <p>아직 댓글이 없습니다. 첫 댓글을 남겨주세요!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Comment Form -->
+            <form action="{% url 'comment_create' %}" method="post" class="position-relative">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        {{ form.content }}
+                    </div>
+                    <button type="submit"
+                        class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                        style="width: 50px; height: 50px;">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

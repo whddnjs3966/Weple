@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'vendors',
     'reviews',
     'django.contrib.sites',  # 필수: allauth는 sites 프레임워크를 사용함
+    'widget_tweaks',
 
     # allauth 관련 앱 추가
     'allauth',

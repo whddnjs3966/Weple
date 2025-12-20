@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .models import WeddingProfile, ScheduleTask, DailyLog, Notice, Question, WeddingGroup
+from .models import WeddingProfile, ScheduleTask, DailyLog, Notice, Post, Comment, WeddingGroup
 from vendors.models import Vendor, VendorCategory
-from .forms import WeddingProfileForm, GroupJoinForm, WeddingGroupForm
+from .forms import WeddingProfileForm, GroupJoinForm, WeddingGroupForm, PostForm, CommentForm
 import calendar
 from datetime import datetime, timedelta
 from django.urls import reverse
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.contrib import messages
 
 @login_required
@@ -112,16 +112,10 @@ def dashboard(request):
                 pass
             return redirect(f'{request.path}?date={date_str}')
             
-        # 1-3. Question
-        elif 'question_content' in request.POST:
-            q_title = request.POST.get('question_title')
-            q_content = request.POST.get('question_content')
-            Question.objects.create(
-                author=request.user,
-                title=q_title,
-                content=q_content
-            )
-            return redirect('dashboard')
+        # 1-3. Question Logic REMOVED (Replaced by Post Create View)
+        # elif 'question_content' in request.POST:
+        #     pass
+
             
         # 1-4. Toggle Task Completion (Checklist)
         elif 'toggle_task_id' in request.POST:
@@ -362,7 +356,66 @@ def dashboard(request):
         
         'vendor_categories': VendorCategory.objects.all(),
         'recommended_vendors': Vendor.objects.all()[:4],
-        'notices': Notice.objects.all(),
-        'questions': Question.objects.all(),
+        'notices': Notice.objects.annotate(comment_count=Count('comments')),
+        'posts': Post.objects.annotate(comment_count=Count('comments')),
     }
     return render(request, 'weddings/dashboard.html', context)
+
+@login_required
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('dashboard')
+    else:
+        form = PostForm()
+    return render(request, 'weddings/post_form.html', {'form': form})
+
+@login_required
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = post.comments.all()
+    form = CommentForm()
+    return render(request, 'weddings/post_detail.html', {
+        'post': post,
+        'comments': comments,
+        'form': form
+    })
+
+@login_required
+def comment_create(request):
+    if request.method == 'POST':
+        post_id = request.POST.get('post_id')
+        notice_id = request.POST.get('notice_id')
+        form = CommentForm(request.POST)
+        
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            
+            if post_id:
+                post = get_object_or_404(Post, id=post_id)
+                comment.post = post
+                comment.save()
+                return redirect('post_detail', post_id=post.id)
+            elif notice_id:
+                notice = get_object_or_404(Notice, id=notice_id)
+                comment.notice = notice
+                comment.save()
+                # Notice detail view doesn't exist yet, redirecting to dashboard or we need a notice detail view.
+                # Assuming dashboard implies list, maybe notice detail is needed or we just redirect to dashboard?
+                # Prompt said comments on Notice too. I will assume I should add notice detail or similar.
+                # For now redirect to dashboard if notice_detail not ready, but better to consistent.
+                # I will handle notice detail in dashboard expansion or separate page. 
+                # Let's assume we link to a detail page for notice as well? 
+                # Since I am not creating notice_detail view explicitly in plan (Wait, plan said "Update dashboard...").
+                # I'll redirect to dashboard for now for Notice, or create a simple detail view?
+                # User asked for "post_detail", "post_create", "comment_create".
+                # I'll stick to redirecting to dashboard for notice or maybe add a query param to open modal?
+                # Actually, I'll redirect to dashboard for Notice comments for now as fallback.
+                return redirect('dashboard')
+    
+    return redirect('dashboard')
