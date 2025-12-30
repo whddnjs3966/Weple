@@ -348,10 +348,11 @@
                         <div
                             class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
                             <h5 class="fw-bold mb-0">웨딩 체크리스트 (Timeline)</h5>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex flex-column align-items-end gap-1">
                                 <span class="badge bg-light text-dark border p-2 rounded-pill">
                                     <i class="bi bi-info-circle me-1"></i>D-Day 순으로 정렬됩니다
                                 </span>
+                                <small class="text-danger fw-bold">* 아래 체크리스트는 참고용으로, 상황에 맞게 추가 또는 삭제하세요.</small>
                             </div>
                         </div>
                         <div class="card-body p-4 pt-0">
@@ -488,7 +489,7 @@
                 <div class="col-12">
                     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
                         <div class="card-header bg-white border-0 p-4">
-                            <h5 class="fw-bold mb-0">업체 카테고리별로 찾아보기</h5>
+                            <h5 class="fw-bold mb-0">카테고리</h5>
                         </div>
                         <div class="card-body p-4 pt-0">
                             <div class="row g-3">
@@ -496,13 +497,18 @@
                                 <div class="col-6 col-md-4 col-lg-3">
                                     <a href="{% url 'vendor_list' %}?category={{ category.slug }}"
                                         class="text-decoration-none">
-                                        <div class="card h-100 border-0 shadow-sm hover-lift"
-                                            style="background-color: #f8f9fa; transition: transform 0.2s;">
-                                            <div class="card-body text-center py-4">
-                                                <div class="mb-3">
-                                                    <i class="bi bi-search fs-1 text-primary-custom opacity-50"></i>
+                                        <div class="card h-100 border-0 shadow-sm hover-lift overflow-hidden"
+                                            style="background-color: #f8f9fa; transition: all 0.2s; border-radius: 15px;">
+                                            <div class="position-relative" style="height: 150px;">
+                                                <img src="{% static 'core/images/vendor_category/'|add:category.slug|add:'.png' %}"
+                                                    class="w-100 h-100 object-fit-cover" alt="{{ category.name }}">
+                                                <div class="position-absolute top-0 start-0 w-100 h-100"
+                                                    style="background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);">
                                                 </div>
-                                                <h6 class="fw-bold text-dark mb-0">{{ category.name }}</h6>
+                                                <div class="position-absolute bottom-0 start-0 w-100 p-3 text-center">
+                                                    <h6 class="fw-bold text-white mb-0 fs-5"
+                                                        style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ category.name }}</h6>
+                                                </div>
                                             </div>
                                         </div>
                                     </a>
@@ -614,8 +620,7 @@
                                                     <h6 class="mb-1 fw-bold text-dark">{{ post.title }}</h6>
                                                     <div class="d-flex align-items-center">
                                                         <i class="bi bi-chat-dots text-muted me-1 small"></i>
-                                                        <span class="text-muted small fw-bold me-2">{{
-                                                            post.comment_count }}</span>
+                                                        <span class="text-muted small fw-bold me-2">{{ post.comment_count }}</span>
                                                         <small class="text-muted">{{ post.created_at|date:"Y.m.d" }}</small>
                                                     </div>
                                                 </div>
