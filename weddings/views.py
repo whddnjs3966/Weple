@@ -326,6 +326,30 @@ def dashboard(request):
 
     total_budget = checklist.aggregate(total=Sum('estimated_budget'))['total'] or 0
 
+    # 7. Community Search & Sort
+    search_query = request.GET.get('q', '')
+    sort_option = request.GET.get('sort', 'date')
+
+    posts_qs = Post.objects.annotate(
+        comment_count=Count('comments', distinct=True),
+        recommendation_count=Count('recommendations', distinct=True)
+    )
+
+    # Filter by search query
+    if search_query:
+        posts_qs = posts_qs.filter(
+            Q(title__icontains=search_query) |
+            Q(content__icontains=search_query) |
+            Q(author__first_name__icontains=search_query) |
+            Q(author__username__icontains=search_query)
+        )
+
+    # Sort posts
+    if sort_option == 'likes':
+        posts_qs = posts_qs.order_by('-recommendation_count', '-created_at')
+    else:  # default 'date'
+        posts_qs = posts_qs.order_by('-created_at')
+
     # Navigation links
     prev_month = month - 1 if month > 1 else 12
     prev_year = year if month > 1 else year - 1
@@ -357,7 +381,11 @@ def dashboard(request):
         'vendor_categories': VendorCategory.objects.all(),
         'recommended_vendors': Vendor.objects.all()[:4],
         'notices': Notice.objects.annotate(comment_count=Count('comments')),
-        'posts': Post.objects.annotate(comment_count=Count('comments')),
+        'notices': Notice.objects.annotate(comment_count=Count('comments')),
+        # 'posts': Post.objects.annotate(comment_count=Count('comments')), # Adjusted below for search/sort
+        'posts': posts_qs,
+        'search_query': search_query,
+        'sort_option': sort_option,
     }
     return render(request, 'weddings/dashboard.html', context)
 
@@ -369,7 +397,8 @@ def post_create(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            return redirect('dashboard')
+            post.save()
+            return redirect(reverse('dashboard') + '?tab=community')
     else:
         form = PostForm()
     return render(request, 'weddings/post_form.html', {'form': form})
@@ -419,3 +448,42 @@ def comment_create(request):
                 return redirect('dashboard')
     
     return redirect('dashboard')
+
+@login_required
+def post_recommend(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if post.recommendations.filter(id=request.user.id).exists():
+        post.recommendations.remove(request.user)
+    else:
+        post.recommendations.add(request.user)
+    
+    # Redirect back to where the user came from (detail or dashboard)
+    # If referer is detail, go back to detail. If dashboard, go back to dashboard community tab.
+    next_url = request.META.get('HTTP_REFERER')
+    if next_url:
+        return redirect(next_url)
+    return redirect(reverse('dashboard') + '?tab=community')
+
+@login_required
+def post_delete(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user == post.author:
+        post.delete()
+    return redirect(reverse('dashboard') + '?tab=community')
+
+@login_required
+def post_edit(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user != post.author:
+        return redirect('post_detail', post_id=post.id)
+    
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('post_detail', post_id=post.id)
+    else:
+        form = PostForm(instance=post)
+    
+    return render(request, 'weddings/post_form.html', {'form': form})
+

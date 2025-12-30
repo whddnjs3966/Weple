@@ -15,20 +15,45 @@
     <!-- Post Content -->
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
         <div class="card-header bg-white border-0 p-4 border-bottom">
-            <h4 class="fw-bold mb-2">{{ post.title }}</h4>
-            <div class="d-flex justify-content-between align-items-center text-muted small">
-                <div>
-                    <span class="text-primary-custom fw-bold me-2">{{
-                        post.author.first_name|default:post.author.username }}</span>
-                    <span>{{ post.created_at|date:"Y.m.d H:i" }}</span>
-                </div>
-                <div>
-                    <i class="bi bi-chat-dots me-1"></i>{{ post.comments.count }}
-                </div>
+            <div class="mb-2">
+                <h4 class="fw-bold mb-0 text-break">{{ post.title }}</h4>
+            </div>
+            <div class="d-flex align-items-center text-muted small">
+                <span class="text-primary-custom fw-bold me-2">{{ post.author.first_name|default:post.author.username }}</span>
+                <span>{{ post.created_at|date:"Y.m.d H:i" }}</span>
             </div>
         </div>
         <div class="card-body p-4" style="min-height: 200px;">
             <p class="mb-0" style="white-space: pre-line; line-height: 1.6;">{{ post.content }}</p>
+
+            <div class="d-flex justify-content-end mt-5 gap-2 align-items-center">
+                {% if user == post.author %}
+                <a href="{% url 'post_edit' post.id %}"
+                    class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+                    수정
+                </a>
+                <form action="{% url 'post_delete' post.id %}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm">
+                        삭제
+                    </button>
+                </form>
+                {% endif %}
+
+                <form action="{% url 'post_recommend' post.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center gap-2 shadow-sm"
+                        style="border-color: #FF85A2; color: #FF85A2;">
+                        {% if request.user in post.recommendations.all %}
+                        <i class="bi bi-hand-thumbs-up-fill fs-6"></i>
+                        {% else %}
+                        <i class="bi bi-hand-thumbs-up fs-6"></i>
+                        {% endif %}
+                        <span class="fw-bold">{{ post.recommendations.count }}</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -52,10 +77,8 @@
                     <div class="flex-grow-1 ms-3">
                         <div class="bg-light p-3 border-0" style="border-radius: 0 15px 15px 15px;">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold small">{{ comment.author.first_name|default:comment.author.username
-                                    }}</span>
-                                <span class="text-muted small" style="font-size: 0.8rem;">{{
-                                    comment.created_at|timesince }} 전</span>
+                                <span class="fw-bold small">{{ comment.author.first_name|default:comment.author.username }}</span>
+                                <span class="text-muted small" style="font-size: 0.8rem;">{{ comment.created_at|timesince }} 전</span>
                             </div>
                             <p class="mb-0 small text-dark">{{ comment.content|linebreaksbr }}</p>
                         </div>
