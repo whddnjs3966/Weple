@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}나의 후보 업체 - 웨딩 플래너{% endblock %}
+
+{% block content %}
+<div class="container py-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">나의 후보 업체</h2>
+        <a href="{% url 'dashboard' %}?tab=vendors" class="btn btn-outline-secondary rounded-pill">
+            <i class="bi bi-arrow-left me-2"></i>대시보드로 돌아가기
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for selection in candidates %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-lift overflow-hidden" style="border-radius: 15px;">
+                {% if selection.vendor.image %}
+                <img src="{{ selection.vendor.image.url }}" class="card-img-top object-fit-cover" style="height: 200px;"
+                    alt="{{ selection.vendor.name }}">
+                {% else %}
+                <div class="vendor-img-placeholder card-img-top bg-light d-flex align-items-center justify-content-center"
+                    style="height: 200px;">
+                    <div class="text-center text-muted">
+                        <i class="bi bi-image display-4 mb-2 opacity-50"></i>
+                        <p class="small mb-0">이미지 준비중</p>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-light text-primary fw-bold px-3 py-2 rounded-pill">{{ selection.vendor.category.name }}</span>
+                        <span class="text-warning fw-bold"><i class="bi bi-star-fill me-1"></i>{{ selection.vendor.avg_rating }}</span>
+                    </div>
+                    <h5 class="card-title fw-bold mb-2">{{ selection.vendor.name }}</h5>
+                    <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>{{ selection.vendor.region_sido }} {{ selection.vendor.region_sigungu }}</p>
+
+                    <a href="{% url 'vendor_detail' selection.vendor.id %}"
+                        class="btn btn-outline-primary w-100 rounded-pill fw-bold">상세 보기</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="text-muted">
+                <i class="bi bi-journal-bookmark display-1 mb-3 opacity-25"></i>
+                <p class="lead">등록된 후보 업체가 없습니다.</p>
+                <div class="mt-4">
+                    <a href="{% url 'dashboard' %}?tab=vendors" class="btn btn-primary rounded-pill px-4 py-2">
+                        업체 찾아보기 <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

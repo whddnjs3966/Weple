@@ -69,3 +69,22 @@ def add_selection(request, vendor_id):
         
         return redirect('vendor_detail', vendor_id=vendor.id)
     return redirect('vendor_list')
+
+@login_required
+def my_candidates_list(request):
+    """
+    후보 업체 목록 (status='candidate')
+    """
+    if hasattr(request.user, 'wedding_profile'):
+        profile = request.user.wedding_profile
+        candidates = UserVendorSelection.objects.filter(
+            profile=profile,
+            status='candidate'
+        ).select_related('vendor', 'vendor__category')
+    else:
+        candidates = []
+
+    context = {
+        'candidates': candidates,
+    }
+    return render(request, 'vendors/my_candidates_list.html', context)

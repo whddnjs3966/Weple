@@ -3,93 +3,104 @@
 {% block title %}{{ vendor.name }} - 웨딩 플래너{% endblock %}
 
 {% block content %}
-<div class="row mb-5 fade-in">
-    <div class="col-12">
-        <a href="{% url 'vendor_list' %}?category={{ vendor.category.slug }}"
-            class="btn btn-link text-decoration-none text-muted mb-3 ps-0">
-            <i class="bi bi-arrow-left me-1"></i>목록으로 돌아가기
-        </a>
-        <div class="card border-0 shadow-lg overflow-hidden">
-            <div class="card-header bg-white border-0 p-5">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="badge bg-soft text-primary-custom mb-2">{{ vendor.category.name }}</span>
-                        <h1 class="display-5 fw-bold mb-2">{{ vendor.name }}</h1>
-                        <p class="text-muted lead mb-0"><i class="bi bi-geo-alt me-2"></i>{{ vendor.region_sido }}
-                            {{ vendor.region_sigungu }} {{ vendor.address_detail }}</p>
-                    </div>
-                    <div class="text-end">
-                        <div class="display-4 fw-bold text-warning"><i class="bi bi-star-fill me-2"></i>
-                            {{ vendor.avg_rating }}</div>
-                        <small class="text-muted">리뷰 {{ vendor.review_count }}개</small>
+<div class="container py-4 fade-in">
+    <div class="row mb-5">
+        <div class="col-12">
+            <a href="{% url 'vendor_list' %}?category={{ vendor.category.slug }}"
+                class="btn btn-link text-decoration-none text-muted mb-3 ps-0">
+                <i class="bi bi-arrow-left me-1"></i>목록으로 돌아가기
+            </a>
+            <div class="card border-0 shadow-lg overflow-hidden">
+                <div class="card-header bg-white border-0 p-5">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-soft text-primary-custom mb-2">{{ vendor.category.name }}</span>
+                            <h1 class="display-5 fw-bold mb-2">{{ vendor.name }}</h1>
+                            <p class="text-muted lead mb-0"><i class="bi bi-geo-alt me-2"></i>{{ vendor.region_sido }}
+                                {{ vendor.region_sigungu }} {{ vendor.address_detail }}</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="display-4 fw-bold text-warning"><i class="bi bi-star-fill me-2"></i>
+                                {{ vendor.avg_rating }}</div>
+                            <small class="text-muted">리뷰 {{ vendor.review_count }}개</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="card-body p-5 pt-0">
-                <hr class="my-4 opacity-10">
+                <div class="card-body p-5 pt-0">
+                    <hr class="my-4 opacity-10">
 
-                <div class="row g-5">
-                    <div class="col-md-8">
-                        <h4 class="fw-bold mb-4">상세 정보</h4>
-                        <div class="row g-4 mb-5">
-                            <div class="col-md-6">
-                                <div class="p-4 bg-light rounded-4 h-100">
-                                    <h5 class="fw-bold mb-3"><i
-                                            class="bi bi-hand-thumbs-up-fill text-primary-custom me-2"></i>장점</h5>
-                                    <p class="mb-0 text-muted">{{ vendor.summary_positive|default:"아직 등록된 장점이 없습니다." }}
-                                    </p>
+                    <div class="row g-5">
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-4">상세 정보</h4>
+                            <div class="row g-4 mb-5">
+                                <div class="col-md-6">
+                                    <div class="p-4 bg-light rounded-4 h-100">
+                                        <h5 class="fw-bold mb-3"><i
+                                                class="bi bi-hand-thumbs-up-fill text-primary-custom me-2"></i>장점</h5>
+                                        <p class="mb-0 text-muted">{{ vendor.summary_positive|default:"아직 등록된 장점이 없습니다." }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-4 bg-light rounded-4 h-100">
+                                        <h5 class="fw-bold mb-3"><i
+                                                class="bi bi-hand-thumbs-down-fill text-secondary me-2"></i>단점</h5>
+                                        <p class="mb-0 text-muted">{{ vendor.summary_negative|default:"아직 등록된 단점이 없습니다." }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="p-4 bg-light rounded-4 h-100">
-                                    <h5 class="fw-bold mb-3"><i
-                                            class="bi bi-hand-thumbs-down-fill text-secondary me-2"></i>단점</h5>
-                                    <p class="mb-0 text-muted">{{ vendor.summary_negative|default:"아직 등록된 단점이 없습니다." }}
-                                    </p>
-                                </div>
+
+                            <h4 class="fw-bold mb-3">위치</h4>
+                            <div class="bg-light rounded-4 p-5 text-center text-muted">
+                                <i class="bi bi-map display-1 mb-3 opacity-25"></i>
+                                <p>지도 API 연동 예정</p>
                             </div>
                         </div>
 
-                        <h4 class="fw-bold mb-3">위치</h4>
-                        <div class="bg-light rounded-4 p-5 text-center text-muted">
-                            <i class="bi bi-map display-1 mb-3 opacity-25"></i>
-                            <p>지도 API 연동 예정</p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm bg-soft h-100">
-                            <div class="card-body p-4">
-                                <h4 class="fw-bold mb-4">나의 선택</h4>
-                                <div class="d-grid gap-3">
-                                    {% if selection and selection.status == 'final' %}
-                                    <div class="alert alert-success border-0 text-center py-4 rounded-4">
-                                        <i class="bi bi-check-circle-fill display-4 mb-3 d-block"></i>
-                                        <h5 class="fw-bold mb-0">최종 선택됨</h5>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm bg-soft h-100">
+                                <div class="card-body p-4">
+                                    <h4 class="fw-bold mb-4">나의 선택</h4>
+                                    <div class="d-grid gap-3">
+                                        {% if selection and selection.status == 'final' %}
+                                        <div class="alert alert-success border-0 text-center py-4 rounded-4">
+                                            <i class="bi bi-check-circle-fill display-4 mb-3 d-block"></i>
+                                            <h5 class="fw-bold mb-0">최종 선택됨</h5>
+                                        </div>
+                                        <form method="post" action="{% url 'add_selection' vendor.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="candidate">
+                                            <button type="submit"
+                                                class="btn btn-outline-danger w-100 py-2 rounded-pill fw-bold shadow-sm">
+                                                최종 선택 취소
+                                            </button>
+                                        </form>
+                                        {% elif selection and selection.status == 'candidate' %}
+                                        <div class="alert alert-info border-0 text-center py-3 rounded-4 bg-white">
+                                            <i
+                                                class="bi bi-bookmark-check-fill h2 mb-2 d-block text-primary-custom"></i>
+                                            <span class="fw-bold">후보 등록됨</span>
+                                        </div>
+                                        <form method="post" action="{% url 'add_selection' vendor.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="final">
+                                            <button type="submit"
+                                                class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                                                최종 선택하기
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <form method="post" action="{% url 'add_selection' vendor.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="candidate">
+                                            <button type="submit"
+                                                class="btn btn-outline-primary w-100 py-3 rounded-pill fw-bold">
+                                                <i class="bi bi-bookmark-plus me-2"></i>후보에 추가
+                                            </button>
+                                        </form>
+                                        {% endif %}
                                     </div>
-                                    {% elif selection and selection.status == 'candidate' %}
-                                    <div class="alert alert-info border-0 text-center py-3 rounded-4 bg-white">
-                                        <i class="bi bi-bookmark-check-fill h2 mb-2 d-block text-primary-custom"></i>
-                                        <span class="fw-bold">후보 등록됨</span>
-                                    </div>
-                                    <form method="post" action="{% url 'add_selection' vendor.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="status" value="final">
-                                        <button type="submit"
-                                            class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
-                                            최종 선택하기
-                                        </button>
-                                    </form>
-                                    {% else %}
-                                    <form method="post" action="{% url 'add_selection' vendor.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="status" value="candidate">
-                                        <button type="submit"
-                                            class="btn btn-outline-primary w-100 py-3 rounded-pill fw-bold">
-                                            <i class="bi bi-bookmark-plus me-2"></i>후보에 추가
-                                        </button>
-                                    </form>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>

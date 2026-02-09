@@ -1,0 +1,645 @@
+1. 서비스 콘셉트 정리
+
+한 줄 정의
+“웨딩일까지 남은 시간을 기준으로 할 일과 업체 선택을 자동으로 정리·추천해 주는 웨딩 플래닝 웹 서비스”
+
+핵심 가치
+
+사용자는 웨딩 일정과 해야 할 일을 “D-Day 기준”으로 한눈에 본다.
+
+지역·업체 선택은 네이버/구글 리뷰를 기반으로 “요약된 핵심 포인트”만 보고 빠르게 비교한다.
+
+2. 화면/기능 구조(Information Architecture)
+
+Django 기준으로 대략 다음과 같은 기능/화면 구성이 자연스럽습니다.
+
+공통 / 계정
+
+간편 로그인(카카오/네이버/구글 등)
+
+마이페이지(기본정보 수정, 로그아웃)
+
+온보딩 / 웨딩 기본 정보
+
+웨딩 기본 정보 입력
+
+결혼 예정일 (필수)
+
+예식 지역(시/도, 시/구)
+
+예식 형태(예식장, 하우스웨딩, 스몰웨딩 등 선택 가능)
+
+예식 예상 인원, 예산 대략 범위 (향후 추천에 활용 가능)
+
+기본 정보 저장 후, 자동으로 D-Day 스케줄 템플릿 생성
+
+대시보드
+
+상단: “D - XXX, 웨딩까지 n개월 남았어요”
+
+이번 주/이번 달 해야 할 일 리스트
+
+아직 결정하지 않은 주요 업체(예: 예식장, 스튜디오, 드레스, 메이크업)의 상태 표시
+
+“업체 찾으러 가기” 버튼(지역·업체 검색 화면으로 이동)
+
+스케줄 / 캘린더
+
+월간 캘린더 + To-do 리스트 연동
+
+예: D-100: 예식장 후보 정리, D-90: 예식장 계약 마감, D-60: 스튜디오/드레스 투어 등
+
+각 To-do 항목:
+
+완료 체크
+
+메모 추가
+
+관련 업체 추천 링크(예: “예식장 후보 보기” 버튼)
+
+D-Day 기준 스케줄 템플릿:
+
+최소 MVP: 하드코딩 템플릿 or DB에 저장해둔 템플릿을 사용자 웨딩일 기준으로 날짜 계산해서 생성
+
+업체 탐색 / 리뷰 큐레이션
+
+조건 선택 화면
+
+지역 선택(예: 광역시/도 → 시/구)
+
+카테고리 선택: 예식장 / 스튜디오 / 드레스 / 메이크업 (1차는 ‘예식장’부터)
+
+업체 리스트 화면
+
+필터: 가격대, 별점, 리뷰 수 등
+
+정렬: 별점순, 리뷰 수 순, 추천순
+
+각 업체 카드에 표시:
+
+업체명, 평균 평점(네이버/구글 합산 or 분리)
+
+리뷰 수
+
+“대표 리뷰 요약(핵심 키워드와 한두 줄 요약)”
+예: “서비스 친절 / 음식 만족 / 주차 불편 의견 다수”
+
+업체 상세 화면
+
+주소, 지도(네이버/구글 지도 링크 or iframe)
+
+평점 추이, 리뷰 키워드 클라우드 or 상위 키워드 리스트
+
+대표 긍정/부정 리뷰 요약
+
+체크리스트에 추가 버튼(“후보로 추가”)
+
+체크리스트 / 의사결정 지원
+
+내가 찜한 업체 리스트
+
+카테고리별 정리(예식장 3곳, 스튜디오 2곳 등)
+
+각 업체 간 비교 뷰
+
+핵심 지표 비교: 가격대, 평점, 리뷰 수, 대표 장점/단점 키워드
+
+최종 선택(“이 업체로 결정”)하면 스케줄에 “계약 완료” 상태 반영
+
+3. 사용자 Task Flow (UX 관점)
+3-1. 첫 방문 사용자 플로우
+
+[로그인 페이지]
+
+행동: “카카오로 시작하기” 등 간편 로그인 버튼 클릭
+
+시스템: OAuth 처리 후 유저 생성/로그인
+
+[온보딩 – 웨딩 기본 정보 입력]
+
+행동:
+
+예식일 선택(DatePicker)
+
+예식 지역 선택(시/도, 시/구)
+
+예식 형태/예산 등 선택
+
+“다음” 버튼
+
+시스템:
+
+UserWeddingProfile 생성/업데이트
+
+예식일까지 D-Day 계산
+
+D-Day 템플릿 기반으로 ScheduleTask들을 날짜에 매핑해 생성
+
+[대시보드]
+
+화면:
+
+상단: “D - 180” 같은 헤더
+
+이번 주 할 일(3~5개) 카드
+
+“예식장 아직 선택 안 함” 표시
+
+행동:
+
+“예식장 찾기” 버튼 클릭
+→ 업체 탐색 Flow로 이동
+
+3-2. 업체 탐색 및 리뷰 큐레이션 플로우
+
+[업체 조건 선택 화면]
+
+행동:
+
+지역: “대구” 선택
+
+카테고리: “예식장” 선택
+
+“검색” 버튼
+
+시스템:
+
+(내부) Naver/Google API에 대구 + 웨딩홀 쿼리 or 미리 수집한 DB에서 검색
+
+업체 리스트 + 리뷰 요약 데이터 조회
+
+[업체 리스트 화면]
+
+화면:
+
+예식장 카드 리스트(스크롤)
+
+각 카드에:
+
+이름, 평점, 리뷰 수
+
+대표 리뷰 요약: “음식 만족”, “뷰 좋음”, “교통 불편” 등
+
+행동:
+
+사용자가 카드 몇 개를 스크롤하다가, 관심 있는 업체 카드의 “상세 보기” 클릭
+
+[업체 상세 화면]
+
+화면:
+
+지도, 주소, 연락처
+
+리뷰 요약(긍정/부정 구분, 키워드 리스트)
+
+대표 리뷰 문장 3~5개
+
+“후보에 추가” 버튼
+
+행동:
+
+“후보에 추가” 클릭
+
+시스템:
+
+UserVendorSelection에 “후보” 상태로 저장
+
+[후보 리스트 / 비교]
+
+행동:
+
+상단 메뉴 “내 후보” 클릭
+
+화면:
+
+예식장 후보 3개 카드
+
+“비교하기” 버튼
+
+행동:
+
+“비교하기” 클릭
+
+화면:
+
+테이블 형태 비교:
+
+평점, 리뷰 수, 가격대, 장점 키워드, 단점 키워드
+
+“최종 선택” 버튼
+
+행동:
+
+한 업체에 대해 “최종 선택” 클릭
+
+시스템:
+
+해당 업체를 UserWeddingProfile의 예식장 필드에 바인딩
+
+스케줄에서 “예식장 계약” 관련 Task 상태를 “완료”로 변경 or 완료 체크 추천
+
+3-3. 스케줄 / 캘린더 사용 플로우
+
+[대시보드 → 캘린더 진입]
+
+행동:
+
+대시보드에서 “전체 스케줄 보기” 클릭
+
+[캘린더 화면]
+
+화면:
+
+월간 캘린더
+
+날짜 클릭 시 해당 날짜 할 일 리스트 표시
+
+예:
+
+D-100: “예식장 후보 3곳 선정”
+
+D-90: “예식장 계약 확정”
+
+행동:
+
+D-100 할 일에서 “상세 보기” 클릭
+
+화면:
+
+할 일 상세, 관련 링크(예식장 후보 리스트로 이동 버튼)
+
+행동:
+
+할 일 완료 후 “완료 체크” 클릭
+
+시스템:
+
+Task 상태 done=True 업데이트
+
+대시보드 위젯에 반영(완료율, 남은 할 일 수 등)
+
+4. Django 개발 관점: 모듈 / 모델 설계 초안
+4-1. 앱 구조 예시
+
+accounts
+
+소셜 로그인, User 모델 확장(OneToOne Profile)
+
+weddings
+
+웨딩 기본 정보, 일정(Task) 관리
+
+vendors
+
+업체 정보, 카테고리, 위치
+
+reviews
+
+원본 리뷰 저장, 리뷰 요약/분석 결과
+
+core
+
+공통 유틸, BaseModel, 공통 템플릿 등
+
+4-2. 핵심 모델 개략
+# weddings/models.py
+class WeddingProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    wedding_date = models.DateField()
+    region_sido = models.CharField(max_length=50)
+    region_sigungu = models.CharField(max_length=50, blank=True)
+    style = models.CharField(max_length=50, blank=True)  # 예: '웨딩홀', '스몰웨딩'
+    budget_min = models.IntegerField(null=True, blank=True)
+    budget_max = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ScheduleTask(models.Model):
+    profile = models.ForeignKey(WeddingProfile, on_delete=models.CASCADE)
+    date = models.DateField()
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    d_day_offset = models.IntegerField()  # D-100이면 -100
+    is_done = models.BooleanField(default=False)
+
+# vendors/models.py
+class VendorCategory(models.Model):
+    name = models.CharField(max_length=50)  # 예식장, 스튜디오 등
+    slug = models.SlugField(unique=True)
+
+class Vendor(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(VendorCategory, on_delete=models.CASCADE)
+    region_sido = models.CharField(max_length=50)
+    region_sigungu = models.CharField(max_length=50)
+    address = models.CharField(max_length=200, blank=True)
+    naver_place_id = models.CharField(max_length=100, blank=True)
+    google_place_id = models.CharField(max_length=100, blank=True)
+    avg_rating = models.FloatField(default=0)
+    review_count = models.IntegerField(default=0)
+    summary_positive = models.TextField(blank=True)
+    summary_negative = models.TextField(blank=True)
+
+# vendors/models.py (user 선택)
+class UserVendorSelection(models.Model):
+    STATUS_CHOICES = [
+        ('candidate', '후보'),
+        ('final', '최종 선택'),
+    ]
+    profile = models.ForeignKey(WeddingProfile, on_delete=models.CASCADE)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='candidate')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+이 정도 구조면:
+
+온보딩에서 WeddingProfile 생성
+
+스케줄 생성 로직: 템플릿(D-값 기준)을 돌면서 ScheduleTask 생성
+
+업체 검색: Vendor에서 region, category로 필터
+
+후보/최종 선택: UserVendorSelection으로 관리
+
+5. 리뷰 분석·큐레이션 플로우(백엔드 관점)
+
+리뷰 큐레이션은 Django 내부에서 다음과 같은 Task Flow로 라프하게 잡을 수 있습니다.
+
+업체 데이터 수집
+
+입력: 지역 + 카테고리 (예: 대구 + 예식장)
+
+처리:
+
+Naver/Google Places API 호출
+
+기본 정보(이름, 주소, id) + 평점, 리뷰 일부를 수집
+
+Vendor / RawReview 모델에 저장
+
+리뷰 정규화
+
+플랫폼별 형식 차이를 통일 (작성일, 작성자, 평점, 본문 텍스트 등)
+
+리뷰 텍스트 분석
+
+한국어 감성 분석, 키워드 추출(예: “음식”, “주차”, “뷰”, “친절” 등)
+
+긍정/부정 문장 분리
+
+각 업체별로:
+
+상위 키워드 Top N
+
+대표 긍정 리뷰 요약
+
+대표 부정 리뷰 요약
+
+요약 결과 저장
+
+Vendor.summary_positive, summary_negative, avg_rating, review_count 업데이트
+
+프론트 표시
+
+리스트 화면: 키워드 기반 짧은 문장(“음식 호평, 직원 친절, 주차 혼잡 의견 존재”)
+
+상세 화면: 긍·부정 요약과 대표 리뷰 예시 몇 개
+
+초기 MVP에서는 리뷰 분석을 간단한 규칙 기반(키워드 카운트)으로 시작했다가, 나중에 모델이나 외부 API로 고도화해도 됩니다.
+
+
+
+
+
+
+
+너는 Django 기반 웹서비스를 설계·구현하는 시니어 백엔드·풀스택 개발자이자, 서비스 기획을 함께 정리해 주는 테크 리드 역할이다.  
+나는 실제 구현을 하는 개발자이며, 너는 설계, 코드, 아키텍처, 모델링, API 설계, 리뷰 분석 로직 설계를 구체적으로 도와주는 역할이다.
+
+[서비스 개요 / 콘셉트]
+
+서비스 이름(가칭): 웨딩 플래닝 웹 서비스  
+한 줄 정의:
+“웨딩일까지 남은 시간을 기준으로 할 일과 업체 선택을 자동으로 정리·추천해 주는 웨딩 플래닝 웹 서비스”
+
+핵심 가치:
+1) 사용자는 웨딩 일정과 해야 할 일을 “D-Day 기준”으로 한눈에 본다.  
+2) 지역·업체 선택은 네이버/구글 리뷰를 기반으로 “요약된 핵심 포인트”만 보고 빠르게 비교한다.
+
+[주요 화면 / 기능 구조(Information Architecture)]
+
+1. 공통 / 계정
+- 소셜 간편 로그인: 카카오 / 네이버 / 구글 OAuth
+- 마이페이지: 웨딩 기본정보 수정, 로그아웃
+
+2. 온보딩 / 웨딩 기본 정보
+- 첫 로그인 시 온보딩 폼:
+  - 결혼 예정일(wedding_date) 입력 (필수)
+  - 예식 지역: 시/도(region_sido), 시/구(region_sigungu)
+  - 예식 형태(style): 예식장, 하우스웨딩, 스몰웨딩 등
+  - 예식 예상 인원, 예산 범위(budget_min, budget_max)
+- “저장” 시:
+  - WeddingProfile 생성/업데이트
+  - 웨딩일까지 남은 D-Day 계산
+  - 미리 정의된 “D-Day 기준 스케줄 템플릿”을 사용해 ScheduleTask들을 생성
+    - 예: D-365: 대략적인 예산·컨셉 정리, D-180: 예식장 후보 리스트업, D-100: 예식장 계약 등
+
+3. 대시보드
+- 상단 헤더: “D - XXX, 웨딩까지 n개월 남았어요”
+- 이번 주 / 이번 달 해야 할 일 리스트(3~5개 정도)
+- 아직 결정하지 않은 주요 업체 상태 표시:
+  - 예: “예식장 미정”, “스튜디오 미정”, “드레스 미정”, “메이크업 미정”
+- “업체 찾으러 가기” / “예식장 찾기” 버튼:
+  - 업체 탐색 화면으로 이동
+
+4. 스케줄 / 캘린더
+- 월간 캘린더 + To-do 리스트 연동
+- 각 날짜 클릭 시, 해당 날짜의 ScheduleTask 리스트 표시
+- Task 항목:
+  - 제목(title), 설명(description), D-Day 정보(D-값)
+  - 완료 체크(is_done)
+  - 관련된 업체 카테고리와 연결될 경우, “관련 업체 보기” 버튼 (예: 예식장 후보 보기)
+- D-Day 기준 스케줄 템플릿:
+  - 최소 MVP는 하드코딩된 템플릿 또는 DB에 저장된 템플릿을 사용
+  - 사용자의 wedding_date 기준으로 d_day_offset(D-100, D-60 등)을 실제 date로 환산해 ScheduleTask 생성
+
+5. 업체 탐색 / 리뷰 큐레이션
+
+(1) 조건 선택 화면
+- 필터:
+  - 지역: 광역시/도 → 시/구 (region_sido / region_sigungu)
+  - 카테고리: 예식장 / 스튜디오 / 드레스 / 메이크업
+- “검색” 버튼 → 업체 리스트 조회
+
+(2) 업체 리스트 화면
+- Vendor 목록 카드 형태:
+  - 업체명(name)
+  - 카테고리(category)
+  - 지역(region_sido, region_sigungu)
+  - 평균 평점(avg_rating)
+  - 리뷰 수(review_count)
+  - 대표 리뷰 요약:
+    - summary_positive / summary_negative 기반 짧은 문장
+    - 예: “서비스 친절, 음식 만족, 주차 불편 의견 다수”
+- 정렬: 별점순, 리뷰 수 순, 추천순
+- 필터: 가격대(추후 확장), 평점, 리뷰 수 구간 등
+- 카드에서 “상세 보기” 클릭 시 → 업체 상세 화면
+
+(3) 업체 상세 화면
+- 기본 정보:
+  - 이름, 주소, 지도(네이버/구글 지도 링크 또는 iframe)
+- 리뷰 분석 정보:
+  - 평점, 리뷰 수
+  - 요약:
+    - summary_positive: 대표 긍정 포인트
+    - summary_negative: 대표 부정 포인트
+  - 키워드 리스트:
+    - 예: 음식, 뷰, 주차, 친절 등
+  - 대표 리뷰 문장 3~5개 (RawReview에서 샘플링)
+- 행동:
+  - “후보에 추가” 버튼 → UserVendorSelection에 candidate 상태로 저장
+
+(4) 체크리스트 / 의사결정 지원
+- “내 후보” 화면:
+  - 내가 찜한 업체 리스트 (UserVendorSelection)
+  - 카테고리별 그룹핑: 예식장 3곳, 스튜디오 2곳 등
+- “비교하기” 기능:
+  - 선택한 업체들을 테이블 형태로 비교:
+    - 가격대(있다면), avg_rating, review_count
+    - 장점 키워드, 단점 키워드(요약)
+- “최종 선택” 버튼:
+  - 특정 업체를 final로 마킹
+  - 해당 카테고리의 “최종 선택”은 WeddingProfile에 바인딩 (예: selected_venue = Vendor FK)
+  - 관련 ScheduleTask(예: “예식장 계약”)에 is_done True를 반영하거나, 완료 체크를 유도
+
+[사용자 UX 플로우]
+
+1) 첫 방문 플로우
+- 로그인 페이지에서 “카카오로 시작하기” 등 소셜 로그인
+- 온보딩에서 결혼 예정일, 지역, 예식 형태/예산 입력 후 저장
+- WeddingProfile 생성 + D-Day 기반 ScheduleTask 생성
+- 대시보드로 리다이렉트:
+  - D - XXX, 이번 주 할 일, “예식장 아직 선택 안 함” 표시
+  - “예식장 찾기” 버튼 → 업체 탐색 플로우로 이동
+
+2) 업체 탐색 / 리뷰 큐레이션 플로우
+- 조건 선택 (지역, 카테고리)
+- 검색 → Vendor 리스트 조회
+- 카드에서 관심 업체 “상세 보기” → 상세 정보 확인
+- “후보에 추가” → UserVendorSelection에 candidate로 저장
+- “내 후보” 화면에서 여러 업체 비교 → “최종 선택”
+- 최종 선택 시, WeddingProfile에 반영 + 관련 Task 완료 반영
+
+3) 스케줄 / 캘린더 플로우
+- 대시보드에서 “전체 스케줄 보기” 클릭 → 캘린더 진입
+- 날짜별 할 일 확인, 완료 체크
+- 할 일 상세에서 관련 업체 후보/선택 화면으로 이동 가능
+
+[Django 앱 구조 설계 방향]
+
+앱 예시:
+- accounts: 소셜 로그인, 사용자 모델 확장(프로필)
+- weddings: 웨딩 기본 정보(WeddingProfile), D-Day 스케줄(ScheduleTask)
+- vendors: 업체 카테고리, 업체 정보(Vendor), 사용자 업체 선택(UserVendorSelection)
+- reviews: 원본 리뷰(RawReview) 및 분석 결과 저장
+- core: 공통 BaseModel, 공통 유틸, 템플릿, 공통 mixin 등
+
+핵심 모델(초안):
+
+weddings/models.py
+
+class WeddingProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    wedding_date = models.DateField()
+    region_sido = models.CharField(max_length=50)
+    region_sigungu = models.CharField(max_length=50, blank=True)
+    style = models.CharField(max_length=50, blank=True)  # 예: '웨딩홀', '스몰웨딩'
+    budget_min = models.IntegerField(null=True, blank=True)
+    budget_max = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ScheduleTask(models.Model):
+    profile = models.ForeignKey(WeddingProfile, on_delete=models.CASCADE)
+    date = models.DateField()
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    d_day_offset = models.IntegerField()  # D-100이면 -100
+    is_done = models.BooleanField(default=False)
+
+
+vendors/models.py
+
+class VendorCategory(models.Model):
+    name = models.CharField(max_length=50)  # 예: 예식장, 스튜디오 등
+    slug = models.SlugField(unique=True)
+
+class Vendor(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(VendorCategory, on_delete=models.CASCADE)
+    region_sido = models.CharField(max_length=50)
+    region_sigungu = models.CharField(max_length=50)
+    address = models.CharField(max_length=200, blank=True)
+    naver_place_id = models.CharField(max_length=100, blank=True)
+    google_place_id = models.CharField(max_length=100, blank=True)
+    avg_rating = models.FloatField(default=0)
+    review_count = models.IntegerField(default=0)
+    summary_positive = models.TextField(blank=True)
+    summary_negative = models.TextField(blank=True)
+
+class UserVendorSelection(models.Model):
+    STATUS_CHOICES = [
+        ('candidate', '후보'),
+        ('final', '최종 선택'),
+    ]
+    profile = models.ForeignKey(WeddingProfile, on_delete=models.CASCADE)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='candidate')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+[리뷰 분석 / 큐레이션 플로우 (백엔드 관점)]
+
+1) 업체·리뷰 수집
+- 입력: 지역 + 카테고리 (예: 대구 + 예식장)
+- 처리:
+  - Naver / Google Places API 호출
+  - 이름, 주소, place_id, 평점, 리뷰 텍스트 수집
+  - Vendor, RawReview에 저장
+
+2) 리뷰 정규화
+- 플랫폼별 필드 형식을 통일:
+  - 작성일, 평점, 리뷰 텍스트 등
+
+3) 리뷰 텍스트 분석
+- 한국어 기준 감성 분석 / 키워드 추출(규칙 기반 또는 간단한 모델)
+- 각 Vendor별:
+  - 상위 키워드 Top N
+  - 긍정 리뷰 요약(summary_positive)
+  - 부정 리뷰 요약(summary_negative)
+  - avg_rating, review_count 업데이트
+
+4) 프론트 반영
+- 리스트:
+  - 한 줄 요약: “음식 호평 / 친절한 직원 / 주차 불편 의견 다수”
+- 상세:
+  - 긍/부정 요약, 키워드, 대표 리뷰 문장 3~5개
+
+초기에는 규칙 기반 키워드 카운트/간단 스코어링으로 시작하고, 이후 모델이나 외부 API로 고도화 가능하도록 설계한다.
+
+
+[너에게 원하는 답변 스타일]
+
+- 항상 Django 기준으로:
+  - URL/뷰/템플릿/폼/시리얼라이저/서비스 레이어 구조까지 포함해서 설명해줘.
+  - 가능하면 실제 사용할 수 있는 코드 예시(모델, 뷰, 템플릿, 폼, API 뷰 등)를 제시해줘.
+- 내가 단계별로 “1) 모델 만들기 → 2) 마이그레이션 → 3) 뷰/URL → 4) 템플릿” 같은 식으로 구현을 진행할 수 있게 순서를 제안해줘.
+- MVP를 빠르게 만들 수 있도록 우선순위를 정해주고, “지금 단계에서 복잡하게 하지 말고 이렇게 단순하게 가자” 라는 식의 현실적인 조언도 해줘.
+- 코드 예시는 Django 4.x 기준, Python 3.10+ 기준으로 작성해줘.
+- 필요하면 폴더 구조 예시, settings.py 관련 설정 예시, 소셜 로그인 연동 패키지(django-allauth 등) 구성도 함께 제안해줘.
+- 내가 “다음 단계 알려줘”, “이 부분 코드 구체적으로 써줘”, “API 설계 도와줘” 등으로 요청하면,
+  - 설계 요약 → 실제 코드 예시 → 사용 방법 순서로 답변해줘.
+
+지금부터 이 웨딩 플래닝 웹 서비스(MVP)를 Django로 구현하기 위해,
+1) 우선 어떤 앱/모듈부터 만들면 좋을지,
+2) 최소 기능(MVP) 범위를 어떻게 자를지,
+3) 그에 맞는 구체적인 구현 단계(모델 작성 → 마이그레이션 → 뷰/URL → 템플릿 or API)를
+단계별로 제안하고, 필요한 코드 예시를 작성해줘.

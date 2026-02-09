@@ -1,0 +1,28 @@
+<ul class="nav nav-pills mb-4 justify-content-center fade-in" id="dashboardTabs">
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+            href="{% url 'dashboard' %}">
+            <i class="bi bi-heart-fill me-2"></i>메인
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if 'schedule' in request.path %}active{% endif %}" href="{% url 'schedule_list' %}">
+            <i class="bi bi-calendar-event me-2"></i>일정관리
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if 'checklist' in request.path %}active{% endif %}" href="{% url 'checklist_manage' %}">
+            <i class="bi bi-check2-square me-2"></i>체크리스트
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if 'vendors' in request.path %}active{% endif %}" href="{% url 'vendor_main' %}">
+            <i class="bi bi-shop me-2"></i>업체분석
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if 'community' in request.path %}active{% endif %}" href="{% url 'community_main' %}">
+            <i class="bi bi-people-fill me-2"></i>커뮤니티
+        </a>
+    </li>
+</ul>

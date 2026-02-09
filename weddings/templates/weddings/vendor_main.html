@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}업체 분석 - 웨딩 플래너{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'weddings/includes/_dashboard_tabs.html' %}
+
+    <div class="row fade-in">
+        <div class="col-12">
+            <!-- Vendor Tabs (Pills) -->
+            <div class="d-flex justify-content-center mb-4">
+                <ul class="nav nav-pills bg-white p-1 rounded-pill shadow-sm border" id="vendorTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill px-4 fw-bold" id="find-vendors-tab"
+                            data-bs-toggle="pill" data-bs-target="#find-vendors" type="button" role="tab"
+                            aria-controls="find-vendors" aria-selected="true" style="min-width: 120px;">
+                            업체 찾기
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4 fw-bold" id="my-vendors-tab" data-bs-toggle="pill"
+                            data-bs-target="#my-vendors" type="button" role="tab" aria-controls="my-vendors"
+                            aria-selected="false" style="min-width: 120px;">
+                            내 선정 업체
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tab-content" id="vendorTabsContent">
+                <!-- Find Vendors (Existing Logic) -->
+                <div class="tab-pane fade show active" id="find-vendors" role="tabpanel"
+                    aria-labelledby="find-vendors-tab">
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                                <div class="card-header bg-white border-0 p-4">
+                                    <h5 class="fw-bold mb-0">카테고리</h5>
+                                </div>
+                                <div class="card-body p-4 pt-0">
+                                    <div class="row g-3">
+                                        {% for category in vendor_categories %}
+                                        <div class="col-6 col-md-4 col-lg-3">
+                                            <a href="{% url 'vendor_list' %}?category={{ category.slug }}"
+                                                class="text-decoration-none">
+                                                <div class="card h-100 border-0 shadow-sm hover-lift overflow-hidden"
+                                                    style="background-color: #f8f9fa; transition: all 0.2s; border-radius: 15px;">
+                                                    <div class="position-relative" style="height: 150px;">
+                                                        <img src="{% static 'core/images/vendor_category/'|add:category.slug|add:'.png' %}"
+                                                            class="w-100 h-100 object-fit-cover"
+                                                            alt="{{ category.name }}">
+                                                        <div class="position-absolute top-0 start-0 w-100 h-100"
+                                                            style="background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);">
+                                                        </div>
+                                                        <div
+                                                            class="position-absolute bottom-0 start-0 w-100 p-3 text-center">
+                                                            <h6 class="fw-bold text-white mb-0 fs-5"
+                                                                style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ category.name }}</h6>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        {% empty %}
+                                        <div class="col-12 text-center py-5 text-muted">
+                                            <p>등록된 업체 카테고리가 없습니다.</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <h5 class="fw-bold mb-3 ms-2">추천 업체</h5>
+                            <div class="row g-3">
+                                {% for vendor in recommended_vendors %}
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="card border-0 shadow-sm h-100"
+                                        style="border-radius: 15px; overflow: hidden;">
+                                        {% if vendor.image %}
+                                        <img src="{{ vendor.image.url }}" class="card-img-top" alt="{{ vendor.name }}"
+                                            style="height: 150px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center"
+                                            style="height: 150px;">
+                                            <i class="bi bi-image text-muted fs-1"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div class="card-body p-3">
+                                            <small class="text-primary-custom fw-bold">{{ vendor.category.name }}</small>
+                                            <h6 class="fw-bold mb-1 text-truncate">{{ vendor.name }}</h6>
+                                            <p class="text-muted small mb-2 text-truncate">
+                                                <i class="bi bi-geo-alt me-1"></i>
+                                                {{ vendor.region_sido }} {{ vendor.region_sigungu }}
+                                            </p>
+                                            <div class="d-flex align-items-center small">
+                                                <i class="bi bi-star-fill text-warning me-1"></i>
+                                                <span class="fw-bold me-1">{{ vendor.avg_rating }}</span>
+                                                <span class="text-muted">({{ vendor.review_count }})</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12 text-muted ms-2">추천 업체가 없습니다.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Selected Vendors (New Tab) -->
+                <div class="tab-pane fade" id="my-vendors" role="tabpanel" aria-labelledby="my-vendors-tab">
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="{% url 'my_candidates_list' %}"
+                            class="btn btn-outline-secondary btn-sm rounded-pill fw-bold">
+                            <i class="bi bi-list-task me-1"></i>후보 목록 보기
+                        </a>
+                    </div>
+                    <div class="row g-3">
+                        {% for selection in my_selected_vendors %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100 border-0 shadow-sm hover-lift"
+                                style="border-radius: 15px; overflow: hidden;">
+                                {% if selection.vendor.image %}
+                                <img src="{{ selection.vendor.image.url }}" class="card-img-top"
+                                    alt="{{ selection.vendor.name }}" style="height: 160px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center"
+                                    style="height: 160px;">
+                                    <i class="bi bi-image text-muted fs-1"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="badge bg-soft text-primary-custom">{{ selection.vendor.category.name }}</span>
+                                        <span class="badge bg-primary-custom text-white rounded-pill"><i
+                                                class="bi bi-check-circle-fill me-1"></i>Final</span>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">{{ selection.vendor.name }}</h5>
+                                    <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>{{ selection.vendor.region_sido }}</p>
+                                    <a href="{% url 'vendor_detail' selection.vendor.id %}"
+                                        class="btn btn-outline-primary w-100 rounded-pill btn-sm">상세 보기</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <div class="text-muted">
+                                <i class="bi bi-bag-check display-1 mb-3 opacity-25"></i>
+                                <p class="lead">선택된 업체가 없습니다.</p>
+                                <p class="small text-muted mb-0">후보 업체 목록에서 최종 결정할 수 있습니다.</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
