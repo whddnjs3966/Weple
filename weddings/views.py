@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from django.urls import reverse
 from django.db.models import Q, Sum, Count
 from django.contrib import messages
+from django.core.paginator import Paginator
 import json
 
 @login_required
@@ -432,10 +433,14 @@ def community_main(request):
         posts_qs = posts_qs.order_by('-created_at')
 
     notices = Notice.objects.annotate(comment_count=Count('comments'))
+
+    # Pagination
+    paginator = Paginator(posts_qs, 10)  # 10 posts per page
+    page_number = request.GET.get('page', 1)
+    posts_page = paginator.get_page(page_number)
     
     context = {
-        # 'profile': profile, # Can pass if needed for header, but base.html usually handles it if user is logged in
-        'posts': posts_qs,
+        'posts': posts_page,
         'notices': notices,
         'search_query': search_query,
         'sort_option': sort_option,

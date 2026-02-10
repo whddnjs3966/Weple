@@ -4,228 +4,302 @@
 {% block title %}체크리스트 - 웨딩 플래너{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    {% include 'weddings/includes/_dashboard_tabs.html' %}
+<!-- Navigation Tabs -->
+{% include 'weddings/includes/_dashboard_tabs.html' %}
 
-    <div class="row fade-in">
-        <div class="col-12">
-            <div class="d-flex justify-content-end align-items-center mb-3">
-                <span class="badge bg-white text-muted border px-4 py-3 rounded-pill shadow-sm"
-                    style="margin-right:10px;">
-                    <i class="bi bi-wallet2 me-2 text-primary-custom fs-5"></i>
-                    <span class="fs-6">Total Budget: <span class="fw-bold text-dark">{{ total_budget|intcomma }}원</span></span>
+<!-- ═══════════════════════════════════════════════════════════
+     CHECKLIST TAB — Glassmorphism Redesign
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- Top Action Bar -->
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <!-- Total Budget Badge -->
+    <div
+        class="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/70 backdrop-blur-md border border-white/50 shadow-sm">
+        <i class="bi bi-wallet2 text-lg" style="color:#FF8E8E;"></i>
+        <span class="text-sm text-gray-500">Total Budget:</span>
+        <span class="text-base font-bold text-gray-800">{{ total_budget|intcomma }}원</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-2">
+        <button
+            class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-xs font-bold shadow-md transition-all hover:-translate-y-0.5"
+            style="background:linear-gradient(135deg,#FF8E8E,#ff7a7a);box-shadow:0 4px 15px rgba(255,142,142,0.3);"
+            data-bs-toggle="modal" data-bs-target="#addTaskModal">
+            <i class="bi bi-plus-lg"></i> 추가
+        </button>
+        <button
+            class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gray-100 text-gray-500 text-xs font-bold shadow-sm border border-gray-200 transition-all hover:bg-red-50 hover:text-red-400 hover:border-red-200 hover:-translate-y-0.5"
+            id="btnDeleteSelected">
+            <i class="bi bi-dash-lg"></i> 삭제
+        </button>
+    </div>
+</div>
+
+<!-- Checklist Card -->
+<div class="rounded-[24px] bg-white/70 backdrop-blur-md border border-white/50 shadow-sm overflow-hidden"
+    style="box-shadow: 0 8px 32px rgba(255,142,142,0.06);">
+    <!-- Card Header -->
+    <div class="px-6 py-5 border-b border-gray-100/60">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <h5 class="font-bold text-gray-800 text-base m-0 flex items-center gap-2">
+                <i class="bi bi-check2-square" style="color:#FF8E8E;"></i>
+                웨딩 체크리스트 (Timeline)
+            </h5>
+            <div class="flex flex-col items-end gap-1">
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 text-gray-400 text-[10px] font-semibold border border-gray-100">
+                    <i class="bi bi-info-circle"></i> D-Day 순으로 정렬됩니다
                 </span>
-                <div class="d-flex gap-2 me-3">
-                    <button
-                        class="btn btn-primary shadow-sm rounded-3 d-flex align-items-center justify-content-center px-3"
-                        style="height: 40px; background-color:#2c82ff; border-color:#2c82ff;" data-bs-toggle="modal"
-                        data-bs-target="#addTaskModal" title="추가">
-                        <span class="fw-bold">➕ 추가</span>
-                    </button>
-                    <button
-                        class="btn btn-danger shadow-sm rounded-3 d-flex align-items-center justify-content-center px-3"
-                        style="height: 40px;" id="btnDeleteSelected" title="삭제">
-                        <span class="fw-bold">➖ 삭제</span>
-                    </button>
-                </div>
+                <span class="text-[10px] font-bold" style="color:#FF8E8E;">* 아래 체크리스트는 참고용으로, 상황에 맞게 추가 또는 삭제하세요.</span>
             </div>
+        </div>
+    </div>
 
-            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-                <div class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">웨딩 체크리스트 (Timeline)</h5>
-                    <div class="d-flex flex-column align-items-end gap-1">
-                        <span class="badge bg-light text-dark border p-2 rounded-pill">
-                            <i class="bi bi-info-circle me-1"></i>D-Day 순으로 정렬됩니다
-                        </span>
-                        <small class="text-danger fw-bold">* 아래 체크리스트는 참고용으로, 상황에 맞게 추가 또는 삭제하세요.</small>
-                    </div>
-                </div>
-                <div class="card-body p-4 pt-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle"
-                            style="border-collapse: separate; border-spacing: 0;">
-                            <thead
-                                style="background-color: rgba(255, 142, 142, 0.1); border-bottom: 2px solid rgba(255, 142, 142, 0.5);">
-                                <tr class="text-dark text-uppercase">
-                                    <th class="border-0 rounded-start-pill py-3 ps-4 text-center" style="width: 5%;">
-                                        <input class="form-check-input" type="checkbox" id="checkAll">
-                                    </th>
-                                    <th class="border-0 py-3 ps-2 text-center fw-bold" style="width: 10%;">
-                                        <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">시기
-                                            (D-Day)</span>
-                                    </th>
-                                    <th class="border-0 py-3 text-center fw-bold" style="width: 40%;">
-                                        <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">할
-                                            일 (Task)</span>
-                                    </th>
-                                    <th class="border-0 py-3 text-center fw-bold" style="width: 15%;">
-                                        <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">예상
-                                            예산</span>
-                                    </th>
-                                    <th class="border-0 py-3 text-center fw-bold" style="width: 15%;">
-                                        <span style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">일정
-                                            (Date)</span>
-                                    </th>
-                                    <th class="border-0 rounded-end-pill py-3 text-center fw-bold" style="width: 15%;">
-                                        <span
-                                            style="border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 3px;">완료여부</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for task in checklist %}
-                                <tr class="{% if task.is_done %}bg-light opacity-50{% endif %}"
-                                    style="transition: all 0.2s;">
-                                    <td class="ps-4 py-3 text-center">
-                                        <input class="form-check-input task-checkbox" type="checkbox"
-                                            value="{{ task.id }}">
-                                    </td>
-                                    <td class="py-3 ps-2 text-center">
-                                        <span
-                                            class="badge rounded-pill {% if task.d_day_offset < -180 %}bg-secondary text-white{% elif task.d_day_offset < -90 %}bg-info text-white{% elif task.d_day_offset < -30 %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
-                                            {% if task.d_day_offset == 0 %}
-                                            D-Day
-                                            {% else %}
-                                            D{{ task.d_day_offset }}
-                                            {% endif %}
-                                        </span>
-                                    </td>
-                                    <td class="py-3 text-start ps-5">
-                                        <div class="d-flex flex-column align-items-start">
-                                            <span
-                                                class="fw-bold text-dark {% if task.is_done %}text-decoration-line-through text-muted{% endif %}">
-                                                {{ task.title }}
-                                            </span>
-                                            {% if task.description %}
-                                            <small class="text-muted text-truncate-2"
-                                                style="max-width: 400px; margin-top: 5px;">
-                                                {{ task.description }}
-                                            </small>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    <td class="text-center py-3">
-                                        <input type="text" class="form-control text-center bg-white budget-input"
-                                            value="{{ task.estimated_budget|default:0|intcomma }}"
-                                            data-task-id="{{ task.id }}"
-                                            data-original-value="{{ task.estimated_budget|default:0 }}"
-                                            onfocus="this.value = this.value.replace(/[^0-9]/g, '')"
-                                            onblur="updateBudget(this)"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                                            title="클릭하여 예산 수정"
-                                            style="max-width: 120px; margin: 0 auto; font-weight: bold; color: #6c757d; border: 1px solid #dee2e6;">
-                                    </td>
-                                    <td class="text-center py-3">
-                                        {% if task.date %}
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0 bg-white shadow-sm"
-                                            onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:'Y-m-d' }}', '{{ task.title|escapejs }}')">
-                                            <i class="bi bi-calendar-event me-1 text-primary-custom"></i>
-                                            {{ task.date|date:"Y.m.d" }}
-                                        </button>
-                                        {% else %}
-                                        <button class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm"
-                                            onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title|escapejs }}')">
-                                            <i class="bi bi-plus-lg me-1"></i>일정 등록
-                                        </button>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center py-3">
-                                        <form method="post" style="display:inline;">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="toggle_task_id" value="{{ task.id }}">
-                                            <button type="submit" class="btn btn-link p-0 text-decoration-none"
-                                                title="완료 여부 토글">
-                                                {% if task.is_done %}
-                                                <i class="bi bi-check-circle-fill text-success fs-4"></i>
-                                                {% else %}
-                                                <i class="bi bi-circle text-muted fs-4 hover-primary"></i>
-                                                {% endif %}
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="text-center py-5 text-muted">
-                                        <p>등록된 체크리스트가 없습니다.</p>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- Table -->
+    <div class="px-4 py-3">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-xs uppercase tracking-wider text-gray-400 font-bold">
+                        <th class="py-3 px-3 text-center" style="width:5%;">
+                            <input class="form-check-input" type="checkbox" id="checkAll" style="cursor:pointer;">
+                        </th>
+                        <th class="py-3 px-2 text-center" style="width:10%;">시기 (D-Day)</th>
+                        <th class="py-3 px-2 text-left" style="width:38%;">할 일 (Task)</th>
+                        <th class="py-3 px-2 text-center" style="width:14%;">예상 예산</th>
+                        <th class="py-3 px-2 text-center" style="width:15%;">일정 (Date)</th>
+                        <th class="py-3 px-2 text-center" style="width:10%;">완료여부</th>
+                    </tr>
+                    <tr>
+                        <td colspan="6">
+                            <div
+                                style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,142,142,0.3),transparent);">
+                            </div>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in checklist %}
+                    <tr
+                        class="border-b border-gray-50 hover:bg-pink-50/30 transition-colors {% if task.is_done %}opacity-40{% endif %}">
+                        <td class="py-3.5 px-3 text-center">
+                            <input class="form-check-input task-checkbox" type="checkbox" value="{{ task.id }}"
+                                style="cursor:pointer;">
+                        </td>
+                        <td class="py-3.5 px-2 text-center">
+                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold text-white
+                                {% if task.d_day_offset < -180 %}bg-gray-400
+                                {% elif task.d_day_offset < -90 %}bg-blue-400
+                                {% elif task.d_day_offset < -30 %}bg-emerald-400
+                                {% else %}bg-red-400{% endif %}">
+                                {% if task.d_day_offset == 0 %}D-Day{% else %}D{{ task.d_day_offset }}{% endif %}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-2">
+                            <div class="flex flex-col">
+                                <span
+                                    class="font-semibold text-gray-800 text-[0.9rem] {% if task.is_done %}line-through text-gray-400{% endif %}">
+                                    {{ task.title }}
+                                </span>
+                                {% if task.description %}
+                                <span class="text-gray-400 text-sm mt-0.5 truncate" style="max-width:350px;">{{ task.description }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-2 text-center">
+                            <input type="text"
+                                class="w-24 mx-auto text-center text-[0.85rem] font-semibold text-gray-500 bg-white/60 border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all budget-input"
+                                value="{{ task.estimated_budget|default:0|intcomma }}" data-task-id="{{ task.id }}"
+                                data-original-value="{{ task.estimated_budget|default:0 }}"
+                                onfocus="this.value = this.value.replace(/[^0-9]/g, '')" onblur="updateBudget(this)"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                                title="클릭하여 예산 수정">
+                        </td>
+                        <td class="py-3.5 px-2 text-center">
+                            {% if task.date %}
+                            <button
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/80 border border-gray-200 text-gray-600 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                                onclick="openTaskDateModal('{{ task.id }}', '{{ task.date|date:'Y-m-d' }}', '{{ task.title|escapejs }}')">
+                                <i class="bi bi-calendar-event" style="color:#FF8E8E;"></i>
+                                {{ task.date|date:"Y.m.d" }}
+                            </button>
+                            {% else %}
+                            <button
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                                style="background:linear-gradient(135deg,#FF8E8E,#ff7a7a);"
+                                onclick="openTaskDateModal('{{ task.id }}', '', '{{ task.title|escapejs }}')">
+                                <i class="bi bi-plus-lg"></i> 일정 등록
+                            </button>
+                            {% endif %}
+                        </td>
+                        <td class="py-3.5 px-2 text-center">
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="toggle_task_id" value="{{ task.id }}">
+                                <button type="submit"
+                                    class="border-0 bg-transparent p-0 cursor-pointer transition-transform hover:scale-110"
+                                    title="완료 여부 토글">
+                                    {% if task.is_done %}
+                                    <i class="bi bi-check-circle-fill text-xl" style="color:#10b981;"></i>
+                                    {% else %}
+                                    <i class="bi bi-circle text-xl text-gray-300 hover:text-pink-300"></i>
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-12 text-gray-400">
+                            <i class="bi bi-clipboard-check text-4xl mb-3 block opacity-30"></i>
+                            <p class="text-sm">등록된 체크리스트가 없습니다.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<!-- Modals -->
+<!-- ═══════════════════════════════════════════════════════════
+     MODALS — Glassmorphism Style
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- Add Task Modal -->
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="addTaskModalLabel">새 할 일 추가</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 rounded-[24px] overflow-hidden"
+            style="box-shadow:0 25px 60px rgba(0,0,0,0.12);">
+            <!-- Dark Gradient Header -->
+            <div
+                style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:2rem 2rem 1.8rem;position:relative;overflow:hidden;">
+                <div
+                    style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,0.04) 1px,transparent 0);background-size:24px 24px;">
+                </div>
+                <div style="position:relative;z-index:2;text-align:center;">
+                    <div
+                        style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#FF8E8E,#FFB5B5);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:1.2rem;color:white;">
+                        <i class="bi bi-plus-circle"></i>
+                    </div>
+                    <h5
+                        style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.3rem;color:white;margin:0;">
+                        새 할 일 추가</h5>
+                    <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0.4rem 0 0;">체크리스트에 새 항목을 추가하세요</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                    style="position:absolute;top:1rem;right:1rem;opacity:0.5;"></button>
             </div>
-            <div class="modal-body p-4">
+            <!-- Modal Body -->
+            <div style="padding:2rem;background:white;">
                 <form method="post">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">시기 (D-Day)</label>
-                        <div class="input-group border-0 bg-light" style="border-radius: 15px; overflow: hidden;">
-                            <span
-                                class="input-group-text border-0 bg-transparent ps-3 pe-1 fw-bold text-muted">D-</span>
+                    <div style="margin-bottom:1.25rem;">
+                        <label
+                            style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">
+                            <i class="bi bi-calendar-minus" style="color:#FF8E8E;"></i> 시기 (D-Day)
+                        </label>
+                        <div
+                            style="display:flex;align-items:center;gap:0;background:#f8f9fa;border:2px solid #f0f0f0;border-radius:14px;overflow:hidden;transition:all 0.3s;">
+                            <span style="padding:0 0 0 1rem;font-weight:700;color:#9ca3af;">D-</span>
                             <input type="number" name="new_task_d_day"
-                                class="form-control border-0 bg-transparent py-3 ps-1" placeholder="000" required>
-                            <span class="input-group-text border-0 bg-transparent pe-3 text-muted">일 전</span>
+                                style="flex:1;background:transparent;border:none;padding:0.85rem 0.5rem;font-size:0.9rem;color:#374151;outline:none;"
+                                placeholder="000" required>
+                            <span style="padding:0 1rem 0 0;font-size:0.8rem;color:#9ca3af;">일 전</span>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">할 일 (Task)</label>
-                        <input type="text" name="new_task_title" class="form-control bg-light border-0 py-3"
-                            style="border-radius: 15px;" placeholder="할 일을 입력하세요" required>
+                    <div style="margin-bottom:1.25rem;">
+                        <label
+                            style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">
+                            <i class="bi bi-pencil-fill" style="color:#FF8E8E;"></i> 할 일 (Task)
+                        </label>
+                        <input type="text" name="new_task_title"
+                            style="width:100%;background:#f8f9fa;border:2px solid #f0f0f0;border-radius:14px;padding:0.85rem 1.1rem;font-size:0.9rem;color:#374151;outline:none;transition:all 0.3s;"
+                            onfocus="this.style.borderColor='#FF8E8E';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(255,142,142,0.1)'"
+                            onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'"
+                            placeholder="할 일을 입력하세요" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">예상 예산 (원)</label>
-                        <input type="number" name="new_task_budget" class="form-control bg-light border-0 py-3"
-                            style="border-radius: 15px;" placeholder="0">
+                    <div style="margin-bottom:1.25rem;">
+                        <label
+                            style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">
+                            <i class="bi bi-wallet2" style="color:#FF8E8E;"></i> 예상 예산 (원)
+                        </label>
+                        <input type="number" name="new_task_budget"
+                            style="width:100%;background:#f8f9fa;border:2px solid #f0f0f0;border-radius:14px;padding:0.85rem 1.1rem;font-size:0.9rem;color:#374151;outline:none;transition:all 0.3s;"
+                            onfocus="this.style.borderColor='#FF8E8E';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(255,142,142,0.1)'"
+                            onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'"
+                            placeholder="0">
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold">메모 (Memo)</label>
-                        <textarea name="new_task_memo" class="form-control bg-light border-0 py-3"
-                            style="border-radius: 15px; height: 100px; resize: none;"
+                    <div style="margin-bottom:1.5rem;">
+                        <label
+                            style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">
+                            <i class="bi bi-chat-left-text" style="color:#FF8E8E;"></i> 메모 (Memo)
+                        </label>
+                        <textarea name="new_task_memo"
+                            style="width:100%;background:#f8f9fa;border:2px solid #f0f0f0;border-radius:14px;padding:0.85rem 1.1rem;font-size:0.9rem;color:#374151;outline:none;height:80px;resize:none;transition:all 0.3s;"
+                            onfocus="this.style.borderColor='#FF8E8E';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(255,142,142,0.1)'"
+                            onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'"
                             placeholder="메모를 입력하세요"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">추가하기</button>
+                    <button type="submit"
+                        style="width:100%;padding:0.95rem;border-radius:14px;border:none;background:linear-gradient(135deg,#FF8E8E 0%,#ff7a7a 100%);color:white;font-size:0.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(255,142,142,0.3);transition:all 0.3s;"
+                        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,142,142,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(255,142,142,0.3)'">
+                        <i class="bi bi-plus-circle" style="margin-right:0.4rem;"></i> 추가하기
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Task Date Modal -->
 <div class="modal fade" id="taskDateModal" tabindex="-1" aria-labelledby="taskDateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="taskDateModalLabel">일정 등록</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 rounded-[24px] overflow-hidden"
+            style="box-shadow:0 25px 60px rgba(0,0,0,0.12);">
+            <div
+                style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:2rem 2rem 1.8rem;position:relative;overflow:hidden;">
+                <div
+                    style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,0.04) 1px,transparent 0);background-size:24px 24px;">
+                </div>
+                <div style="position:relative;z-index:2;text-align:center;">
+                    <div
+                        style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#FF8E8E,#FFB5B5);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:1.2rem;color:white;">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <h5
+                        style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.3rem;color:white;margin:0;">
+                        일정 등록</h5>
+                    <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0.4rem 0 0;" id="taskDateModalTitle">
+                    </p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                    style="position:absolute;top:1rem;right:1rem;opacity:0.5;"></button>
             </div>
-            <div class="modal-body p-4">
-                <p class="text-muted small mb-3">
-                    <span id="taskDateModalTitle" class="fw-bold text-dark"></span>
-                    일정을 언제로 등록하시겠습니까?
-                </p>
+            <div style="padding:2rem;background:white;">
                 <form method="post">
                     {% csrf_token %}
                     <input type="hidden" name="task_id" id="taskDateModalId">
-                    <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold">날짜 선택</label>
+                    <div style="margin-bottom:1.5rem;">
+                        <label
+                            style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">
+                            <i class="bi bi-calendar3" style="color:#FF8E8E;"></i> 날짜 선택
+                        </label>
                         <input type="date" name="date" id="taskDateModalInput"
-                            class="form-control bg-light border-0 py-3" style="border-radius: 15px;" required>
+                            style="width:100%;background:#f8f9fa;border:2px solid #f0f0f0;border-radius:14px;padding:0.85rem 1.1rem;font-size:0.9rem;color:#374151;outline:none;transition:all 0.3s;"
+                            onfocus="this.style.borderColor='#FF8E8E';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(255,142,142,0.1)'"
+                            onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'"
+                            required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">확인</button>
+                    <button type="submit"
+                        style="width:100%;padding:0.95rem;border-radius:14px;border:none;background:linear-gradient(135deg,#FF8E8E 0%,#ff7a7a 100%);color:white;font-size:0.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(255,142,142,0.3);transition:all 0.3s;"
+                        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,142,142,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(255,142,142,0.3)'">
+                        <i class="bi bi-check2-circle" style="margin-right:0.4rem;"></i> 확인
+                    </button>
                 </form>
             </div>
         </div>
@@ -235,93 +309,59 @@
 <script>
     function openTaskDateModal(taskId, currentDate, taskTitle) {
         document.getElementById('taskDateModalId').value = taskId;
-        document.getElementById('taskDateModalTitle').innerText = taskTitle;
+        document.getElementById('taskDateModalTitle').innerText = taskTitle + ' 일정을 등록하세요';
         document.getElementById('taskDateModalInput').value = currentDate;
         const modal = new bootstrap.Modal(document.getElementById('taskDateModal'));
         modal.show();
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // 체크리스트 일괄 선택/해제
         const checkAll = document.getElementById('checkAll');
         if (checkAll) {
             checkAll.addEventListener('change', function () {
-                const checkboxes = document.querySelectorAll('.task-checkbox');
-                checkboxes.forEach(cb => cb.checked = this.checked);
+                document.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = this.checked);
             });
         }
 
-        // 체크리스트 일괄 삭제
         const btnDeleteSelected = document.getElementById('btnDeleteSelected');
         if (btnDeleteSelected) {
             btnDeleteSelected.addEventListener('click', function () {
                 const selectedIds = Array.from(document.querySelectorAll('.task-checkbox:checked')).map(cb => cb.value);
-                if (selectedIds.length === 0) {
-                    alert('삭제할 항목을 선택해주세요.');
-                    return;
-                }
-
+                if (selectedIds.length === 0) { alert('삭제할 항목을 선택해주세요.'); return; }
                 if (confirm('선택한 ' + selectedIds.length + '개의 항목을 삭제하시겠습니까?')) {
                     const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.style.display = 'none';
-
+                    form.method = 'POST'; form.style.display = 'none';
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                     const csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = 'csrfmiddlewaretoken';
-                    csrfInput.value = csrfToken;
+                    csrfInput.type = 'hidden'; csrfInput.name = 'csrfmiddlewaretoken'; csrfInput.value = csrfToken;
                     form.appendChild(csrfInput);
-
                     const idsInput = document.createElement('input');
-                    idsInput.type = 'hidden';
-                    idsInput.name = 'delete_task_ids';
-                    idsInput.value = JSON.stringify(selectedIds);
+                    idsInput.type = 'hidden'; idsInput.name = 'delete_task_ids'; idsInput.value = JSON.stringify(selectedIds);
                     form.appendChild(idsInput);
-
-                    document.body.appendChild(form);
-                    form.submit();
+                    document.body.appendChild(form); form.submit();
                 }
             });
         }
     });
 
-    // 예산 업데이트 (AJAX Form Submit - but here we just submit to same view effectively)
     function updateBudget(input) {
         const taskId = input.getAttribute('data-task-id');
         const originalValue = input.getAttribute('data-original-value');
         const newValue = input.value.replace(/,/g, '');
-
-        if (newValue === originalValue) {
-            input.value = Number(newValue).toLocaleString();
-            return;
-        }
-
+        if (newValue === originalValue) { input.value = Number(newValue).toLocaleString(); return; }
         const form = document.createElement('form');
-        form.method = 'POST';
-        form.style.display = 'none';
-
+        form.method = 'POST'; form.style.display = 'none';
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrfmiddlewaretoken';
-        csrfInput.value = csrfToken;
+        csrfInput.type = 'hidden'; csrfInput.name = 'csrfmiddlewaretoken'; csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
-
         const idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'update_budget_task_id';
-        idInput.value = taskId;
+        idInput.type = 'hidden'; idInput.name = 'update_budget_task_id'; idInput.value = taskId;
         form.appendChild(idInput);
-
         const budgetInput = document.createElement('input');
-        budgetInput.type = 'hidden';
-        budgetInput.name = 'budget_value';
-        budgetInput.value = newValue;
+        budgetInput.type = 'hidden'; budgetInput.name = 'budget_value'; budgetInput.value = newValue;
         form.appendChild(budgetInput);
-
-        document.body.appendChild(form);
-        form.submit();
+        document.body.appendChild(form); form.submit();
     }
 </script>
 {% endblock %}

@@ -1,35 +1,85 @@
-{% extends 'base.html' %}
-{% load humanize %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}게시글 수정{% else %}새 게시글{% endif %} - 커뮤니티{% endblock %}
 
 {% block content %}
-<div class="container py-5" style="max-width: 800px;">
-    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-        <div class="card-header bg-white border-0 p-4">
-            <h4 class="fw-bold mb-0">
-                <i class="bi bi-pencil-square me-2 text-primary-custom"></i>글쓰기
-            </h4>
+<!-- Navigation Tabs -->
+{% include 'weddings/includes/_dashboard_tabs.html' %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     POST FORM — Glassmorphism Redesign
+     ═══════════════════════════════════════════════════════════ -->
+
+<div class="mb-8">
+    <!-- Back Button -->
+    <a href="{% url 'community_main' %}"
+        class="inline-flex items-center gap-1.5 mb-4 text-sm text-gray-500 hover:text-pink-400 transition-colors no-underline">
+        <i class="bi bi-arrow-left"></i> 커뮤니티로 돌아가기
+    </a>
+
+    <!-- Form Card -->
+    <div class="rounded-[24px] bg-white/70 backdrop-blur-md border border-white/50 overflow-hidden shadow-sm"
+        style="box-shadow: 0 8px 32px rgba(255,142,142,0.06);">
+        <!-- Card Header -->
+        <div
+            style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:2rem 2rem 1.8rem;position:relative;overflow:hidden;">
+            <div
+                style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,0.04) 1px,transparent 0);background-size:24px 24px;">
+            </div>
+            <div style="position:relative;z-index:2;text-align:center;">
+                <div
+                    style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#FF8E8E,#FFB5B5);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:1.2rem;color:white;">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <h5 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.3rem;color:white;margin:0;">
+                    {% if form.instance.pk %}게시글 수정{% else %}새 게시글 작성{% endif %}
+                </h5>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0.4rem 0 0;">커뮤니티에 글을 공유하세요</p>
+            </div>
         </div>
-        <div class="card-body p-4 pt-0">
+
+        <!-- Form Body -->
+        <div style="padding:2rem;">
             <form method="post">
                 {% csrf_token %}
-                <div class="mb-4">
-                    <label for="{{ form.title.id_for_label }}" class="form-label fw-bold text-muted">제목</label>
-                    {{ form.title }}
-                    {% if form.title.errors %}
-                    <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
-                    {% endif %}
+                <!-- Title -->
+                <div style="margin-bottom:1.5rem;">
+                    <label
+                        style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">
+                        <i class="bi bi-type-h1" style="color:#FF8E8E;"></i> 제목
+                    </label>
+                    <input type="text" name="title" value="{{ form.instance.title|default:'' }}"
+                        style="width:100%;background:#f8f9fa;border:2px solid #f0f0f0;border-radius:14px;padding:0.85rem 1.1rem;font-size:0.9rem;color:#374151;outline:none;transition:all 0.3s;"
+                        onfocus="this.style.borderColor='#FF8E8E';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(255,142,142,0.1)'"
+                        onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'"
+                        placeholder="게시글 제목을 입력하세요" required>
                 </div>
-                <div class="mb-4">
-                    <label for="{{ form.content.id_for_label }}" class="form-label fw-bold text-muted">내용</label>
-                    {{ form.content }}
-                    {% if form.content.errors %}
-                    <div class="text-danger small mt-1">{{ form.content.errors.0 }}</div>
-                    {% endif %}
+                <!-- Content -->
+                <div style="margin-bottom:2rem;">
+                    <label
+                        style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">
+                        <i class="bi bi-text-paragraph" style="color:#FF8E8E;"></i> 내용
+                    </label>
+                    <textarea name="content" rows="12"
+                        style="width:100%;background:#f8f9fa;border:2px solid #f0f0f0;border-radius:14px;padding:0.85rem 1.1rem;font-size:0.9rem;color:#374151;outline:none;resize:vertical;line-height:1.8;transition:all 0.3s;"
+                        onfocus="this.style.borderColor='#FF8E8E';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(255,142,142,0.1)'"
+                        onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'"
+                        placeholder="내용을 입력하세요" required>{{ form.instance.content|default:'' }}</textarea>
                 </div>
-
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{% url 'dashboard' %}?tab=community" class="btn btn-light rounded-pill px-4 fw-bold">취소</a>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">등록하기</button>
+                <!-- Submit -->
+                <div class="flex items-center justify-end gap-3">
+                    <a href="{% url 'community_main' %}"
+                        class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-500 bg-gray-100 border border-gray-200 no-underline transition-all hover:bg-gray-200">
+                        취소
+                    </a>
+                    <button type="submit"
+                        style="padding:0.7rem 2rem;border-radius:14px;border:none;background:linear-gradient(135deg,#FF8E8E 0%,#ff7a7a 100%);color:white;font-size:0.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(255,142,142,0.3);transition:all 0.3s;"
+                        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,142,142,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(255,142,142,0.3)'">
+                        <i class="bi bi-check2-circle" style="margin-right:0.4rem;"></i>
+                        {% if form.instance.pk %}수정하기{% else %}등록하기{% endif %}
+                    </button>
                 </div>
             </form>
         </div>

@@ -1,111 +1,148 @@
-{% extends 'base.html' %}
-{% load humanize %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block title %}{{ post.title }} - 커뮤니티{% endblock %}
 
 {% block content %}
-<div class="container py-5" style="max-width: 800px;">
+<!-- Navigation Tabs -->
+{% include 'weddings/includes/_dashboard_tabs.html' %}
 
-    <!-- Navigation -->
-    <div class="mb-4">
-        <a href="{% url 'dashboard' %}?tab=community" class="text-decoration-none text-muted fw-bold">
-            <i class="bi bi-chevron-left me-1"></i>목록으로 돌아가기
-        </a>
-    </div>
+<!-- ═══════════════════════════════════════════════════════════
+     POST DETAIL — Glassmorphism Redesign (Distinct Blocks)
+     ═══════════════════════════════════════════════════════════ -->
 
-    <!-- Post Content -->
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
-        <div class="card-header bg-white border-0 p-4 border-bottom">
-            <div class="mb-2">
-                <h4 class="fw-bold mb-0 text-break">{{ post.title }}</h4>
+<div class="mb-8">
+    <!-- Back Button -->
+    <a href="{% url 'community_main' %}"
+        class="inline-flex items-center gap-1.5 mb-4 text-sm text-gray-500 hover:text-pink-400 transition-colors no-underline">
+        <i class="bi bi-arrow-left"></i> 커뮤니티로 돌아가기
+    </a>
+
+    <!-- Post Card -->
+    <div class="rounded-[24px] overflow-hidden shadow-sm mb-5" style="box-shadow: 0 8px 32px rgba(255,142,142,0.06);">
+
+        <!-- Post Header — Dark gradient for clear separation -->
+        <div class="px-6 py-5"
+            style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);position:relative;overflow:hidden;">
+            <div
+                style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,0.03) 1px,transparent 0);background-size:24px 24px;">
             </div>
-            <div class="d-flex align-items-center text-muted small">
-                <span class="text-primary-custom fw-bold me-2">{{ post.author.first_name|default:post.author.username }}</span>
-                <span>{{ post.created_at|date:"Y.m.d H:i" }}</span>
+            <div style="position:relative;z-index:2;">
+                <h1 class="text-lg font-bold text-white m-0 mb-3">{{ post.title }}</h1>
+                <div class="flex flex-wrap items-center gap-3 text-xs" style="color:rgba(255,255,255,0.6);">
+                    <span class="flex items-center gap-1">
+                        <i class="bi bi-person-circle" style="color:#FFB5B5;"></i>
+                        {{ post.author.first_name|default:post.author.username }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <i class="bi bi-calendar3"></i>
+                        {{ post.created_at|date:"Y.m.d H:i" }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <i class="bi bi-heart-fill" style="color:#FF8E8E;"></i>
+                        추천 {{ post.recommendations.count }}
+                    </span>
+                </div>
             </div>
         </div>
-        <div class="card-body p-4" style="min-height: 200px;">
-            <p class="mb-0" style="white-space: pre-line; line-height: 1.6;">{{ post.content }}</p>
 
-            <div class="d-flex justify-content-end mt-5 gap-2 align-items-center">
-                {% if user == post.author %}
-                <a href="{% url 'post_edit' post.id %}"
-                    class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
-                    수정
+        <!-- Post Content — White background for contrast -->
+        <div class="px-6 py-8 bg-white">
+            <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap" style="min-height:120px;">{{post.content }}</div>
+        </div>
+
+        <!-- Post Actions — Lightest gray for visual distinction -->
+        <div class="px-6 py-4 flex items-center justify-between"
+            style="background:#f8f9fa;border-top:1px solid #f0f0f0;">
+            <div class="flex items-center gap-2">
+                <a href="{% url 'post_recommend' post.id %}"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all no-underline hover:-translate-y-0.5
+                    {% if user in post.recommendations.all %}text-white{% else %}bg-white border border-gray-200 text-gray-500 hover:bg-pink-50 hover:text-pink-400 hover:border-pink-200{% endif %}"
+                    {% if user in post.recommendations.all %}
+                    style="background:linear-gradient(135deg,#FF8E8E,#ff7a7a);box-shadow:0 4px 12px rgba(255,142,142,0.25);"
+                    {% endif %}>
+                    <i class="bi bi-heart-fill"></i> 추천 {{ post.recommendations.count }}
                 </a>
-                <form action="{% url 'post_delete' post.id %}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm">
-                        삭제
-                    </button>
-                </form>
-                {% endif %}
-
-                <form action="{% url 'post_recommend' post.id %}" method="post">
+            </div>
+            {% if user == post.author %}
+            <div class="flex items-center gap-2">
+                <a href="{% url 'post_edit' post.id %}"
+                    class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold bg-white border border-gray-200 text-gray-500 hover:bg-blue-50 hover:text-blue-400 hover:border-blue-200 transition-all no-underline">
+                    <i class="bi bi-pencil-square"></i> 수정
+                </a>
+                <form method="post" action="{% url 'post_delete' post.id %}" onsubmit="return confirm('정말 삭제하시겠습니까?');"
+                    style="margin:0;">
                     {% csrf_token %}
                     <button type="submit"
-                        class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center gap-2 shadow-sm"
-                        style="border-color: #FF85A2; color: #FF85A2;">
-                        {% if request.user in post.recommendations.all %}
-                        <i class="bi bi-hand-thumbs-up-fill fs-6"></i>
-                        {% else %}
-                        <i class="bi bi-hand-thumbs-up fs-6"></i>
-                        {% endif %}
-                        <span class="fw-bold">{{ post.recommendations.count }}</span>
+                        class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-400 hover:border-red-200 transition-all cursor-pointer">
+                        <i class="bi bi-trash3"></i> 삭제
                     </button>
                 </form>
             </div>
+            {% endif %}
         </div>
     </div>
 
     <!-- Comments Section -->
-    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-        <div class="card-header bg-white border-0 p-4 pb-0">
-            <h5 class="fw-bold mb-0">댓글 <span class="text-primary-custom">{{ post.comments.count }}</span></h5>
+    <div class="rounded-[24px] bg-white/70 backdrop-blur-md border border-white/50 overflow-hidden shadow-sm"
+        style="box-shadow: 0 8px 32px rgba(255,142,142,0.06);">
+        <div class="px-6 py-4 border-b border-gray-100/60">
+            <h5 class="text-sm font-bold text-gray-800 m-0 flex items-center gap-2">
+                <i class="bi bi-chat-dots" style="color:#FF8E8E;"></i>
+                댓글 <span class="text-xs text-gray-400 font-normal">({{ comments|length }})</span>
+            </h5>
         </div>
-        <div class="card-body p-4">
 
-            <!-- Comment List -->
-            <div class="mb-4">
-                {% for comment in comments %}
-                <div class="d-flex mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary fw-bold"
-                            style="width: 40px; height: 40px;">
-                            {{ comment.author.first_name|default:comment.author.username|slice:":1" }}
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="bg-light p-3 border-0" style="border-radius: 0 15px 15px 15px;">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold small">{{ comment.author.first_name|default:comment.author.username }}</span>
-                                <span class="text-muted small" style="font-size: 0.8rem;">{{ comment.created_at|timesince }} 전</span>
-                            </div>
-                            <p class="mb-0 small text-dark">{{ comment.content|linebreaksbr }}</p>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="text-center py-4 text-muted small">
-                    <p>아직 댓글이 없습니다. 첫 댓글을 남겨주세요!</p>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Comment Form -->
-            <form action="{% url 'comment_create' %}" method="post" class="position-relative">
+        <!-- Comment Write Form -->
+        <div class="px-6 py-4 border-b border-gray-100/30" style="background:rgba(255,142,142,0.02);">
+            <form method="post" action="{% url 'comment_create' %}">
                 {% csrf_token %}
                 <input type="hidden" name="post_id" value="{{ post.id }}">
-                <div class="d-flex gap-2">
-                    <div class="flex-grow-1">
-                        {{ form.content }}
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                        style="background:linear-gradient(135deg,#FF8E8E,#FFB5B5);">
+                        {{ user.first_name|default:user.username|truncatechars:1 }}
                     </div>
-                    <button type="submit"
-                        class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-                        style="width: 50px; height: 50px;">
-                        <i class="bi bi-send-fill"></i>
-                    </button>
+                    <div class="flex-1">
+                        <textarea name="content" rows="2"
+                            class="w-full bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all resize-none"
+                            placeholder="댓글을 작성해주세요..." required></textarea>
+                        <div class="flex justify-end mt-2">
+                            <button type="submit"
+                                class="px-4 py-2 rounded-xl text-white text-xs font-bold transition-all hover:-translate-y-0.5"
+                                style="background:linear-gradient(135deg,#FF8E8E,#ff7a7a);box-shadow:0 4px 12px rgba(255,142,142,0.25);">
+                                <i class="bi bi-send mr-1"></i> 등록
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
+        </div>
+
+        <!-- Comments List -->
+        <div class="divide-y divide-gray-50">
+            {% for comment in comments %}
+            <div class="px-6 py-4 hover:bg-pink-50/20 transition-colors">
+                <div class="flex gap-3">
+                    <div
+                        class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 text-xs font-bold">
+                        {{ comment.author.first_name|default:comment.author.username|truncatechars:1 }}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold text-gray-700">{{ comment.author.first_name|default:comment.author.username }}</span>
+                            <span class="text-[10px] text-gray-400">{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 m-0 leading-relaxed">{{ comment.content }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-10 text-gray-400">
+                <i class="bi bi-chat-left text-3xl mb-2 block opacity-30"></i>
+                <p class="text-sm m-0">아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>

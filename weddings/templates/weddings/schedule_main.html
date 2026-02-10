@@ -4,273 +4,290 @@
 {% block title %}일정관리 - 웨딩 플래너{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    {% include 'weddings/includes/_dashboard_tabs.html' %}
+<!-- ============================================================
+     SCHEDULE TAB — Trendy Redesign
+     디자인부장 담당 | Calendar + Side Panel + Upcoming
+     ============================================================ -->
 
-    <div class="row g-4 fade-in">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm glass-card h-100" style="border-radius: 20px;">
-                <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
-                    <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm btn-light rounded-circle">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                    <div class="d-flex align-items-center gap-2">
-                        <h4 class="fw-bold mb-0">
-                            <i class="bi bi-calendar-heart me-2 text-primary-custom"></i>
-                            {{ current_year }}년 {{ current_month }}월
-                        </h4>
-                        <button type="button" class="btn btn-sm btn-light rounded-circle text-muted"
-                            data-bs-toggle="modal" data-bs-target="#datePickerModal">
-                            <i class="bi bi-calendar-date"></i>
-                        </button>
-                    </div>
-                    <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-light rounded-circle">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
+{% include 'weddings/includes/_dashboard_tabs.html' %}
+
+<div class="sch-layout">
+    <!-- ─── Left: Calendar ─── -->
+    <div class="sch-calendar">
+        <div class="sch-calendar__card">
+            <!-- Header -->
+            <div class="sch-calendar__header">
+                <a href="?year={{ prev_year }}&month={{ prev_month }}" class="sch-calendar__nav-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <div class="sch-calendar__title-area">
+                    <h3 class="sch-calendar__title">{{ current_year }}년 {{ current_month }}월</h3>
+                    <button type="button" class="sch-calendar__picker-btn" data-bs-toggle="modal"
+                        data-bs-target="#datePickerModal">
+                        <i class="bi bi-calendar-date"></i>
+                    </button>
                 </div>
+                <a href="?year={{ next_year }}&month={{ next_month }}" class="sch-calendar__nav-btn">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
 
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-end gap-3 mb-2">
-                        <div class="d-flex align-items-center small text-muted">
-                            <i class="bi bi-check-circle-fill text-success me-1"></i>
-                            <span>일정</span>
-                        </div>
-                        <div class="d-flex align-items-center small text-muted">
-                            <i class="bi bi-journal-text text-primary me-1"></i>
-                            <span>메모</span>
-                        </div>
-                    </div>
-
-                    <table class="calendar-table w-100">
-                        <thead>
-                            <tr>
-                                <th class="text-danger">일</th>
-                                <th>월</th>
-                                <th>화</th>
-                                <th>수</th>
-                                <th>목</th>
-                                <th>금</th>
-                                <th class="text-primary">토</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for week in calendar %}
-                            <tr>
-                                {% for day_info in week %}
-                                <td>
-                                    {% if not day_info.is_empty %}
-                                    <div class="calendar-day {% if day_info.is_today %}today{% endif %} {% if day_info.is_selected %}selected{% endif %} {% if day_info.is_wedding_day %}wedding-day{% endif %}"
-                                        onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
-                                        data-log-content="{{ day_info.log_content|default:'' }}">
-                                        <span>{{ day_info.day }}</span>
-
-                                        {% if day_info.is_wedding_day %}
-                                        <div class="d-flex justify-content-center align-items-center flex-grow-1"
-                                            style="line-height: 1;">
-                                            <span style="font-size: 1.5rem;">👰‍♀️🤵‍♂️</span>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if day_info.has_log %}
-                                        <div class="calendar-icon">
-                                            <i class="bi bi-journal-text text-primary"></i>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if day_info.has_task %}
-                                        <div class="calendar-icon">
-                                            <i class="bi bi-check-circle-fill text-success"></i>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    {% else %}
-                                    <div class="calendar-day empty"></div>
-                                    {% endif %}
-                                </td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <!-- Legend -->
+            <div class="sch-calendar__legend">
+                <div class="sch-legend">
+                    <span class="sch-legend__dot sch-legend__dot--task"></span>
+                    <span>일정</span>
+                </div>
+                <div class="sch-legend">
+                    <span class="sch-legend__dot sch-legend__dot--memo"></span>
+                    <span>메모</span>
+                </div>
+                <div class="sch-legend">
+                    <span class="sch-legend__dot sch-legend__dot--wedding"></span>
+                    <span>결혼식</span>
                 </div>
             </div>
+
+            <!-- Calendar Grid -->
+            <table class="sch-table">
+                <thead>
+                    <tr>
+                        <th class="sch-table__day sch-table__day--sun">일</th>
+                        <th class="sch-table__day">월</th>
+                        <th class="sch-table__day">화</th>
+                        <th class="sch-table__day">수</th>
+                        <th class="sch-table__day">목</th>
+                        <th class="sch-table__day">금</th>
+                        <th class="sch-table__day sch-table__day--sat">토</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for week in calendar %}
+                    <tr>
+                        {% for day_info in week %}
+                        <td>
+                            {% if not day_info.is_empty %}
+                            <div class="sch-cell {% if day_info.is_today %}sch-cell--today{% endif %} {% if day_info.is_selected %}sch-cell--selected{% endif %} {% if day_info.is_wedding_day %}sch-cell--wedding{% endif %} {% if day_info.has_log or day_info.has_task %}sch-cell--has-event{% endif %}"
+                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
+                                data-log-content="{{ day_info.log_content|default:'' }}">
+                                <span class="sch-cell__num">{{ day_info.day }}</span>
+
+                                {% if day_info.is_wedding_day %}
+                                <div class="sch-cell__wedding">💍</div>
+                                {% endif %}
+
+                                <!-- Indicator Dots (High Visibility) -->
+                                <div class="sch-cell__dots">
+                                    {% if day_info.has_task %}
+                                    <span class="sch-dot sch-dot--task" title="일정"></span>
+                                    {% endif %}
+                                    {% if day_info.has_log %}
+                                    <span class="sch-dot sch-dot--memo" title="메모"></span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="sch-cell sch-cell--empty"></div>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+    </div>
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100 glass-card" style="border-radius: 20px;">
-                <div class="card-header bg-transparent border-0 p-4 pb-0">
-                    <ul class="nav nav-pills nav-fill" id="upcomingTabs" role="tablist"
-                        style="border-bottom: 1px solid #dee2e6;">
-                        <li class="nav-item" role="presentation">
-                            <button
-                                class="nav-link active fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                id="schedule-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-schedule"
-                                type="button" role="tab" aria-controls="panel-schedule" aria-selected="true"
-                                style="color: #6c757d;">
-                                일정
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button
-                                class="nav-link fw-bold rounded-0 border-0 border-bottom border-3 border-transparent"
-                                id="memo-tab-panel" data-bs-toggle="pill" data-bs-target="#panel-memo" type="button"
-                                role="tab" aria-controls="panel-memo" aria-selected="false" style="color: #6c757d;">
-                                메모
-                            </button>
-                        </li>
-                    </ul>
-                </div>
+    <!-- ─── Right: Side Panel ─── -->
+    <div class="sch-panel">
+        <div class="sch-panel__card">
+            <!-- Tabs -->
+            <div class="sch-panel__tabs">
+                <button class="sch-tab sch-tab--active" data-target="panel-schedule" onclick="switchTab(this)">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>일정</span>
+                </button>
+                <button class="sch-tab" data-target="panel-memo" onclick="switchTab(this)">
+                    <i class="bi bi-journal-text"></i>
+                    <span>메모</span>
+                </button>
+            </div>
 
-                <style>
-                    #upcomingTabs .nav-link {
-                        transition: all 0.3s ease;
-                    }
-
-                    #upcomingTabs .nav-link.active {
-                        color: var(--primary-color) !important;
-                        background-color: transparent !important;
-                        border-bottom-color: var(--primary-color) !important;
-                    }
-                </style>
-
-                <div class="card-body p-4 h-100">
-                    <div class="tab-content" id="upcomingTabsContent">
-                        <div class="tab-pane fade show active" id="panel-schedule" role="tabpanel"
-                            aria-labelledby="schedule-tab-panel">
-                            <div class="list-group list-group-flush">
-                                {% for item in upcoming_schedules %}
-                                <div
-                                    class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
-                                    <div style="width: 60px;">
-                                        {% if item.d_day == 0 %}
-                                        <span class="badge bg-danger rounded-pill">D-Day</span>
-                                        {% elif item.d_day > 0 %}
-                                        <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
-                                        {% else %}
-                                        <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex-grow-1 px-3">
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                            <span class="fw-bold text-dark text-truncate" style="max-width: 150px;">
-                                                {{ item.title }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="text-end" style="min-width: 50px;">
-                                        <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="text-center py-5 text-muted">
-                                    <p>예정된 일정이 없습니다.</p>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="panel-memo" role="tabpanel" aria-labelledby="memo-tab-panel">
-                            <div class="list-group list-group-flush">
-                                {% for item in upcoming_memos %}
-                                <div
-                                    class="list-group-item bg-transparent px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
-                                    <div style="width: 60px;">
-                                        {% if item.d_day == 0 %}
-                                        <span class="badge bg-danger rounded-pill">D-Day</span>
-                                        {% elif item.d_day > 0 %}
-                                        <span class="badge bg-secondary rounded-pill">D+{{ item.d_day }}</span>
-                                        {% else %}
-                                        <span class="badge bg-primary-custom rounded-pill">D{{ item.d_day }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex-grow-1 px-3">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-journal-text text-primary me-2 mt-1"></i>
-                                            <span class="fw-bold text-dark" style="word-break: break-all;">
-                                                {{ item.title|linebreaksbr }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="text-end" style="min-width: 50px;">
-                                        <small class="text-muted fw-bold">{{ item.date|date:"m.d" }}</small>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="text-center py-5 text-muted">
-                                    <p>작성된 메모가 없습니다.</p>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
+            <!-- Schedule List -->
+            <div class="sch-tab-content sch-tab-content--active" id="panel-schedule">
+                {% for item in upcoming_schedules %}
+                <div class="sch-item">
+                    <div
+                        class="sch-item__badge {% if item.d_day == 0 %}sch-item__badge--dday{% elif item.d_day > 0 %}sch-item__badge--past{% endif %}">
+                        {% if item.d_day == 0 %}D-Day{% elif item.d_day > 0 %}D+{{ item.d_day }}{% else %}D{{ item.d_day }}{% endif %}
                     </div>
+                    <div class="sch-item__body">
+                        <div class="sch-item__icon sch-item__icon--task">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <span class="sch-item__title">{{ item.title }}</span>
+                    </div>
+                    <span class="sch-item__date">{{ item.date|date:"m.d" }}</span>
                 </div>
+                {% empty %}
+                <div class="sch-empty">
+                    <i class="bi bi-calendar-x"></i>
+                    <p>예정된 일정이 없습니다</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Memo List -->
+            <div class="sch-tab-content" id="panel-memo">
+                {% for item in upcoming_memos %}
+                <div class="sch-item">
+                    <div
+                        class="sch-item__badge {% if item.d_day == 0 %}sch-item__badge--dday{% elif item.d_day > 0 %}sch-item__badge--past{% endif %}">
+                        {% if item.d_day == 0 %}D-Day{% elif item.d_day > 0 %}D+{{ item.d_day }}{% else %}D{{ item.d_day }}{% endif %}
+                    </div>
+                    <div class="sch-item__body">
+                        <div class="sch-item__icon sch-item__icon--memo">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <span class="sch-item__title">{{ item.title|truncatechars:40 }}</span>
+                    </div>
+                    <span class="sch-item__date">{{ item.date|date:"m.d" }}</span>
+                </div>
+                {% empty %}
+                <div class="sch-empty">
+                    <i class="bi bi-journal-x"></i>
+                    <p>작성된 메모가 없습니다</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modals -->
+<!-- ─── Bottom: Summary Stats ─── -->
+<div class="sch-stats">
+    <div class="sch-stats__grid">
+        <div class="sch-stat">
+            <div class="sch-stat__icon sch-stat__icon--schedule">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="sch-stat__body">
+                <span class="sch-stat__num">{{ upcoming_schedules|length }}</span>
+                <span class="sch-stat__label">예정된 일정</span>
+            </div>
+        </div>
+        <div class="sch-stat">
+            <div class="sch-stat__icon sch-stat__icon--memo">
+                <i class="bi bi-journal-text"></i>
+            </div>
+            <div class="sch-stat__body">
+                <span class="sch-stat__num">{{ upcoming_memos|length }}</span>
+                <span class="sch-stat__label">작성된 메모</span>
+            </div>
+        </div>
+        <div class="sch-stat">
+            <div class="sch-stat__icon sch-stat__icon--task">
+                <i class="bi bi-list-task"></i>
+            </div>
+            <div class="sch-stat__body">
+                <span class="sch-stat__num">{{ unscheduled_tasks|length }}</span>
+                <span class="sch-stat__label">미배정 할일</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+
+<!-- Date Action Modal (Updated Design) -->
 <div class="modal fade" id="dateActionModal" tabindex="-1" aria-labelledby="dateActionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="dateActionModalLabel">날짜 선택</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 rounded-[24px] overflow-hidden"
+            style="box-shadow: 0 25px 60px rgba(0,0,0,0.12);">
+            <!-- Header -->
+            <div
+                style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 1.5rem 2rem; position: relative; overflow: hidden;">
+                <div
+                    style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);background-size:24px 24px;">
+                </div>
+                <div style="position:relative;z-index:2;display:flex;align-items:center;gap:0.75rem;">
+                    <div
+                        style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#FF8E8E,#FFB5B5);display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;">
+                        <i class="bi bi-calendar-plus"></i>
+                    </div>
+                    <div>
+                        <h5 id="dateActionModalLabel" style="margin:0;color:white;font-weight:700;font-size:1.1rem;">날짜
+                            선택</h5>
+                        <p style="margin:0;color:rgba(255,255,255,0.5);font-size:0.7rem;">메모 또는 일정을 등록하세요</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                    style="position:absolute;top:1rem;right:1rem;opacity:0.5;"></button>
             </div>
-            <div class="modal-body p-4">
-                <ul class="nav nav-pills mb-3 nav-justified" id="modalTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active rounded-pill" id="memo-tab-modal" data-bs-toggle="pill"
-                            data-bs-target="#memo-modal" type="button" role="tab" aria-controls="memo-modal"
-                            aria-selected="true">
-                            <i class="bi bi-journal-text me-2"></i>메모 등록
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link rounded-pill" id="task-tab-modal" data-bs-toggle="pill"
-                            data-bs-target="#task-modal" type="button" role="tab" aria-controls="task-modal"
-                            aria-selected="false">
-                            <i class="bi bi-check-circle me-2"></i>일정 등록
-                        </button>
-                    </li>
-                </ul>
 
-                <div class="tab-content" id="modalTabsContent">
-                    <div class="tab-pane fade show active" id="memo-modal" role="tabpanel"
-                        aria-labelledby="memo-tab-modal">
+            <div style="padding: 1.5rem 2rem; background: white;">
+                <!-- Modal Tabs -->
+                <div class="sch-modal-tabs">
+                    <button class="sch-modal-tab sch-modal-tab--active" data-bs-toggle="pill"
+                        data-bs-target="#memo-modal">
+                        <i class="bi bi-journal-text"></i> 메모 등록
+                    </button>
+                    <button class="sch-modal-tab" data-bs-toggle="pill" data-bs-target="#task-modal">
+                        <i class="bi bi-check-circle"></i> 일정 등록
+                    </button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Memo Tab -->
+                    <div class="tab-pane fade show active" id="memo-modal">
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="date" id="modalDateInput">
-                            <div class="mb-3">
-                                <textarea name="log_content" class="form-control mood-diary-textarea"
-                                    placeholder="이 날의 메모를 남겨주세요..."
-                                    style="height: 150px; resize: none; border-radius: 15px; padding: 15px;"></textarea>
+                            <div style="margin-bottom:1rem;">
+                                <textarea name="log_content"
+                                    style="width:100%;height:130px;resize:none;border:2px solid #f0f0f0;border-radius:16px;padding:1rem;font-size:0.9rem;color:#374151;outline:none;transition:all 0.3s;background:#f8f9fa;"
+                                    onfocus="this.style.borderColor='#FF8E8E';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(255,142,142,0.1)'"
+                                    onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'"
+                                    placeholder="이 날의 메모를 남겨주세요..."></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">저장하기</button>
+                            <button type="submit"
+                                style="width:100%;padding:0.85rem;border-radius:14px;border:none;background:linear-gradient(135deg,#FF8E8E,#ff7a7a);color:white;font-weight:700;font-size:0.9rem;cursor:pointer;box-shadow:0 4px 15px rgba(255,142,142,0.3);transition:all 0.3s;"
+                                onmouseover="this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.transform='translateY(0)'">
+                                <i class="bi bi-check2-circle" style="margin-right:0.3rem;"></i> 저장하기
+                            </button>
                         </form>
                     </div>
 
-                    <div class="tab-pane fade" id="task-modal" role="tabpanel" aria-labelledby="task-tab-modal">
+                    <!-- Task Tab -->
+                    <div class="tab-pane fade" id="task-modal">
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="date" id="modalDateInputTask">
-                            <div class="mb-4">
-                                <label class="form-label text-muted small fw-bold mb-2">할 일 선택</label>
-                                <select class="form-select border-0 bg-light py-3" name="task_id"
-                                    style="border-radius: 15px;">
+                            <div style="margin-bottom:1.25rem;">
+                                <label
+                                    style="font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;display:block;">할
+                                    일 선택</label>
+                                <select name="task_id"
+                                    style="width:100%;border:2px solid #f0f0f0;border-radius:14px;padding:0.85rem 1rem;font-size:0.9rem;color:#374151;outline:none;background:#f8f9fa;transition:all 0.3s;"
+                                    onfocus="this.style.borderColor='#28a745';this.style.background='white';this.style.boxShadow='0 0 0 4px rgba(40,167,69,0.1)'"
+                                    onblur="this.style.borderColor='#f0f0f0';this.style.background='#f8f9fa';this.style.boxShadow='none'">
                                     <option selected disabled>할 일을 선택해주세요</option>
                                     {% for task in unscheduled_tasks %}
-                                    <option value="{{ task.id }}" {% if task.is_done %}disabled{% endif %}>
-                                        {{ task.title }}
-                                    </option>
+                                    <option value="{{ task.id }}" {% if task.is_done %}disabled{% endif %}>{{ task.title }}</option>
                                     {% empty %}
                                     <option disabled>미완료된 할 일이 없습니다.</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold py-2">일정
-                                등록하기</button>
+                            <button type="submit"
+                                style="width:100%;padding:0.85rem;border-radius:14px;border:none;background:linear-gradient(135deg,#28a745,#20c997);color:white;font-weight:700;font-size:0.9rem;cursor:pointer;box-shadow:0 4px 15px rgba(40,167,69,0.3);transition:all 0.3s;"
+                                onmouseover="this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.transform='translateY(0)'">
+                                <i class="bi bi-calendar-plus" style="margin-right:0.3rem;"></i> 일정 등록하기
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -279,41 +296,54 @@
     </div>
 </div>
 
-<div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
+<!-- Date Picker Modal -->
+<div class="modal fade" id="datePickerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="datePickerModalLabel">날짜 이동</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 rounded-[20px] overflow-hidden"
+            style="box-shadow: 0 20px 50px rgba(0,0,0,0.1);">
+            <div
+                style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 1.25rem 1.5rem; text-align:center;">
+                <h5 style="margin:0;color:white;font-weight:700;font-size:1rem;">📅 날짜 이동</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    style="position:absolute;top:0.75rem;right:0.75rem;opacity:0.5;"></button>
             </div>
-            <div class="modal-body">
+            <div style="padding:1.5rem;background:white;">
                 <form action="" method="get">
-                    <div class="mb-3">
-                        <label for="yearSelect" class="form-label text-muted small fw-bold">연도</label>
-                        <select class="form-select border-0 bg-light" id="yearSelect" name="year">
+                    <div style="margin-bottom:1rem;">
+                        <label
+                            style="font-size:0.7rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;display:block;">연도</label>
+                        <select name="year"
+                            style="width:100%;border:2px solid #f0f0f0;border-radius:12px;padding:0.7rem;font-size:0.9rem;outline:none;background:#f8f9fa;">
                             {% for y in year_range %}
                             <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}년</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="mb-4">
-                        <label for="monthSelect" class="form-label text-muted small fw-bold">월</label>
-                        <select class="form-select border-0 bg-light" id="monthSelect" name="month">
+                    <div style="margin-bottom:1.25rem;">
+                        <label
+                            style="font-size:0.7rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;display:block;">월</label>
+                        <select name="month"
+                            style="width:100%;border:2px solid #f0f0f0;border-radius:12px;padding:0.7rem;font-size:0.9rem;outline:none;background:#f8f9fa;">
                             {% for m in "123456789012"|make_list %}
-                            <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>
-                                {{ forloop.counter }}월
-                            </option>
+                            <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>{{ forloop.counter }}월</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">이동하기</button>
+                    <button type="submit"
+                        style="width:100%;padding:0.8rem;border-radius:12px;border:none;background:linear-gradient(135deg,#FF8E8E,#ff7a7a);color:white;font-weight:700;cursor:pointer;">
+                        이동하기
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
 <script>
+    // Date Select → Open Modal
     function selectDate(element, year, month, day) {
         const monthStr = month.toString().padStart(2, '0');
         const dayStr = day.toString().padStart(2, '0');
@@ -336,52 +366,618 @@
         const modal = new bootstrap.Modal(document.getElementById('dateActionModal'));
         modal.show();
     }
+
+    // Custom Tab Switching (Side Panel)
+    function switchTab(btn) {
+        // Deactivate all
+        document.querySelectorAll('.sch-tab').forEach(t => t.classList.remove('sch-tab--active'));
+        document.querySelectorAll('.sch-tab-content').forEach(c => c.classList.remove('sch-tab-content--active'));
+        // Activate clicked
+        btn.classList.add('sch-tab--active');
+        document.getElementById(btn.dataset.target).classList.add('sch-tab-content--active');
+    }
+
+    // Modal tab styling
+    document.querySelectorAll('.sch-modal-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.sch-modal-tab').forEach(t => t.classList.remove('sch-modal-tab--active'));
+            this.classList.add('sch-modal-tab--active');
+        });
+    });
 </script>
 
+<!-- ============================================================
+     STYLES
+     ============================================================ -->
 <style>
-    /* Calendar Improvements */
-    .calendar-table {
-        table-layout: fixed;
+    :root {
+        --coral: #FF8E8E;
+        --coral-light: #FFB5B5;
+        --coral-dark: #E67373;
+        --green: #28a745;
+        --blue: #4A90D9;
     }
 
-    .calendar-day {
-        min-height: 120px;
-        /* Increased height */
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* ─── Layout ─── */
+    .sch-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* ─── Calendar Card ─── */
+    .sch-calendar__card {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #f0f0f0;
+        overflow: hidden;
+    }
+
+    .sch-calendar__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .sch-calendar__nav-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        border: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .sch-calendar__nav-btn:hover {
+        background: var(--coral);
+        color: white;
+        border-color: transparent;
+        transform: scale(1.05);
+    }
+
+    .sch-calendar__title-area {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sch-calendar__title {
+        font-family: 'Noto Sans KR', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .sch-calendar__picker-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        border: 1px solid #eee;
+        background: #f8f9fa;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
         cursor: pointer;
-        border-radius: 16px;
-        padding: 10px;
+        transition: all 0.25s;
+    }
+
+    .sch-calendar__picker-btn:hover {
+        color: var(--coral);
+        border-color: var(--coral-light);
+    }
+
+    /* Legend */
+    .sch-calendar__legend {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding: 0.75rem 1.5rem 0;
+    }
+
+    .sch-legend {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.7rem;
+        color: #9ca3af;
+    }
+
+    .sch-legend__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .sch-legend__dot--task {
+        background: var(--green);
+    }
+
+    .sch-legend__dot--memo {
+        background: var(--blue);
+    }
+
+    .sch-legend__dot--wedding {
+        background: var(--coral);
+    }
+
+    /* ─── Calendar Table ─── */
+    .sch-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 4px;
+        padding: 0.5rem 1rem 1rem;
+    }
+
+    .sch-table__day {
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        padding: 0.5rem 0;
+    }
+
+    .sch-table__day--sun {
+        color: #ef4444;
+    }
+
+    .sch-table__day--sat {
+        color: var(--blue);
+    }
+
+    /* ─── Calendar Cells ─── */
+    .sch-cell {
+        min-height: 80px;
+        padding: 6px;
+        border-radius: 12px;
+        cursor: pointer;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        border: 1px solid transparent;
-    }
-
-    .calendar-day:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        background-color: rgba(255, 255, 255, 0.95);
-        border-color: rgba(255, 182, 193, 0.5);
-        /* Pinkish border on hover */
-        z-index: 10;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
+        border: 2px solid transparent;
+        background: #fafafa;
     }
 
-    .calendar-day.today {
-        background-color: rgba(255, 240, 245, 0.6);
-        /* Soft pink for today */
-        border: 1px solid rgba(255, 182, 193, 0.4);
+    .sch-cell:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        background: white;
+        border-color: rgba(255, 142, 142, 0.3);
+        z-index: 5;
     }
 
-    .calendar-day.empty {
-        background-color: transparent;
+    .sch-cell--empty {
+        min-height: 80px;
+        background: transparent;
         pointer-events: none;
-        min-height: 120px;
     }
 
-    /* Scrollbar for narrow screens */
-    .calendar-container {
-        overflow-x: auto;
+    .sch-cell__num {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    /* Today */
+    .sch-cell--today {
+        background: rgba(255, 240, 245, 0.8);
+        border-color: rgba(255, 142, 142, 0.35);
+    }
+
+    .sch-cell--today .sch-cell__num {
+        color: var(--coral);
+        font-weight: 800;
+    }
+
+    /* Selected */
+    .sch-cell--selected {
+        background: var(--coral);
+        border-color: var(--coral);
+    }
+
+    .sch-cell--selected .sch-cell__num {
+        color: white;
+        font-weight: 800;
+    }
+
+    /* Wedding Day */
+    .sch-cell--wedding {
+        background: linear-gradient(135deg, rgba(255, 142, 142, 0.15), rgba(255, 181, 181, 0.1));
+        border-color: var(--coral-light);
+    }
+
+    .sch-cell__wedding {
+        font-size: 1.2rem;
+        text-align: center;
+        margin-top: 2px;
+    }
+
+    /* ★ HIGH VISIBILITY DATE INDICATORS ★ */
+    .sch-cell__dots {
+        display: flex;
+        gap: 4px;
+        margin-top: auto;
+        padding-top: 3px;
+        justify-content: center;
+    }
+
+    .sch-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        animation: dotPulse 2s ease-in-out infinite;
+    }
+
+    .sch-dot--task {
+        background: var(--green);
+        box-shadow: 0 0 6px rgba(40, 167, 69, 0.5);
+    }
+
+    .sch-dot--memo {
+        background: var(--blue);
+        box-shadow: 0 0 6px rgba(74, 144, 217, 0.5);
+    }
+
+    .sch-cell--selected .sch-dot--task {
+        background: white;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+    }
+
+    .sch-cell--selected .sch-dot--memo {
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+    }
+
+    .sch-cell--has-event {
+        background: white;
+        border-color: #e8e8e8;
+    }
+
+    .sch-cell--has-event:hover {
+        border-color: var(--coral-light);
+    }
+
+    @keyframes dotPulse {
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.7;
+            transform: scale(1.15);
+        }
+    }
+
+    /* ─── Side Panel ─── */
+    .sch-panel__card {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #f0f0f0;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sch-panel__tabs {
+        display: flex;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .sch-tab {
+        flex: 1;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #9ca3af;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .sch-tab:hover {
+        color: #6c757d;
+    }
+
+    .sch-tab--active {
+        color: var(--coral);
+        border-bottom-color: var(--coral);
+    }
+
+    .sch-tab i {
+        font-size: 0.9rem;
+    }
+
+    /* Tab Content */
+    .sch-tab-content {
+        display: none;
+        padding: 1rem;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .sch-tab-content--active {
+        display: block;
+    }
+
+    /* List Items */
+    .sch-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.75rem;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        margin-bottom: 0.5rem;
+        transition: all 0.25s ease;
+    }
+
+    .sch-item:hover {
+        background: #f8f9fa;
+        border-color: #f0f0f0;
+    }
+
+    .sch-item__badge {
+        padding: 0.25rem 0.55rem;
+        border-radius: 8px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: white;
+        background: var(--coral);
+        white-space: nowrap;
+        min-width: 42px;
+        text-align: center;
+    }
+
+    .sch-item__badge--dday {
+        background: #ef4444;
+    }
+
+    .sch-item__badge--past {
+        background: #9ca3af;
+    }
+
+    .sch-item__body {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .sch-item__icon {
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .sch-item__icon--task {
+        color: var(--green);
+    }
+
+    .sch-item__icon--memo {
+        color: var(--blue);
+    }
+
+    .sch-item__title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #374151;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sch-item__date {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #9ca3af;
+        white-space: nowrap;
+    }
+
+    /* Empty state */
+    .sch-empty {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: #d1d5db;
+    }
+
+    .sch-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .sch-empty p {
+        margin: 0;
+        font-size: 0.82rem;
+    }
+
+    /* ─── Stats Section ─── */
+    .sch-stats {
+        margin-bottom: 2rem;
+    }
+
+    .sch-stats__grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .sch-stat {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: white;
+        border-radius: 18px;
+        border: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+    }
+
+    .sch-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        border-color: transparent;
+    }
+
+    .sch-stat__icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .sch-stat__icon--schedule {
+        background: rgba(255, 142, 142, 0.1);
+        color: var(--coral);
+    }
+
+    .sch-stat__icon--memo {
+        background: rgba(74, 144, 217, 0.1);
+        color: var(--blue);
+    }
+
+    .sch-stat__icon--task {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--green);
+    }
+
+    .sch-stat__body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sch-stat__num {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1f2937;
+        line-height: 1;
+    }
+
+    .sch-stat__label {
+        font-size: 0.72rem;
+        color: #9ca3af;
+        font-weight: 600;
+        margin-top: 0.2rem;
+    }
+
+    /* ─── Modal Tabs ─── */
+    .sch-modal-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .sch-modal-tab {
+        flex: 1;
+        padding: 0.7rem;
+        border-radius: 12px;
+        border: 2px solid #f0f0f0;
+        background: #f8f9fa;
+        color: #6c757d;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .sch-modal-tab--active {
+        background: var(--coral);
+        color: white;
+        border-color: var(--coral);
+    }
+
+    .sch-modal-tab i {
+        margin-right: 0.3rem;
+    }
+
+    /* ─── Animations ─── */
+    .sch-calendar__card,
+    .sch-panel__card,
+    .sch-stat {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: schFadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .sch-calendar__card {
+        animation-delay: 0s;
+    }
+
+    .sch-panel__card {
+        animation-delay: 0.15s;
+    }
+
+    .sch-stat:nth-child(1) {
+        animation-delay: 0.25s;
+    }
+
+    .sch-stat:nth-child(2) {
+        animation-delay: 0.35s;
+    }
+
+    .sch-stat:nth-child(3) {
+        animation-delay: 0.45s;
+    }
+
+    @keyframes schFadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 1024px) {
+        .sch-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sch-stats__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sch-cell {
+            min-height: 60px;
+            padding: 4px;
+        }
+
+        .sch-cell__num {
+            font-size: 0.75rem;
+        }
+
+        .sch-dot {
+            width: 6px;
+            height: 6px;
+        }
     }
 </style>
 {% endblock %}
