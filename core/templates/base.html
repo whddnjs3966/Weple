@@ -6,119 +6,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Weple - 웨딩 플래너{% endblock %}</title>
 
-    <!-- Microsoft default font -->
+    <!-- Fonts: Inter & Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Noto Sans KR for Korean support fallback -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet">
 
-    <!-- Bootstrap CSS -->
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#fdfbf7', // Warm White / Ivory
+                        surface: '#ffffff',    // Pure White
+                        primary: '#FF8E8E',    // Soft Coral (Brand)
+                        secondary: '#9ca3af',  // Cool Gray
+                        accent: '#FFB7B2',     // Lighter Coral
+                        dark: '#1f2937',       // Dark Gray for text
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    borderRadius: {
+                        'pill': '9999px',
+                        'card': '16px',
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Bootstrap CSS (Legacy Support) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     {% load static %}
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'core/css/style.css' %}"> -->
 
     <style>
-        :root {
-            --primary-color: #FF85A2;
-            --primary-hover: #ff6b8e;
-            --secondary-color: #6c757d;
-            --light-bg: #f8f9fa;
-        }
-
         body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--light-bg);
-            color: #333;
+            /* Pinkish Gradient Background for Glassmorphism Context */
+            background: linear-gradient(135deg, #fdfbf7 0%, #fff0f5 100%);
+            background-attachment: fixed;
+            color: #1f2937;
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            font-size: 0.9rem;
+            /* Smaller base font */
         }
 
-        .text-primary-custom {
-            color: var(--primary-color) !important;
+        /* Glassmorphism Utilities - Enhanced */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            /* More transparent */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(255, 142, 142, 0.1);
+            /* Soft pink shadow */
         }
 
-        .bg-primary-custom {
-            background-color: var(--primary-color) !important;
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 20px rgba(255, 142, 142, 0.15);
+            /* Pinkish nav shadow */
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+        /* Pink Accents */
+        .text-pink-accent {
+            color: #FF8E8E;
         }
 
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        /* Fade in animation */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Smooth Transitions */
+        a,
+        button {
+            transition: all 0.2s ease-in-out;
         }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 
-<body>
+<body class="bg-background min-h-screen flex flex-col">
 
     {% block layout %}
-    <!-- Navbar could go here -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-0">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary-custom" href="{% url 'dashboard' %}">
-                <i class="bi bi-heart-fill me-2"></i>Weple
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <span class="nav-link text-muted">{{ user.first_name|default:user.username }}님</span>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <form action="{% url 'logout' %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit"
-                                class="btn btn-outline-secondary btn-sm rounded-pill px-3">로그아웃</button>
-                        </form>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <button type="button" class="btn btn-sm btn-light rounded-pill border" data-bs-toggle="modal"
-                            data-bs-target="#profileUpdateModal">
-                            <i class="bi bi-gear-fill text-muted"></i>
-                            <span class="visually-hidden">정보변경</span>
-                        </button>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">로그인</a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <!-- Floating Navbar -->
+    <div class="fixed top-6 left-0 right-0 z-50 flex justify-center w-full px-4 pointer-events-none">
+        <nav
+            class="glass-nav rounded-pill px-6 py-3 flex items-center gap-6 pointer-events-auto shadow-lg transition-all hover:shadow-xl">
 
-    <!-- Main Content -->
-    {% block content %}
-    {% endblock %}
+            <!-- Logo -->
+            <a class="flex items-center gap-2 text-primary hover:scale-105 no-underline" href="{% url 'dashboard' %}">
+                <i class="bi bi-heart-fill text-xl"></i>
+                <span class="font-serif font-bold text-xl tracking-wide text-gray-800">Weple</span>
+            </a>
+
+            <!-- Divider -->
+            <div class="w-px h-4 bg-gray-200 hidden md:block"></div>
+
+            <!-- Navigation Links -->
+            <div class="hidden md:flex items-center gap-6">
+                {% if user.is_authenticated %}
+                <span class="text-sm font-medium text-gray-600">
+                    Hello, <span class="text-primary font-bold">{{ user.first_name|default:user.username }}</span>
+                </span>
+                {% else %}
+                <span class="text-sm text-gray-400 italic">Wedding Planner</span>
+                {% endif %}
+            </div>
+
+            <!-- Auth Actions -->
+            <div class="flex items-center gap-3">
+                {% if user.is_authenticated %}
+                <button type="button"
+                    class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-primary hover:text-white transition-colors border border-gray-100"
+                    data-bs-toggle="modal" data-bs-target="#profileUpdateModal" title="Settings">
+                    <i class="bi bi-gear-fill"></i>
+                </button>
+
+                <form action="{% url 'logout' %}" method="post" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-red-400 transition-colors">
+                        Log Out
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}"
+                    class="px-5 py-2 rounded-full bg-primary text-white text-sm font-medium shadow-md hover:bg-[#ff7a7a] hover:shadow-lg hover:-translate-y-0.5 transition-all no-underline">
+                    Log In
+                </a>
+                {% endif %}
+            </div>
+
+        </nav>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <main class="flex-grow w-full max-w-7xl mx-auto pt-28 pb-16 px-6 md:px-12 lg:px-24">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Simple Footer -->
+    <footer class="py-8 text-center text-gray-400 text-xs font-medium tracking-widest uppercase">
+        © 2026 Weple Corporation
+    </footer>
+
     {% endblock %}
 
     <!-- Bootstrap Bundle with Popper -->
@@ -128,36 +176,42 @@
 
     {% block extra_js %}{% endblock %}
 
-    <!-- Profile Update Modal -->
+    <!-- Profile Update Modal (Preserved Functionality) -->
     <div class="modal fade" id="profileUpdateModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold">내 정보 변경</h5>
+            <div class="modal-content border-0 shadow-2xl rounded-2xl overflow-hidden">
+                <div class="modal-header border-0 pb-0 bg-white">
+                    <h5 class="modal-title font-serif font-bold text-xl text-gray-800">My Profile</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-6 bg-white">
                     <form action="{% url 'dashboard' %}" method="post">
                         {% csrf_token %}
+                        <!-- Hidden inputs to trigger both updates if possible, though currently view checks them separately or sequentially -->
+                        <!-- To ensure logic works, we send both params. View logic processes name then date. -->
                         <input type="hidden" name="update_profile_name" value="1">
                         <input type="hidden" name="update_date" value="1">
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">이름 (애칭)</label>
-                            <input type="text" name="profile_name" class="form-control bg-light border-0 py-3"
-                                style="border-radius: 12px;" value="{{ user.first_name }}">
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Nickname</label>
+                            <input type="text" name="profile_name"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                                value="{{ user.first_name }}">
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-muted">결혼 예정일</label>
-                            <input type="date" name="wedding_date" class="form-control bg-light border-0 py-3"
-                                style="border-radius: 12px;"
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Wedding
+                                Date</label>
+                            <input type="date" name="wedding_date"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                                 value="{{ user.wedding_profile.group.wedding_date|date:'Y-m-d' }}">
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold">변경사항 저장</button>
-                        </div>
+                        <button type="submit"
+                            class="w-full py-3.5 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:bg-[#ff7a7a] hover:shadow-primary/50 hover:-translate-y-0.5 transition-all">
+                            Save Changes
+                        </button>
                     </form>
                 </div>
             </div>

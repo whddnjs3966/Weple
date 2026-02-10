@@ -1,28 +1,49 @@
-<ul class="nav nav-pills mb-4 justify-content-center fade-in" id="dashboardTabs">
-    <li class="nav-item">
-        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
-            href="{% url 'dashboard' %}">
-            <i class="bi bi-heart-fill me-2"></i>메인
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if 'schedule' in request.path %}active{% endif %}" href="{% url 'schedule_list' %}">
-            <i class="bi bi-calendar-event me-2"></i>일정관리
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if 'checklist' in request.path %}active{% endif %}" href="{% url 'checklist_manage' %}">
-            <i class="bi bi-check2-square me-2"></i>체크리스트
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if 'vendors' in request.path %}active{% endif %}" href="{% url 'vendor_main' %}">
-            <i class="bi bi-shop me-2"></i>업체분석
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if 'community' in request.path %}active{% endif %}" href="{% url 'community_main' %}">
-            <i class="bi bi-people-fill me-2"></i>커뮤니티
-        </a>
-    </li>
-</ul>
+<!-- Dashboard Navigation Tabs -->
+<div class="flex flex-wrap justify-center gap-2 mb-6 animate-fade-in-up">
+
+    <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm
+              {% if request.resolver_match.url_name == 'dashboard' %}
+                  bg-pink-400 text-white shadow-md shadow-pink-200 transform -translate-y-0.5
+              {% else %}
+                  bg-white/90 text-gray-500 hover:bg-white hover:text-pink-400 hover:shadow-md border border-white/60
+              {% endif %}">
+        <i class="bi bi-heart-fill mr-1.5"></i>Home
+    </a>
+
+    <a href="{% url 'schedule_list' %}" class="px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm
+              {% if 'schedule' in request.path %}
+                  bg-pink-400 text-white shadow-md shadow-pink-200 transform -translate-y-0.5
+              {% else %}
+                   bg-white/90 text-gray-500 hover:bg-white hover:text-pink-400 hover:shadow-md border border-white/60
+              {% endif %}">
+        <i class="bi bi-calendar-event mr-1.5"></i>Schedule
+    </a>
+
+    <a href="{% url 'checklist_manage' %}" class="px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm
+              {% if 'checklist' in request.path %}
+                  bg-pink-400 text-white shadow-md shadow-pink-200 transform -translate-y-0.5
+              {% else %}
+                   bg-white/90 text-gray-500 hover:bg-white hover:text-pink-400 hover:shadow-md border border-white/60
+              {% endif %}">
+        <i class="bi bi-check2-square mr-1.5"></i>Checklist
+    </a>
+
+    <a href="{% url 'vendor_main' %}" class="px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm
+              {% if 'vendors' in request.path %}
+                  bg-pink-400 text-white shadow-md shadow-pink-200 transform -translate-y-0.5
+              {% else %}
+                   bg-white/90 text-gray-500 hover:bg-white hover:text-pink-400 hover:shadow-md border border-white/60
+              {% endif %}">
+        <i class="bi bi-shop mr-1.5"></i>Vendors
+    </a>
+
+    <a href="{% url 'community_main' %}" class="px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm
+              {% if 'community' in request.path %}
+                   bg-pink-400 text-white shadow-md shadow-pink-200 transform -translate-y-0.5
+              {% else %}
+                   bg-white/90 text-gray-500 hover:bg-white hover:text-pink-400 hover:shadow-md border border-white/60
+              {% endif %}">
+        <i class="bi bi-people-fill mr-1.5"></i>Community
+    </a>
+
+</div>
