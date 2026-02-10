@@ -64,25 +64,30 @@ def dashboard_main(request):
     
     # POST Handling
     if request.method == 'POST':
+        # 1. Update Profile Name
         if 'update_profile_name' in request.POST:
             new_name = request.POST.get('profile_name')
             if new_name:
                 request.user.first_name = new_name  # first_name 필드를 이름으로 사용
                 request.user.save()
-            return redirect('dashboard')
+            # Do not return yet, check for date update
 
+        # 2. Update Wedding Date
         if 'update_date' in request.POST:
              new_date_str = request.POST.get('wedding_date')
              try:
                  new_date = datetime.strptime(new_date_str, '%Y-%m-%d').date()
                  group.wedding_date = new_date
                  group.save()
+                 
                  # Sync profile for consistency if needed
                  profile.wedding_date = new_date
                  profile.save()
-             except ValueError:
+             except (ValueError, TypeError):
+                 # Handle invalid date format or empty string
                  pass
-             return redirect('dashboard')
+                 
+        return redirect('dashboard')
 
     if group.wedding_date:
         d_day = (group.wedding_date - today).days
