@@ -1,386 +1,187 @@
 # Design Specialist Agent Skills — Weple Project
 
-> **역할**: UI/UX 전문가 & 인터랙티브 반응형 웹 디자이너
+> **역할**: UI/UX 전문가 & 인터랙티브 웹 디자이너 (Web-First)
 > **핵심 기술**: HTML · CSS · Vanilla JS · Django Template Language
-> **원칙**: 모바일 퍼스트, 일관된 브랜드 아이덴티티, 접근성 우선
+> **원칙**: **웹(Desktop) 우선**, 심미적인 웨딩 무드(Glass, Floral), **DTL 태그 내 띄어쓰기 금지**
 
 ---
 
 ## 1. Visual Identity & Brand System
 
-### 컬러 팔레트
+### 1.1 Design Concept: "Romantic Glass & Dreamy Flow"
+- **Keywords**: Elegant, Airy, Glass, Floral, Sparkle (반지, 보석)
+- **Background**: 단순 단색이 아닌, 은은한 그라디언트와 `floating blobs` 애니메이션 활용
+- **Object**: 유리 질감(Glassmorphism), 꽃잎, 웨딩 반지, 드레스 텍스처 등을 배경이나 장식 요소로 적극 활용
+
+### 1.2 컬러 팔레트 (Soft Coral & Pure White)
 ```css
 :root {
-    /* Primary */
-    --primary-color: #FF8E8E;        /* Soft Coral — 메인 포인트 */
-    --primary-light: #FFB5B5;        /* 호버, 배경 하이라이트 */
-    --primary-dark: #E67373;         /* 활성 상태, 강조 */
+    /* Primary (Romantic Coral) */
+    --primary-color: #FF8E8E;        /* 메인 포인트 (사랑스러운 코랄) */
+    --primary-light: #FFB5B5;        /* 호버, 부드러운 배경 */
+    --primary-dark: #E67373;         /* 텍스트 강조 */
 
-    /* Neutral */
-    --bg-white: #FFFFFF;             /* 메인 배경 */
-    --bg-light: #F8F9FA;            /* 섹션 배경, 카드 외부 */
-    --bg-card: rgba(255, 255, 255, 0.85); /* 글래스모피즘 카드 */
-    --text-primary: #2D2D2D;        /* 본문 텍스트 */
-    --text-secondary: #6C757D;      /* 보조 텍스트, 라벨 */
-    --border-color: #E9ECEF;        /* 구분선, 테두리 */
-
+    /* Glass & Background */
+    --bg-white: #FFFFFF;             /* 기본 배경 */
+    --bg-glass: rgba(255, 255, 255, 0.75); /* 블러 처리된 유리 카드 */
+    --bg-glass-border: rgba(255, 255, 255, 0.4); /* 유리 테두리 */
+    
+    /* Text */
+    --text-primary: #2D2D2D;         /* 본문 (Too dark하지 않게) */
+    --text-secondary: #6C757D;       /* 서브 텍스트 */
+    
     /* Semantic */
-    --success: #28A745;              /* 완료, 성공 */
-    --warning: #FFC107;              /* 주의, 진행중 */
-    --danger: #DC3545;               /* 삭제, 오류 */
-    --info: #17A2B8;                /* 정보, 링크 */
+    --success: #28A745;
+    --danger: #DC3545;
 }
 ```
 
-### 타이포그래피 시스템
-```css
-/* 폰트 로드 */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-
-body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    color: var(--text-primary);
-}
-
-/* 타이포그래피 스케일 */
-h1 { font-size: 2rem; font-weight: 700; }      /* 페이지 제목 */
-h2 { font-size: 1.5rem; font-weight: 600; }    /* 섹션 제목 */
-h3 { font-size: 1.25rem; font-weight: 600; }   /* 카드 제목 */
-body { font-size: 1rem; font-weight: 400; }     /* 본문 */
-small { font-size: 0.875rem; font-weight: 400; } /* 부가 정보 */
-```
-
-### 아이콘 & 이미지 가이드
-- 아이콘: **이모지 기반** (💍, 📋, 📅, 💰 등) 또는 SVG 인라인 아이콘
-- 이미지: `{% static 'images/...' %}` 경로 사용, WebP 포맷 권장
-- 대시보드 카드 이미지: 가로 세로 비율 16:9 또는 4:3 유지
+### 1.3 타이포그래피 & 에셋
+- **Font**: 'Pretendard' (웹 가독성 최우선)
+- **Images**: 고해상도 웨딩 이미지 (Unsplash, Pexels 등) 활용. `object-fit: cover` 필수.
+- **Icons**: 단순 이모지보다 **Bootstrap Icons (`bi-`)** 또는 **SVG** 활용 권장. (고급스러움 유지)
 
 ---
 
-## 2. Django Template Language (DTL) — 필수 숙지
+## 2. Django Template Language (DTL) — **NO SPACES Rule**
 
-> 디자인부장은 Django 템플릿 문법을 정확히 이해하여 올바른 HTML을 작성해야 합니다.
+> **🚨 CRITICAL RULE**: HTML 가독성과 IDE 호환성을 위해 **DTL 태그 내부에 띄어쓰기를 절대 사용하지 않습니다.**
+> - `{{ value }}` (X) → `{{value}}` (O)
+> - `{% if user %}` (X) → `{%if user%}` (O)
+> - `{% load static %}` (X) → `{%load static%}` (O)
 
-### 2.1 템플릿 상속 (`{% extends %}` / `{% block %}`)
+### 2.1 템플릿 상속 (`{%extends%}` / `{%block%}`)
 ```django
-{# base.html — 전체 레이아웃 골격 #}
-{% load static %}
-{% load humanize %}
+{#base.html — 전체 레이아웃 골격#}
+{%load static%}
+{%load humanize%}
 
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{%static 'css/style.css'%}">
+    {%block extra_css%}{%endblock%}
 </head>
 <body>
-    <header>{% include "includes/_header.html" %}</header>
+    <header>{%include "includes/_header.html"%}</header>
     <main>
-        {% block content %}{% endblock %}
+        {%block content%}{%endblock%}
     </main>
-    <footer>{% include "includes/_footer.html" %}</footer>
-    {% block extra_js %}{% endblock %}
+    <footer>{%include "includes/_footer.html"%}</footer >
+    {%block extra_js%}{%endblock%}
 </body>
 </html>
 ```
 
-```django
-{# dashboard.html — base.html을 상속 #}
-{% extends "base.html" %}
-{% load static %}
-{% load humanize %}
+### 2.2 핵심 태그 정리 (No-Space 규칙 준수)
+| 태그 | 올바른 사용법 (No Spaces) |
+|------|----------|
+| `{%extends%}` | `{%extends "base.html"%}` |
+| `{%block%}` | `{%block content%}`...`{%endblock%}` |
+| `{%include%}` | `{%include "path.html"%}` |
+| `{%load%}` | `{%load static%}` |
+| `{%static%}` | `<img src="{%static 'img/logo.png'%}">` |
+| `{%url%}` | `<a href="{%url 'weddings:dashboard'%}">` |
+| `{%csrf_token%}` | `{%csrf_token%}` |
+| `{%if%}` | `{%if user.is_authenticated%}` |
+| `{%for%}` | `{%for task in tasks%}` |
+| `{%empty%}` | `{%empty%}` |
+| `{%with%}` | `{%with total=tasks.count%}` |
 
-{% block extra_css %}
-<style>
-    .dashboard__card { /* 대시보드 전용 스타일 */ }
-</style>
-{% endblock %}
+### 2.3 필터 사용 예시 (No Spaces)
+- `{{val|intcomma}}`
+- `{{date|date:"Y-m-d"}}`
+- `{{memo|default:"없음"}}`
+- `{{content|linebreaksbr}}`
+- `{{list|length}}`
+- `{{value|yesno:"Y,N"}}`
 
-{% block content %}
-    <h1>대시보드</h1>
-    <p>D-{{ d_day }}</p>
-{% endblock %}
-```
-
-### 2.2 핵심 태그 정리
-| 태그 | 용도 | 사용 예시 |
-|------|------|----------|
-| `{% extends "base.html" %}` | 부모 템플릿 상속 (파일 최상단에 위치) | `{% extends "base.html" %}` |
-| `{% block name %}...{% endblock %}` | 상속 블록 정의/재정의 | `{% block content %}...{% endblock %}` |
-| `{% include "path.html" %}` | 부분 템플릿 삽입 | `{% include "weddings/includes/_tabs.html" %}` |
-| `{% load static %}` | static 태그 사용 선언 | 템플릿 상단 (extends 바로 아래) |
-| `{% load humanize %}` | 숫자/날짜 포맷 필터 사용 선언 | intcomma, naturaltime 등 사용 시 |
-| `{% static 'path' %}` | 정적 파일 URL 생성 | `<img src="{% static 'images/logo.png' %}">` |
-| `{% url 'app:viewname' %}` | URL 역참조 | `<a href="{% url 'weddings:dashboard' %}">` |
-| `{% csrf_token %}` | CSRF 보호 토큰 (POST 필수) | `<form method="post">{% csrf_token %}` |
-| `{% if %}{% elif %}{% else %}{% endif %}` | 조건부 렌더링 | `{% if tasks %}...{% else %}없음{% endif %}` |
-| `{% for item in list %}{% endfor %}` | 반복 렌더링 | `{% for task in tasks %}...{% endfor %}` |
-| `{% empty %}` | for 결과가 없을 때 | `{% for p in posts %}...{% empty %}게시글 없음{% endfor %}` |
-| `{% with var=expr %}{% endwith %}` | 임시 변수 선언 | `{% with total=budget\|intcomma %}` |
-
-### 2.3 핵심 필터 정리
-| 필터 | 용도 | 사용 예시 |
-|------|------|----------|
-| `{{ val\|intcomma }}` | 숫자에 콤마 | `{{ 1500000\|intcomma }}` → `1,500,000` |
-| `{{ val\|date:"Y-m-d" }}` | 날짜 포맷 지정 | `{{ wedding_date\|date:"Y년 m월 d일" }}` |
-| `{{ val\|default:"기본값" }}` | 값 없을 때 대체 | `{{ memo\|default:"메모 없음" }}` |
-| `{{ val\|linebreaksbr }}` | 줄바꿈 → `<br>` | 메모, 본문 표시 |
-| `{{ val\|truncatewords:N }}` | N단어로 자르기 | 목록 미리보기 |
-| `{{ val\|length }}` | 리스트 길이 | `{{ tasks\|length }}개` |
-| `{{ val\|add:N }}` | 숫자 덧셈 | `{{ forloop.counter\|add:offset }}` |
-| `{{ val\|yesno:"Y,N,?" }}` | Boolean 텍스트 변환 | `{{ is_done\|yesno:"완료,미완료" }}` |
-
-### 2.4 forloop 내장 변수
-```django
-{% for task in tasks %}
-    {{ forloop.counter }}       {# 1부터 시작하는 번호 #}
-    {{ forloop.counter0 }}      {# 0부터 시작하는 번호 #}
-    {{ forloop.first }}         {# 첫 번째 반복이면 True #}
-    {{ forloop.last }}          {# 마지막 반복이면 True #}
-{% endfor %}
-```
-
-### 2.5 디자인 관련 주의사항
-- `{% load static %}`과 `{% load humanize %}`는 **각 템플릿 파일마다** 선언해야 함
-- `{% extends %}`는 반드시 **파일의 첫 줄**에 위치
-- `{% include %}`로 불러오는 파일에서도 필요한 `{% load %}` 선언 필요
-- `{{ variable }}` 안의 변수명은 개발부장이 `views.py`에서 전달하는 context 키와 동일해야 함
+### 2.4 주의사항
+- **자동 포맷팅 주의**: IDE의 Prettier 등이 자동으로 `{{ value }}`로 바꾸지 않도록 설정 확인.
+- 항상 코드를 작성한 후 태그 내 공백이 없는지 재검토.
 
 ---
 
-## 3. Responsive Web Design — 반응형 웹
+## 3. Responsive Web Design — **Web First Strategy**
 
-### 모바일 퍼스트 전략
+### 3.1 Web-First (Desktop Priority)
+- **Rich Experience**: 데스크톱에서는 **넓은 화면을 활용한 2-3단 레이아웃**, 고해상도 이미지, 호버 효과를 적극 제공.
+- **Graceful Degradation**: 모바일에서는 레이아웃을 단순히 1단으로 쌓되(Stack), 핵심 기능은 유지.
+- **Container Width**: `max-width: 1200px` (or 1440px) 중앙 정렬을 기본으로 함.
+
+### 3.2 브레이크포인트 (Desktop Focus)
+| 기기 | 너비 | 레이아웃 전략 |
+|---|---|---|
+| **Desktop (Default)** | **1024px ~** | **3-Column Grid, Sidebar, Full Parallax** |
+| Tablet | 768px ~ 1023px | 2-Column Grid, Condensed Sidebar |
+| Mobile | ~ 767px | 1-Column Stack, Bottom Sheet, Hidden Hover |
+
+### 3.3 반응형 유틸리티
 ```css
-/* 모바일 기본 (320px~) */
-.dashboard__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem;
-}
+/* 데스크톱 전용 (Web First) */
+.desktop-only { display: block; }
+.mobile-only { display: none; }
 
-/* 태블릿 (768px~) */
-@media (min-width: 768px) {
-    .dashboard__grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        padding: 1.5rem;
-    }
-}
-
-/* 데스크톱 (1024px~) */
-@media (min-width: 1024px) {
-    .dashboard__grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-        padding: 2rem;
-    }
-}
-
-/* 와이드 (1440px~) */
-@media (min-width: 1440px) {
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-}
-```
-
-### 브레이크포인트 체계
-| 이름 | 너비 | 대상 기기 |
-|------|------|----------|
-| `xs` | 0 ~ 575px | 스마트폰 세로 |
-| `sm` | 576 ~ 767px | 스마트폰 가로 |
-| `md` | 768 ~ 1023px | 태블릿 |
-| `lg` | 1024 ~ 1439px | 데스크톱 |
-| `xl` | 1440px~ | 와이드 모니터 |
-
-### 뷰포트 필수 설정
-```html
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-```
-
-### 반응형 유틸리티 패턴
-```css
-/* 터치 영역 확보 (모바일 버튼) */
-.btn--touch {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.75rem 1.5rem;
-}
-
-/* 숨김/표시 유틸리티 */
-.hide-mobile { display: none; }
-@media (min-width: 768px) {
-    .hide-mobile { display: block; }
-    .hide-desktop { display: none; }
+@media (max-width: 768px) {
+    .desktop-only { display: none; }
+    .mobile-only { display: block; }
 }
 ```
 
 ---
 
-## 4. Interactive UI/UX — 인터랙티브 디자인
+## 4. Interactive UI/UX — **Modern Wedding Trends**
 
-### 4.1 CSS Transitions & Animations
+### 4.1 Scroll & Reveal Animations (스크롤 인터랙션)
+> 사용자가 스크롤할 때 콘텐츠가 부드럽게 떠오르거나(Fade Up), 이미지가 서서히 선명해지는 효과 필수.
 ```css
-/* 부드러운 호버 트랜지션 */
-.card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* 페이드인 애니메이션 */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-.fade-in {
-    animation: fadeInUp 0.5s ease forwards;
-}
-
-/* 순차적 등장 (staggered animation) */
-.card:nth-child(1) { animation-delay: 0.1s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.3s; }
-```
-
-### 4.2 마이크로 인터랙션
-```css
-/* 체크박스 완료 애니메이션 */
-.task-checkbox:checked + .task-label {
-    text-decoration: line-through;
-    color: var(--text-secondary);
-    transition: all 0.3s ease;
-}
-
-/* 버튼 클릭 피드백 */
-.btn:active {
-    transform: scale(0.96);
-    transition: transform 0.1s ease;
-}
-
-/* 토글 스위치 */
-.toggle {
-    width: 48px;
-    height: 24px;
-    background: var(--border-color);
-    border-radius: 12px;
-    transition: background 0.3s ease;
-    cursor: pointer;
-}
-.toggle.active {
-    background: var(--primary-color);
-}
-.toggle::after {
-    content: '';
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: white;
-    transition: transform 0.3s ease;
-}
-.toggle.active::after {
-    transform: translateX(24px);
-}
-
-/* 로딩 스피너 */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-.spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-```
-
-### 4.3 모달/토스트/탭 패턴
-```css
-/* 모달 오버레이 */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Scroll Reveal Class */
+.reveal-on-scroll {
     opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.modal-overlay.active {
+.reveal-on-scroll.visible {
     opacity: 1;
-    visibility: visible;
-}
-
-/* 모달 컨텐츠 */
-.modal-content {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    max-width: 500px;
-    width: 90%;
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
-}
-.modal-overlay.active .modal-content {
     transform: translateY(0);
 }
+```
 
-/* 토스트 알림 */
-.toast {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    background: var(--text-primary);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.4s ease;
-    z-index: 2000;
-}
-.toast.show {
-    transform: translateY(0);
-    opacity: 1;
+### 4.2 Glassmorphism & Hover Effects (고급스러움)
+```css
+/* Premium Glass Card */
+.glass-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--bg-glass-border);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    border-radius: 20px;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* 탭 전환 */
-.tab-btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-.tab-btn--active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-    font-weight: 600;
+.glass-card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 12px 40px rgba(255, 142, 142, 0.2); /* Soft Pink Glow */
 }
 ```
+
+### 4.3 Parallax & Floating Elements (신비로운 분위기)
+- **Parallax**: 배경 이미지가 스크롤 속도보다 느리게 움직여 깊이감(Depth) 부여.
+- **Floating Blobs**: 배경에 은은하게 움직이는 핑크/보라 빛의 원형 그라디언트 배치.
+```css
+@keyframes float {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(15px, -15px); }
+    100% { transform: translate(0, 0); }
+}
+.floating-obj { animation: float 6s ease-in-out infinite; }
+```
+
+### 4.4 Micro-Interactions
+- **Heart Click**: 하트 클릭 시 파티클이 터지는 애니메이션.
+- **Button Hover**: 그라디언트가 흐르거나(Shine effect), 크기가 살짝 커지는 효과.
 
 ---
 

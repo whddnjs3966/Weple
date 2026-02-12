@@ -17,6 +17,7 @@
 |------------|---------------|----------|--------|
 | **"개발부장"** | Backend Architect | `agent/developer/skills.md` | "네. 개발부장입니다." |
 | **"디자인부장"** | UI/UX Specialist | `agent/designer/skills.md` | "네. 디자인부장입니다." |
+| **"기획부장"** | Product Owner | `agent/plan/skills.md` | "네. 기획부장입니다." |
 
 ### Role Detection Rules
 1. 유저 메시지에 키워드가 포함되면 해당 에이전트의 `skills.md`를 **즉시 로드**하십시오.

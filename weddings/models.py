@@ -21,8 +21,7 @@ class WeddingProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wedding_profile')
     group = models.ForeignKey(WeddingGroup, on_delete=models.SET_NULL, null=True, blank=True, related_name='profiles')
     
-    # Added wedding_date as requested for simplified onboarding
-    wedding_date = models.DateField(null=True, blank=True)
+    # Removed wedding_date (Use WeddingGroup.wedding_date)
     
     region_sido = models.CharField(max_length=50, blank=True, null=True)
     region_sigungu = models.CharField(max_length=50, blank=True, null=True)
@@ -99,8 +98,18 @@ class Notice(models.Model):
         return self.title
 
 class Post(models.Model):
+    CATEGORY_CHOICES = [
+        ('CHAT', '수다'),
+        ('QUESTION', '질문'),
+        ('REVIEW', '후기'),
+        ('TIP', '꿀팁'),
+    ]
+
     title = models.CharField(max_length=200)
     content = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='CHAT')
+    view_count = models.PositiveIntegerField(default=0)
+    image = models.ImageField(upload_to='community_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
     recommendations = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='recommended_posts', blank=True)
@@ -109,12 +118,11 @@ class Post(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.title
+        return f"[{self.get_category_display()}] {self.title}"
 
-class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name='comments')
-    notice = models.ForeignKey(Notice, on_delete=models.CASCADE, null=True, blank=True, related_name='comments')
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
+class PostComment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='post_comments')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -122,4 +130,16 @@ class Comment(models.Model):
         ordering = ['created_at']
 
     def __str__(self):
-        return f'Comment by {self.author} on {self.created_at}'
+        return f'Comment by {self.author} on {self.post}'
+
+class NoticeComment(models.Model):
+    notice = models.ForeignKey(Notice, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notice_comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'Comment by {self.author} on {self.notice}'

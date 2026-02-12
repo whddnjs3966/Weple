@@ -11,191 +11,403 @@
 
 {% include 'weddings/includes/_dashboard_tabs.html' %}
 
-<div class="sch-layout">
-    <!-- ─── Left: Calendar ─── -->
-    <div class="sch-calendar">
-        <div class="sch-calendar__card">
-            <!-- Header -->
-            <div class="sch-calendar__header">
-                <a href="?year={{ prev_year }}&month={{ prev_month }}" class="sch-calendar__nav-btn">
-                    <i class="bi bi-chevron-left"></i>
+<div class="schedule-container max-w-[1200px] mx-auto pb-20">
+
+    <!-- Section 1: Full Width Calendar -->
+    <section class="schedule-section reveal mb-16" data-reveal="fade-up">
+        <!-- Header for Calendar -->
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-gray-900 tracking-tight font-serif italic">Schedule</h2>
+            <div class="w-8 h-0.5 bg-gray-800 mx-auto mt-4 mb-2"></div>
+            <p class="text-xs text-gray-400 uppercase tracking-widest mt-2">Manage your wedding timeline</p>
+        </div>
+
+        <div class="sch-calendar shadow-xl rounded-[24px] overflow-hidden border border-gray-100 bg-white">
+            <div class="sch-calendar__card" style="box-shadow: none; border: none;">
+                <!-- Header -->
+                <div class="sch-calendar__header p-6 border-b border-gray-50">
+                    <a href="?year={{ prev_year }}&month={{ prev_month }}"
+                        class="sch-calendar__nav-btn hover:bg-gray-100">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                    <div class="sch-calendar__title-area">
+                        <h3 class="sch-calendar__title text-2xl font-playfair">{{ current_year }}년 {{ current_month }}월
+                        </h3>
+                        <button type="button" class="sch-calendar__picker-btn text-gray-400 hover:text-pink-500"
+                            data-bs-toggle="modal" data-bs-target="#datePickerModal">
+                            <i class="bi bi-calendar-date"></i>
+                        </button>
+                    </div>
+                    <a href="?year={{ next_year }}&month={{ next_month }}"
+                        class="sch-calendar__nav-btn hover:bg-gray-100">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+
+                <!-- Legend -->
+                <div class="sch-calendar__legend px-6 py-3 bg-gray-50/50">
+                    <div class="sch-legend">
+                        <span class="sch-legend__dot sch-legend__dot--task"></span>
+                        <span class="text-xs font-bold text-gray-500">일정</span>
+                    </div>
+                    <div class="sch-legend">
+                        <span class="sch-legend__dot sch-legend__dot--memo"></span>
+                        <span class="text-xs font-bold text-gray-500">메모</span>
+                    </div>
+                    <div class="sch-legend">
+                        <span class="sch-legend__dot sch-legend__dot--wedding"></span>
+                        <span class="text-xs font-bold text-gray-500">결혼식</span>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <!-- Added 'min-h-[600px]' for taller calendar -->
+                <table class="sch-table w-full min-h-[700px]">
+                    <thead>
+                        <tr class="bg-gray-50/80 text-gray-500">
+                            <th class="sch-table__day sch-table__day--sun py-4">일</th>
+                            <th class="sch-table__day py-4">월</th>
+                            <th class="sch-table__day py-4">화</th>
+                            <th class="sch-table__day py-4">수</th>
+                            <th class="sch-table__day py-4">목</th>
+                            <th class="sch-table__day py-4">금</th>
+                            <th class="sch-table__day sch-table__day--sat py-4">토</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for week in calendar %}
+                        <tr>
+                            {% for day_info in week %}
+                            <td class="align-top border-t border-r border-gray-100 last:border-r-0 h-[120px]">
+                                {% if not day_info.is_empty %}
+                                <div class="sch-cell h-full p-2 transition-colors hover:bg-pink-50/30 cursor-pointer relative
+                                    {% if day_info.is_today %}bg-pink-50/50{% endif %}
+                                    {% if day_info.is_selected %}ring-2 ring-inset ring-pink-200 bg-white{% endif %}
+                                    {% if day_info.is_wedding_day %}bg-gradient-to-br from-pink-100 to-purple-50{% endif %}"
+                                    onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
+                                    ondragover="allowDrop(event)"
+                                    ondrop="dropTask(event, '{{ current_year }}-{{ current_month }}-{{ day_info.day }}')"
+                                    data-log-content="{{ day_info.log_content|default:'' }}">
+
+                                    <span
+                                        class="sch-cell__num text-sm font-bold
+                                        {% if day_info.is_today %}text-pink-500 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow-sm{% else %}text-gray-400{% endif %}">
+                                        {{ day_info.day }}
+                                    </span>
+
+                                    {% if day_info.is_wedding_day %}
+                                    <div class="absolute top-2 right-2 text-2xl animate-bounce">💍</div>
+                                    <div class="mt-8 text-center">
+                                        <span
+                                            class="text-xs font-bold text-pink-600 bg-white/80 px-2 py-1 rounded-full shadow-sm">Wedding
+                                            Day!</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Events (Pills) -->
+                                    <div class="sch-cell__events flex flex-col gap-1 mt-1">
+                                        {% if day_info.has_log %}
+                                        <div class="sch-event-pill sch-event-pill--memo"
+                                            title="{{ day_info.log_content }}">
+                                            <i class="bi bi-journal-text"></i> {{ day_info.log_content|truncatechars:6 }}
+                                        </div>
+                                        {% endif %}
+
+                                        {% for task in day_info.tasks|slice:":2" %}
+                                        <div class="sch-event-pill sch-event-pill--task" title="{{ task.title }}">
+                                            {{ task.title|truncatechars:6 }}
+                                        </div>
+                                        {% endfor %}
+
+                                        {% if day_info.tasks|length > 2 %}
+                                        <div class="sch-event-pill sch-event-pill--more">+{{ day_info.tasks|length|add:"-2" }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="sch-cell sch-cell--empty h-full bg-gray-50/30"></div>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Visual Section Divider ─── -->
+    <div class="flex items-center gap-4 my-16 opacity-40">
+        <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+        <i class="bi bi-stars text-gray-300"></i>
+        <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+    </div>
+
+    <!-- ─── Section 2: Interactive Graph Timeline ─── -->
+    <!-- ─── Section 2: Interactive Graph Timeline (Bezier) ─── -->
+    <section class="schedule-section reveal mb-16" data-reveal="fade-up">
+        <div class="text-center mb-10">
+            <span
+                class="inline-block px-4 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-pink-50 text-pink-500 border border-pink-100 mb-3">
+                <i class="bi bi-bezier2 mr-1"></i>Timeline Flow
+            </span>
+            <h3 class="text-2xl font-extrabold text-gray-800">웨딩 준비 흐름</h3>
+            <p class="text-sm text-gray-400 mt-1">오늘부터 결혼식까지의 여정</p>
+        </div>
+
+        <div
+            class="relative w-full max-w-[1000px] mx-auto min-h-[400px] bg-white/50 rounded-[30px] shadow-sm border border-gray-100 overflow-hidden">
+
+            <!-- Decorative Blobs -->
+            <div class="floating-blob blob-1"></div>
+            <div class="floating-blob blob-2"></div>
+
+            <!-- SVG Container -->
+            <svg class="timeline-svg relative z-10" id="timelineSvg" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="gradientStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#FF8E8E; stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#FFB5B5; stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                <!-- Gray Background Path -->
+                <path class="timeline-path-bg" id="pathBg" d="" />
+                <!-- Active Animated Path -->
+                <path class="timeline-path-active" id="pathActive" d="" />
+            </svg>
+
+            <!-- Nodes Container (Absolute Overlay) -->
+            <div id="timelineNodes" class="absolute inset-0 pointer-events-none z-20">
+                <!-- Nodes will be injected here via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Section 3: Recommendation Cards (Bento Grid) ─── -->
+    <section class="schedule-section reveal" data-reveal="fade-up" id="dDaySection">
+        <div class="max-w-[1000px] mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="text-2xl font-extrabold text-gray-900">
+                        {% if days_left is not None %}
+                        <span class="text-pink-accent">D-{{ days_left }}</span> 체크리스트
+                        {% else %}
+                        웨딩 데이 설정 필요
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-500 text-sm mt-1">오늘 꼭 챙겨야 할 중요 항목들</p>
+                </div>
+                <a href="{% url 'checklist_manage' %}" class="btn btn-sm btn-outline-primary rounded-full px-4">
+                    전체보기 <i class="bi bi-arrow-right ml-1"></i>
                 </a>
-                <div class="sch-calendar__title-area">
-                    <h3 class="sch-calendar__title">{{ current_year }}년 {{ current_month }}월</h3>
-                    <button type="button" class="sch-calendar__picker-btn" data-bs-toggle="modal"
-                        data-bs-target="#datePickerModal">
-                        <i class="bi bi-calendar-date"></i>
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="bento-grid">
+                {% for action in d_day_actions %}
+                <div class="bento-card glass-card-hover group">
+                    <div>
+                        <div
+                            class="bento-icon-box bg-gradient-to-br from-pink-100 to-white text-pink-500 group-hover:scale-110 transition-transform">
+                            <i class="bi {% cycle 'bi-stars' 'bi-clipboard-check' 'bi-gift' %}"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">{{ action.title }}</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">{{ action.desc }}</p>
+                    </div>
+                    <button class="cta-done-btn mt-4">
+                        <i class="bi bi-check2"></i> 완료 표시
                     </button>
                 </div>
-                <a href="?year={{ next_year }}&month={{ next_month }}" class="sch-calendar__nav-btn">
-                    <i class="bi bi-chevron-right"></i>
+                {% empty %}
+                <div
+                    class="col-span-full py-12 text-center bg-gray-50 rounded-[24px] border border-dashed border-gray-200">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h4 class="font-bold text-gray-400">오늘은 할 일이 없네요!</h4>
+                    <p class="text-gray-400 text-sm">푹 쉬거나 다음 일정을 미리 확인해보세요.</p>
+                </div>
+                {% endfor %}
+
+                <!-- Manual Add Card -->
+                <a href="#" data-bs-toggle="modal" data-bs-target="#dateActionModal"
+                    class="bento-card group border-dashed border-2 border-gray-200 bg-transparent hover:bg-pink-50/50 hover:border-pink-200 cursor-pointer flex flex-col items-center justify-center text-center p-6 h-full min-h-[200px]">
+                    <div
+                        class="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3 group-hover:bg-pink-100 group-hover:text-pink-500 transition-colors">
+                        <i class="bi bi-plus text-2xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-400 group-hover:text-pink-500">직접 추가하기</span>
                 </a>
             </div>
-
-            <!-- Legend -->
-            <div class="sch-calendar__legend">
-                <div class="sch-legend">
-                    <span class="sch-legend__dot sch-legend__dot--task"></span>
-                    <span>일정</span>
-                </div>
-                <div class="sch-legend">
-                    <span class="sch-legend__dot sch-legend__dot--memo"></span>
-                    <span>메모</span>
-                </div>
-                <div class="sch-legend">
-                    <span class="sch-legend__dot sch-legend__dot--wedding"></span>
-                    <span>결혼식</span>
-                </div>
-            </div>
-
-            <!-- Calendar Grid -->
-            <table class="sch-table">
-                <thead>
-                    <tr>
-                        <th class="sch-table__day sch-table__day--sun">일</th>
-                        <th class="sch-table__day">월</th>
-                        <th class="sch-table__day">화</th>
-                        <th class="sch-table__day">수</th>
-                        <th class="sch-table__day">목</th>
-                        <th class="sch-table__day">금</th>
-                        <th class="sch-table__day sch-table__day--sat">토</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for week in calendar %}
-                    <tr>
-                        {% for day_info in week %}
-                        <td>
-                            {% if not day_info.is_empty %}
-                            <div class="sch-cell {% if day_info.is_today %}sch-cell--today{% endif %} {% if day_info.is_selected %}sch-cell--selected{% endif %} {% if day_info.is_wedding_day %}sch-cell--wedding{% endif %} {% if day_info.has_log or day_info.has_task %}sch-cell--has-event{% endif %}"
-                                onclick="selectDate(this, {{ current_year }}, {{ current_month }}, {{ day_info.day }})"
-                                data-log-content="{{ day_info.log_content|default:'' }}">
-                                <span class="sch-cell__num">{{ day_info.day }}</span>
-
-                                {% if day_info.is_wedding_day %}
-                                <div class="sch-cell__wedding">💍</div>
-                                {% endif %}
-
-                                <!-- Indicator Dots (High Visibility) -->
-                                <div class="sch-cell__dots">
-                                    {% if day_info.has_task %}
-                                    <span class="sch-dot sch-dot--task" title="일정"></span>
-                                    {% endif %}
-                                    {% if day_info.has_log %}
-                                    <span class="sch-dot sch-dot--memo" title="메모"></span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% else %}
-                            <div class="sch-cell sch-cell--empty"></div>
-                            {% endif %}
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
-    </div>
-
-    <!-- ─── Right: Side Panel ─── -->
-    <div class="sch-panel">
-        <div class="sch-panel__card">
-            <!-- Tabs -->
-            <div class="sch-panel__tabs">
-                <button class="sch-tab sch-tab--active" data-target="panel-schedule" onclick="switchTab(this)">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>일정</span>
-                </button>
-                <button class="sch-tab" data-target="panel-memo" onclick="switchTab(this)">
-                    <i class="bi bi-journal-text"></i>
-                    <span>메모</span>
-                </button>
-            </div>
-
-            <!-- Schedule List -->
-            <div class="sch-tab-content sch-tab-content--active" id="panel-schedule">
-                {% for item in upcoming_schedules %}
-                <div class="sch-item">
-                    <div
-                        class="sch-item__badge {% if item.d_day == 0 %}sch-item__badge--dday{% elif item.d_day > 0 %}sch-item__badge--past{% endif %}">
-                        {% if item.d_day == 0 %}D-Day{% elif item.d_day > 0 %}D+{{ item.d_day }}{% else %}D{{ item.d_day }}{% endif %}
-                    </div>
-                    <div class="sch-item__body">
-                        <div class="sch-item__icon sch-item__icon--task">
-                            <i class="bi bi-check-circle-fill"></i>
-                        </div>
-                        <span class="sch-item__title">{{ item.title }}</span>
-                    </div>
-                    <span class="sch-item__date">{{ item.date|date:"m.d" }}</span>
-                </div>
-                {% empty %}
-                <div class="sch-empty">
-                    <i class="bi bi-calendar-x"></i>
-                    <p>예정된 일정이 없습니다</p>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Memo List -->
-            <div class="sch-tab-content" id="panel-memo">
-                {% for item in upcoming_memos %}
-                <div class="sch-item">
-                    <div
-                        class="sch-item__badge {% if item.d_day == 0 %}sch-item__badge--dday{% elif item.d_day > 0 %}sch-item__badge--past{% endif %}">
-                        {% if item.d_day == 0 %}D-Day{% elif item.d_day > 0 %}D+{{ item.d_day }}{% else %}D{{ item.d_day }}{% endif %}
-                    </div>
-                    <div class="sch-item__body">
-                        <div class="sch-item__icon sch-item__icon--memo">
-                            <i class="bi bi-journal-text"></i>
-                        </div>
-                        <span class="sch-item__title">{{ item.title|truncatechars:40 }}</span>
-                    </div>
-                    <span class="sch-item__date">{{ item.date|date:"m.d" }}</span>
-                </div>
-                {% empty %}
-                <div class="sch-empty">
-                    <i class="bi bi-journal-x"></i>
-                    <p>작성된 메모가 없습니다</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+    </section>
 </div>
 
-<!-- ─── Bottom: Summary Stats ─── -->
-<div class="sch-stats">
-    <div class="sch-stats__grid">
-        <div class="sch-stat">
-            <div class="sch-stat__icon sch-stat__icon--schedule">
-                <i class="bi bi-calendar-check"></i>
-            </div>
-            <div class="sch-stat__body">
-                <span class="sch-stat__num">{{ upcoming_schedules|length }}</span>
-                <span class="sch-stat__label">예정된 일정</span>
-            </div>
-        </div>
-        <div class="sch-stat">
-            <div class="sch-stat__icon sch-stat__icon--memo">
-                <i class="bi bi-journal-text"></i>
-            </div>
-            <div class="sch-stat__body">
-                <span class="sch-stat__num">{{ upcoming_memos|length }}</span>
-                <span class="sch-stat__label">작성된 메모</span>
-            </div>
-        </div>
-        <div class="sch-stat">
-            <div class="sch-stat__icon sch-stat__icon--task">
-                <i class="bi bi-list-task"></i>
-            </div>
-            <div class="sch-stat__body">
-                <span class="sch-stat__num">{{ unscheduled_tasks|length }}</span>
-                <span class="sch-stat__label">미배정 할일</span>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // ─── 1. Bezier Timeline Logic ───
+        const svg = document.getElementById('timelineSvg');
+        const pathBg = document.getElementById('pathBg');
+        const pathActive = document.getElementById('pathActive');
+        const nodesContainer = document.getElementById('timelineNodes');
+
+        if (!svg) return;
+
+        // Data from Django
+        const rawDaysLeft = parseInt("{{ days_left|default:'0' }}");
+        const daysLeft = isNaN(rawDaysLeft) ? 30 : rawDaysLeft;
+
+        // Construct Events Array from Server Data
+        let eventsData = [
+            {% for event in timeline_events %}
+            {
+            title: "{{ event.title|escapejs }}",
+            date: "{{ event.date|date:'Y.m.d' }}",
+            dDay: {{ event.d_day }},
+        type: "{{ event.type }}",
+        category: "{{ event.category|default:'' }}"
+            },
+        {% endfor %}
+        ];
+
+    // 1. Add Start Node (Today)
+    let timelinePoints = [
+        { x: 0, y: 0, label: "Today", dDay: 0, active: true, isStart: true }
+    ];
+
+    // 2. Add Event Nodes
+    const maxDDay = daysLeft > 0 ? daysLeft : 1;
+
+    eventsData.forEach((ev, idx) => {
+        if (ev.dDay >= 0 && ev.dDay <= maxDDay) {
+            timelinePoints.push({
+                ...ev,
+                label: `D-${daysLeft - ev.dDay}`,
+                active: false
+            });
+        }
+    });
+
+    // 3. Add End Node (Wedding)
+    timelinePoints.push({
+        x: 0, y: 0,
+        label: "Wedding",
+        dDay: maxDDay,
+        active: false,
+        isEnd: true
+    });
+
+    // ─── Position Calculation ───
+    const width = svg.clientWidth || 1000;
+    const height = 300;
+    const padding = { left: 80, right: 80 }; // Increased padding
+    const usableWidth = width - padding.left - padding.right;
+    const centerY = height / 2;
+
+    // Sort by dDay
+    timelinePoints.sort((a, b) => a.dDay - b.dDay);
+
+    // Dedupe
+    const uniquePoints = [];
+    const seenDDays = new Set();
+    timelinePoints.forEach(p => {
+        if (!seenDDays.has(p.dDay)) {
+            seenDDays.add(p.dDay);
+            uniquePoints.push(p);
+        }
+    });
+    timelinePoints = uniquePoints;
+
+    // Calculate X, Y
+    // Gentle wave: Just one nice arc or subtle sine.
+    // Let's do a gentle sine: up then down.
+    // Math.sin(progress * Math.PI) * -amplitude -> Standard Arc (Up)
+
+    timelinePoints.forEach((p, i) => {
+        const progress = p.dDay / maxDDay;
+        p.x = padding.left + (usableWidth * progress);
+
+        // "Gentle Journey" Curve
+        // Combine a slight slope with a gentle sine
+        const amplitude = 50;
+        // progress * Math.PI * 1 => Single Hill
+        // Let's use 1.5 PI => Hill then Valley
+        p.y = centerY + Math.sin(progress * Math.PI * 1.2) * -amplitude;
+    });
+
+    // ─── Draw Path ───
+    let d = `M ${timelinePoints[0].x} ${timelinePoints[0].y}`;
+
+    for (let i = 0; i < timelinePoints.length - 1; i++) {
+        const p0 = timelinePoints[i];
+        const p1 = timelinePoints[i + 1];
+
+        const cp1x = p0.x + (p1.x - p0.x) * 0.5;
+        const cp1y = p0.y;
+        const cp2x = p1.x - (p1.x - p0.x) * 0.5;
+        const cp2y = p1.y;
+
+        d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
+    }
+
+    pathBg.setAttribute('d', d);
+    pathActive.setAttribute('d', d);
+
+    // ─── Render Nodes ───
+    nodesContainer.innerHTML = '';
+    timelinePoints.forEach((p, idx) => {
+        const el = document.createElement('div');
+        el.className = `timeline-node-group absolute cursor-pointer ${p.isStart ? 'active' : ''}`;
+        el.style.left = `${p.x}px`;
+        el.style.top = `${p.y}px`;
+        el.style.transform = "translate(-50%, -50%)";
+
+        let tooltipTitle = p.isStart ? "오늘" : (p.isEnd ? "결혼식" : p.title);
+        let tooltipDate = p.isStart ? new Date().toISOString().slice(0, 10).replace(/-/g, '.') : (p.date || "Event");
+
+        // Custom Icon for End
+        let iconSvg = `<circle class="timeline-node-bg" cx="20" cy="20" r="10"></circle>`;
+        if (p.isEnd) {
+            iconSvg = `<circle class="timeline-node-bg" cx="20" cy="20" r="12" stroke="#FF8E8E" fill="white"></circle>
+                            <text x="20" y="24" text-anchor="middle" fill="#FF8E8E" font-size="12" font-weight="bold">♥</text>`;
+        }
+
+        el.innerHTML = `
+                <div class="timeline-tooltip font-bold text-gray-600 text-xs shadow-xl">
+                    <span class="block text-pink-500 mb-1">${p.label}</span>
+                    ${tooltipTitle}
+                    <div class="text-[9px] text-gray-300 font-normal mt-1">${tooltipDate}</div>
+                </div>
+                <svg width="40" height="40" class="overflow-visible transition-transform duration-300 hover:scale-125">
+                    ${iconSvg}
+                </svg>
+                <div class="timeline-label-text absolute top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/80 px-2 py-0.5 rounded-full backdrop-blur-sm">${p.label}</div>
+            `;
+
+        nodesContainer.appendChild(el);
+    });
+    });
+
+    // Reveal Animation (Re-init)
+    document.addEventListener('DOMContentLoaded', () => {
+        const sections = document.querySelectorAll('.schedule-section.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        sections.forEach(s => observer.observe(s));
+    });
+</script>
+
+
+
 
 <!-- ============================================================
      MODALS
@@ -343,7 +555,7 @@
      JAVASCRIPT
      ============================================================ -->
 <script>
-    // Date Select → Open Modal
+    // Date Selen Modal
     function selectDate(element, year, month, day) {
         const monthStr = month.toString().padStart(2, '0');
         const dayStr = day.toString().padStart(2, '0');
@@ -384,600 +596,72 @@
             this.classList.add('sch-modal-tab--active');
         });
     });
+
+    // ─── Drag & Drop Logic ───
+
+    // Allow Drop
+    function allowDrop(ev) {
+        ev.preventDefault();
+        // Visual feedback
+        ev.currentTarget.style.background = "rgba(255, 142, 142, 0.1)";
+    }
+
+    // Drag Leave (Reset background)
+    function dragLeave(ev) {
+        ev.currentTarget.style.background = "";
+    }
+
+    // Drag Start
+    document.addEventListener('dragstart', function (ev) {
+        const trayItem = ev.target.closest('.tray-item');
+        if (trayItem) {
+            ev.dataTransfer.setData("text/plain", trayItem.dataset.id);
+            ev.dataTransfer.effectAllowed = "move";
+            trayItem.style.opacity = '0.5';
+        }
+    });
+
+    document.addEventListener('dragend', function (ev) {
+        const trayItem = ev.target.closest('.tray-item');
+        if (trayItem) {
+            trayItem.style.opacity = '1';
+        }
+    });
+
+    // Drop
+    function dropTask(ev, dateStr) {
+        ev.preventDefault();
+        ev.currentTarget.style.background = ""; // Reset styling
+
+        const taskId = ev.dataTransfer.getData("text/plain");
+        if (taskId) {
+            if (confirm(`이 할 일을 ${dateStr}로 이동하시겠습니까?`)) {
+                // Submit hidden form
+                const form = document.getElementById('dragDropForm');
+                form.task_id.value = taskId;
+
+                // Format date manually if needed, but dateStr passed from template should be YYYY-M-D
+                // Ensure it is YYYY-MM-DD for backend
+                const parts = dateStr.split('-');
+                const y = parts[0];
+                const m = parts[1].padStart(2, '0');
+                const d = parts[2].padStart(2, '0');
+
+                form.date.value = `${y}-${m}-${d}`;
+                form.submit();
+            }
+        }
+    }
 </script>
+
+<!-- Hidden Form for Drag & Drop -->
+<form id="dragDropForm" method="post" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="task_id" value="">
+    <input type="hidden" name="date" value="">
+</form>
 
 <!-- ============================================================
      STYLES
      ============================================================ -->
-<style>
-    :root {
-        --coral: #FF8E8E;
-        --coral-light: #FFB5B5;
-        --coral-dark: #E67373;
-        --green: #28a745;
-        --blue: #4A90D9;
-    }
-
-    /* ─── Layout ─── */
-    .sch-layout {
-        display: grid;
-        grid-template-columns: 1fr 340px;
-        gap: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* ─── Calendar Card ─── */
-    .sch-calendar__card {
-        background: white;
-        border-radius: 24px;
-        border: 1px solid #f0f0f0;
-        overflow: hidden;
-    }
-
-    .sch-calendar__header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid #f5f5f5;
-    }
-
-    .sch-calendar__nav-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: #f8f9fa;
-        border: 1px solid #eee;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6c757d;
-        text-decoration: none;
-        transition: all 0.25s ease;
-    }
-
-    .sch-calendar__nav-btn:hover {
-        background: var(--coral);
-        color: white;
-        border-color: transparent;
-        transform: scale(1.05);
-    }
-
-    .sch-calendar__title-area {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .sch-calendar__title {
-        font-family: 'Noto Sans KR', sans-serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin: 0;
-    }
-
-    .sch-calendar__picker-btn {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-        border: 1px solid #eee;
-        background: #f8f9fa;
-        color: #9ca3af;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        cursor: pointer;
-        transition: all 0.25s;
-    }
-
-    .sch-calendar__picker-btn:hover {
-        color: var(--coral);
-        border-color: var(--coral-light);
-    }
-
-    /* Legend */
-    .sch-calendar__legend {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        padding: 0.75rem 1.5rem 0;
-    }
-
-    .sch-legend {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.7rem;
-        color: #9ca3af;
-    }
-
-    .sch-legend__dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
-
-    .sch-legend__dot--task {
-        background: var(--green);
-    }
-
-    .sch-legend__dot--memo {
-        background: var(--blue);
-    }
-
-    .sch-legend__dot--wedding {
-        background: var(--coral);
-    }
-
-    /* ─── Calendar Table ─── */
-    .sch-table {
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: separate;
-        border-spacing: 4px;
-        padding: 0.5rem 1rem 1rem;
-    }
-
-    .sch-table__day {
-        text-align: center;
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #9ca3af;
-        text-transform: uppercase;
-        padding: 0.5rem 0;
-    }
-
-    .sch-table__day--sun {
-        color: #ef4444;
-    }
-
-    .sch-table__day--sat {
-        color: var(--blue);
-    }
-
-    /* ─── Calendar Cells ─── */
-    .sch-cell {
-        min-height: 80px;
-        padding: 6px;
-        border-radius: 12px;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-        border: 2px solid transparent;
-        background: #fafafa;
-    }
-
-    .sch-cell:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-        background: white;
-        border-color: rgba(255, 142, 142, 0.3);
-        z-index: 5;
-    }
-
-    .sch-cell--empty {
-        min-height: 80px;
-        background: transparent;
-        pointer-events: none;
-    }
-
-    .sch-cell__num {
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #374151;
-    }
-
-    /* Today */
-    .sch-cell--today {
-        background: rgba(255, 240, 245, 0.8);
-        border-color: rgba(255, 142, 142, 0.35);
-    }
-
-    .sch-cell--today .sch-cell__num {
-        color: var(--coral);
-        font-weight: 800;
-    }
-
-    /* Selected */
-    .sch-cell--selected {
-        background: var(--coral);
-        border-color: var(--coral);
-    }
-
-    .sch-cell--selected .sch-cell__num {
-        color: white;
-        font-weight: 800;
-    }
-
-    /* Wedding Day */
-    .sch-cell--wedding {
-        background: linear-gradient(135deg, rgba(255, 142, 142, 0.15), rgba(255, 181, 181, 0.1));
-        border-color: var(--coral-light);
-    }
-
-    .sch-cell__wedding {
-        font-size: 1.2rem;
-        text-align: center;
-        margin-top: 2px;
-    }
-
-    /* ★ HIGH VISIBILITY DATE INDICATORS ★ */
-    .sch-cell__dots {
-        display: flex;
-        gap: 4px;
-        margin-top: auto;
-        padding-top: 3px;
-        justify-content: center;
-    }
-
-    .sch-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        animation: dotPulse 2s ease-in-out infinite;
-    }
-
-    .sch-dot--task {
-        background: var(--green);
-        box-shadow: 0 0 6px rgba(40, 167, 69, 0.5);
-    }
-
-    .sch-dot--memo {
-        background: var(--blue);
-        box-shadow: 0 0 6px rgba(74, 144, 217, 0.5);
-    }
-
-    .sch-cell--selected .sch-dot--task {
-        background: white;
-        box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
-    }
-
-    .sch-cell--selected .sch-dot--memo {
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
-    }
-
-    .sch-cell--has-event {
-        background: white;
-        border-color: #e8e8e8;
-    }
-
-    .sch-cell--has-event:hover {
-        border-color: var(--coral-light);
-    }
-
-    @keyframes dotPulse {
-
-        0%,
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        50% {
-            opacity: 0.7;
-            transform: scale(1.15);
-        }
-    }
-
-    /* ─── Side Panel ─── */
-    .sch-panel__card {
-        background: white;
-        border-radius: 24px;
-        border: 1px solid #f0f0f0;
-        overflow: hidden;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sch-panel__tabs {
-        display: flex;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .sch-tab {
-        flex: 1;
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #9ca3af;
-        background: transparent;
-        border: none;
-        border-bottom: 3px solid transparent;
-        cursor: pointer;
-        transition: all 0.25s ease;
-    }
-
-    .sch-tab:hover {
-        color: #6c757d;
-    }
-
-    .sch-tab--active {
-        color: var(--coral);
-        border-bottom-color: var(--coral);
-    }
-
-    .sch-tab i {
-        font-size: 0.9rem;
-    }
-
-    /* Tab Content */
-    .sch-tab-content {
-        display: none;
-        padding: 1rem;
-        flex: 1;
-        overflow-y: auto;
-    }
-
-    .sch-tab-content--active {
-        display: block;
-    }
-
-    /* List Items */
-    .sch-item {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.75rem;
-        border-radius: 12px;
-        border: 1px solid transparent;
-        margin-bottom: 0.5rem;
-        transition: all 0.25s ease;
-    }
-
-    .sch-item:hover {
-        background: #f8f9fa;
-        border-color: #f0f0f0;
-    }
-
-    .sch-item__badge {
-        padding: 0.25rem 0.55rem;
-        border-radius: 8px;
-        font-size: 0.65rem;
-        font-weight: 800;
-        color: white;
-        background: var(--coral);
-        white-space: nowrap;
-        min-width: 42px;
-        text-align: center;
-    }
-
-    .sch-item__badge--dday {
-        background: #ef4444;
-    }
-
-    .sch-item__badge--past {
-        background: #9ca3af;
-    }
-
-    .sch-item__body {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        flex: 1;
-        min-width: 0;
-    }
-
-    .sch-item__icon {
-        font-size: 0.85rem;
-        flex-shrink: 0;
-    }
-
-    .sch-item__icon--task {
-        color: var(--green);
-    }
-
-    .sch-item__icon--memo {
-        color: var(--blue);
-    }
-
-    .sch-item__title {
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #374151;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .sch-item__date {
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #9ca3af;
-        white-space: nowrap;
-    }
-
-    /* Empty state */
-    .sch-empty {
-        text-align: center;
-        padding: 2.5rem 1rem;
-        color: #d1d5db;
-    }
-
-    .sch-empty i {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .sch-empty p {
-        margin: 0;
-        font-size: 0.82rem;
-    }
-
-    /* ─── Stats Section ─── */
-    .sch-stats {
-        margin-bottom: 2rem;
-    }
-
-    .sch-stats__grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-
-    .sch-stat {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1.25rem 1.5rem;
-        background: white;
-        border-radius: 18px;
-        border: 1px solid #f0f0f0;
-        transition: all 0.3s ease;
-    }
-
-    .sch-stat:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-        border-color: transparent;
-    }
-
-    .sch-stat__icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-    }
-
-    .sch-stat__icon--schedule {
-        background: rgba(255, 142, 142, 0.1);
-        color: var(--coral);
-    }
-
-    .sch-stat__icon--memo {
-        background: rgba(74, 144, 217, 0.1);
-        color: var(--blue);
-    }
-
-    .sch-stat__icon--task {
-        background: rgba(40, 167, 69, 0.1);
-        color: var(--green);
-    }
-
-    .sch-stat__body {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sch-stat__num {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #1f2937;
-        line-height: 1;
-    }
-
-    .sch-stat__label {
-        font-size: 0.72rem;
-        color: #9ca3af;
-        font-weight: 600;
-        margin-top: 0.2rem;
-    }
-
-    /* ─── Modal Tabs ─── */
-    .sch-modal-tabs {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .sch-modal-tab {
-        flex: 1;
-        padding: 0.7rem;
-        border-radius: 12px;
-        border: 2px solid #f0f0f0;
-        background: #f8f9fa;
-        color: #6c757d;
-        font-size: 0.82rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.25s ease;
-    }
-
-    .sch-modal-tab--active {
-        background: var(--coral);
-        color: white;
-        border-color: var(--coral);
-    }
-
-    .sch-modal-tab i {
-        margin-right: 0.3rem;
-    }
-
-    /* ─── Animations ─── */
-    .sch-calendar__card,
-    .sch-panel__card,
-    .sch-stat {
-        opacity: 0;
-        transform: translateY(20px);
-        animation: schFadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .sch-calendar__card {
-        animation-delay: 0s;
-    }
-
-    .sch-panel__card {
-        animation-delay: 0.15s;
-    }
-
-    .sch-stat:nth-child(1) {
-        animation-delay: 0.25s;
-    }
-
-    .sch-stat:nth-child(2) {
-        animation-delay: 0.35s;
-    }
-
-    .sch-stat:nth-child(3) {
-        animation-delay: 0.45s;
-    }
-
-    @keyframes schFadeIn {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* ─── Responsive ─── */
-    @media (max-width: 1024px) {
-        .sch-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .sch-stats__grid {
-            grid-template-columns: 1fr;
-        }
-
-        .sch-cell {
-            min-height: 60px;
-            padding: 4px;
-        }
-
-        .sch-cell__num {
-            font-size: 0.75rem;
-        }
-
-        .sch-dot {
-            width: 6px;
-            height: 6px;
-        }
-    }
-</style>
 {% endblock %}

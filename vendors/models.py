@@ -8,6 +8,9 @@ class VendorCategory(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Vendor Categories"
+
 class Vendor(models.Model):
     name = models.CharField(max_length=100)
     category = models.ForeignKey(VendorCategory, on_delete=models.CASCADE, related_name='vendors')

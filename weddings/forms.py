@@ -1,5 +1,5 @@
 from django import forms
-from .models import WeddingProfile, WeddingGroup, Post, Comment
+from .models import WeddingProfile, WeddingGroup, Post, PostComment, NoticeComment
 
 class WeddingGroupForm(forms.ModelForm):
     class Meta:
@@ -13,20 +13,20 @@ class WeddingGroupForm(forms.ModelForm):
         }
 
 class WeddingProfileForm(forms.ModelForm):
+    # wedding_date explicitly added since it's removed from model
+    wedding_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date', 
+            'class': 'form-control',
+            'style': 'padding: 1rem; border-radius: 12px;'
+        }),
+        label='결혼 예정일'
+    )
+    
     class Meta:
         model = WeddingProfile
-        fields = ['wedding_date'] # 다른 필드 제거
-        widgets = {
-            'wedding_date': forms.DateInput(attrs={
-                'type': 'date', 
-                'class': 'form-control',
-                'style': 'padding: 1rem; border-radius: 12px;'
-            }),
-        }
-        labels = {
-            'wedding_date': '결혼 예정일',
-        }
-
+        fields = [] # No model fields needed for now
+        
 class GroupJoinForm(forms.Form):
     invite_code = forms.CharField(
         max_length=6,
@@ -43,8 +43,12 @@ class GroupJoinForm(forms.Form):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['category', 'title', 'content', 'image']
         widgets = {
+            'category': forms.Select(attrs={
+                'class': 'form-select bg-light border-0 py-3', 
+                'style': 'border-radius: 15px; cursor: pointer;',
+            }),
             'title': forms.TextInput(attrs={
                 'class': 'form-control bg-light border-0 py-3', 
                 'style': 'border-radius: 15px;', 
@@ -55,11 +59,28 @@ class PostForm(forms.ModelForm):
                 'style': 'border-radius: 15px; height: 300px; resize: none;', 
                 'placeholder': '내용을 자유롭게 입력하세요'
             }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control bg-light border-0 py-3',
+                'style': 'border-radius: 15px;',
+            }),
         }
 
-class CommentForm(forms.ModelForm):
+class PostCommentForm(forms.ModelForm):
     class Meta:
-        model = Comment
+        model = PostComment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control bg-light border-0 py-3', 
+                'style': 'border-radius: 15px; resize: none; padding-right: 50px;', 
+                'placeholder': '댓글을 남겨주세요...', 
+                'rows': 2
+            }),
+        }
+
+class NoticeCommentForm(forms.ModelForm):
+    class Meta:
+        model = NoticeComment
         fields = ['content']
         widgets = {
             'content': forms.Textarea(attrs={
